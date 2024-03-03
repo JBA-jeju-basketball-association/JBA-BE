@@ -1,0 +1,13 @@
+
+datasource:
+  username: ENC(OTwkQfDYEvRuk9SUGSs3R7StBgVUJIiI)
+  password: ENC(f44b5Yz90E9uq6ObB1wtP20y23yzAb9k)
+  driver-class-name: org.mariadb.jdbc.Driver
+  url: ENC(z+3mjYVLvMei6KDOLWgbe1w5btKrg2dG5CPK/WwCzOmWzLBfagI6S5VWkpKhlKFx2x5eWUPuzg0V93lHZuWBN7uYwfxDzITLzXIQoLmmd7y9dhS4XPsLfqLyEFt1dJp0)
+
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    open-in-view: false
