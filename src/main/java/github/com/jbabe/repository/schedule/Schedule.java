@@ -27,19 +27,19 @@ public class Schedule {
     private String name;
 
     @Column(name = "divition", nullable = false)
-    private String division;
+    private String division; // 대회 종별
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    private LocalDateTime startDate; // 대회 시작일
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime endDate;
+    private LocalDateTime endDate; // 대회 종료일
 
     @Column(name = "place", nullable = false)
     private String place;
 
     @Column(name = "related_url")
-    private String relatedUrl;
+    private String relatedUrl; // 대회 관련 URL
 
     @Column(name = "content")
     private String content;

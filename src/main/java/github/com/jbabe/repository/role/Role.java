@@ -14,6 +14,7 @@ public class Role {
 
     @Column(name = "name",nullable = false)
     private String name;
+    // 종류(7개) : MASTER, ADMIN, REFEREE_LEADER, REFEREE, TABLE_OFFICIAL_LEADER, TABLE_OFFICIAL, USER
 
 }
 

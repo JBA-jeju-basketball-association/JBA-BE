@@ -26,6 +26,9 @@ public class Gallery {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
+    @Column(name = "is_official", nullable = false)
+    private Boolean isOfficial; // false : 갤러리, true : 스탭갤러리
+
     @Column(name = "gallery_status", nullable = false)
     private GalleryStatus galleryStatus;
 

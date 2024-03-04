@@ -37,7 +37,7 @@ public class Post {
     private PostStatus postStatus;
 
     @Column(name = "announcement_status", nullable = false)
-    private Boolean announcementStatus;
+    private Boolean announcementStatus; // 공지여부 ==> true : 공지, false : 일반
 
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;

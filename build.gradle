@@ -22,9 +22,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
@@ -48,6 +49,10 @@ dependencies {
     // Mapstruct
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    // token
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
 
 }
 
