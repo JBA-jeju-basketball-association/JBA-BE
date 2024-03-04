@@ -17,4 +17,4 @@ jasypt:
     bean: jasyptStringEncryptor
 
 jwtpassword:
-  source:
+  source: ENC(NKBTDg6Hc5JyF6wsKIZye0fbqEMUyCJt7GYJWBK8dcY=)

@@ -1,10 +1,12 @@
 package github.com.jbabe.repository.user;
 
+import github.com.jbabe.repository.userRole.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -57,6 +59,10 @@ public class User {
 
     @Column(name = "lock_at")
     private LocalDateTime lockAt;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserRole> userRoles;
+
 
     @Getter
     public enum Gender{
