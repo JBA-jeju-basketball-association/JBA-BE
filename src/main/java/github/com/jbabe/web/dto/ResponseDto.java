@@ -3,6 +3,7 @@ package github.com.jbabe.web.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @Setter
@@ -14,14 +15,14 @@ public class ResponseDto {
 
     // 생성자, 게터 및 세터는 필요에 따라 추가할 수 있습니다.
 
-    public ResponseDto(int code, String message) {
-        this.code = code;
-        this.message = message;
+    public ResponseDto() {
+        this.code = HttpStatus.OK.value();
+        this.message = HttpStatus.OK.name();
     }
 
-    public ResponseDto(int code, String message, Object data) {
-        this.code = code;
-        this.message = message;
+    public ResponseDto(Object data) {
+        this.code = HttpStatus.OK.value();
+        this.message = HttpStatus.OK.name();
         this.data = data;
     }
 }

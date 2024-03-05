@@ -1,12 +1,17 @@
 package github.com.jbabe.web.advice;
 
 import github.com.jbabe.service.exception.*;
+import github.com.jbabe.web.advice.errorResponseDto.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class ExceptionController {
 
@@ -59,5 +64,27 @@ public class ExceptionController {
     public ErrorResponse handleBadCredentialsException(CustomBadCredentialsException ex) {
         return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),HttpStatus.UNAUTHORIZED.name(), ex.getDetailMessage(), ex.getRequest());
     }
+
+    @ExceptionHandler(InvalidReqeustException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse invalidRequestException(InvalidReqeustException ex) {
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), ex.getDetailMessage(), ex.getRequest());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse methodValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        log.warn("MethodArgumentNotValidException 발생!! url:{}, trace:{}", request.getRequestURL(), ex.getStackTrace());
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid_Request", ex.getBindingResult().getFieldError().getDefaultMessage(), ex.getBindingResult().getFieldError().getField());
+    }
+
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ResponseEntity<ErrorResponse> methodValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+//        log.warn("MethodArgumentNotValidException 발생!! url:{}, trace:{}", request.getRequestURL(), ex.getStackTrace());
+//         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid_Request", ex.getBindingResult().getFieldError().getDefaultMessage(), ex.getBindingResult().getFieldError().getCode());
+//        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+//    }
+
 
 }

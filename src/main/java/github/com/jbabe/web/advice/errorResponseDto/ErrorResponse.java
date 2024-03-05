@@ -1,4 +1,4 @@
-package github.com.jbabe.web.advice;
+package github.com.jbabe.web.advice.errorResponseDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

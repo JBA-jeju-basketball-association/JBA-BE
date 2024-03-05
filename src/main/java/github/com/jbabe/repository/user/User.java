@@ -6,7 +6,11 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Entity
 @Table(name = "user")
@@ -73,4 +77,32 @@ public class User {
     public enum UserStatus{
         NORMAL, HIDE, DELETE
     }
+
+
+    public static boolean isValidSpecialCharacterInPassword(String pwd) {
+        Pattern passPattern = Pattern.compile("\\W");
+        Pattern passPattern2 = Pattern.compile("[!@#$%^*+=-]");
+        int count = 0;
+
+        for(int i = 0; i < pwd.length(); i++){
+            String s = String.valueOf(pwd.charAt(i));
+            Matcher passMatcher3 = passPattern.matcher(s);
+
+            if(passMatcher3.find()){
+                Matcher passMatcher4 = passPattern2.matcher(s);
+                if(!passMatcher4.find()) count++;
+
+            }
+        }
+        return count <= 0;
+    }
+
+    public static boolean isValidGender(String gender) {
+        List<Gender> genders = new ArrayList<>(Arrays.asList(Gender.values()));
+        System.out.println(genders);
+        return genders.contains(Gender.valueOf(gender));
+    }
 }
+
+
+

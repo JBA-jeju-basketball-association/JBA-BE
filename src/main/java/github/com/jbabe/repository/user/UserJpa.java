@@ -9,6 +9,8 @@ import java.util.Optional;
 @Repository
 public interface UserJpa extends JpaRepository<User, Integer> {
 
+    boolean existsByEmail(String email);
+
     @Query("SELECT u " +
             "FROM User u " +
             "join fetch u.userRoles ur " +
