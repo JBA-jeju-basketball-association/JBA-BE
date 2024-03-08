@@ -1,6 +1,5 @@
 package github.com.jbabe.repository.user;
 
-import github.com.jbabe.repository.userRole.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -49,6 +48,13 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column(name = "team", nullable = false)
+    private String team;
+
     @Column(name = "failure_count", nullable = false)
     private Integer failureCount;
 
@@ -64,9 +70,6 @@ public class User {
     @Column(name = "lock_at")
     private LocalDateTime lockAt;
 
-    @OneToMany(mappedBy = "user")
-    private List<UserRole> userRoles;
-
 
     @Getter
     public enum Gender{
@@ -76,6 +79,11 @@ public class User {
     @Getter
     public enum UserStatus{
         NORMAL, HIDE, DELETE
+    }
+
+    @Getter
+    public enum Role{
+        ROLE_USER, ROLE_MASTER, ROLE_ADMIN, ROLE_REFEREE_LEADER, ROLE_REFEREE, ROLE_TABLE_OFFICIAL_LEADER, ROLE_TABLE_OFFICIAL
     }
 
 
