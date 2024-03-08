@@ -11,5 +11,4 @@ public class BadRequestException extends RuntimeException{
         this.detailMessage = detailMessage;
         this.request = request;
     }
-
 }

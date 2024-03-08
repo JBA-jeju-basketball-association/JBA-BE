@@ -1,5 +1,8 @@
 package github.com.jbabe.service.authAccount;
 
+import github.com.jbabe.repository.user.UserJpa;
+import github.com.jbabe.service.exception.ConflictException;
+import github.com.jbabe.service.exception.NotAcceptableException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,21 +21,29 @@ import static github.com.jbabe.config.certification.EmailCertificationConfig.gen
 public class EmailCertificationService {
     private final JavaMailSender mailSender;
     private final RedisUtil redisUtil;
+    private final UserJpa userJpa;
     private final int authNumber = generateRandomNumber(100000, 999999);
     @Value("${email.address}")
     private String emailAddress;
 
-    public String joinEmail(String email) {
+    public void joinEmail(String email) {
+        if (userJpa.existsByEmail(email)) {
+            throw new ConflictException("이미 가입된 이메일입니다.", email);
+        }
+
         String setFrom = emailAddress; // email-config에 설정한 자신의 이메일 주소를 입력
         String toMail = email;
         String title = "[인증]제주특별자치도농구협회 회원 가입"; // 이메일 제목
         String content =
                 "회원가입 창으로 돌아가 인증 번호를 정확히 입력해주세요." + 	//html 형식으로 작성 !
                         "<br><br>" +
-                        "인증 번호는 " + authNumber + "입니다." +
-                        "<br>" ; //이메일 내용 삽입
-        mailSend(setFrom, toMail, title, content);
-        return Integer.toString(authNumber);
+                        "<h1>[인증 번호] : " + authNumber + "</h1>" ; //이메일 내용 삽입
+        try {
+            mailSend(setFrom, toMail, title, content);
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new NotAcceptableException("메일을 발송할 수 없습니다.", email);
+        }
     }
 
     @Transactional
