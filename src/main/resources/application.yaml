@@ -10,6 +10,10 @@ spring:
       matching-strategy: ant_path_matcher
   jpa:
     open-in-view: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 jasypt:
   encryptor:
@@ -17,4 +21,9 @@ jasypt:
     bean: jasyptStringEncryptor
 
 jwtpassword:
-  source:
+  source: ENC(NKBTDg6Hc5JyF6wsKIZye0fbqEMUyCJt7GYJWBK8dcY=)
+
+email:
+  address: ENC(wCAUHlRDnSdjxSZEczI9XG3Q6BUXy+Inhi2xKIzScA8=)
+  appPassword: ENC(BT49Z4LzbQSP2NLoXTvebjiAYJmILhq0ScaUDE9qWuw=)
+

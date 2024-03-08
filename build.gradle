@@ -53,6 +53,18 @@ dependencies {
     // token
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // email 인증
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '2.6.3'
+    implementation 'javax.mail:mail:1.4.7'
+
+    // Spring Context Support
+    implementation 'org.springframework:spring-context-support:5.3.9'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 }
 
