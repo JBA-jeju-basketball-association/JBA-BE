@@ -40,9 +40,9 @@ public class JwtTokenConfig {
         return request.getHeader("Token");
     }
 
-    public String createToken(String email, List<String> roles) {
+    public String createToken(String email, String role) {
         Claims claims = Jwts.claims().setSubject(email);
-        claims.put("roles", roles);
+        claims.put("role", role);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
