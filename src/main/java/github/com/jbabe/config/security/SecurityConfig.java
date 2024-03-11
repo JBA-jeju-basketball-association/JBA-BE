@@ -2,6 +2,7 @@ package github.com.jbabe.config.security;
 
 import github.com.jbabe.service.exception.CustomAuthenticationEntryPoint;
 import github.com.jbabe.service.exception.CustomExceptionDeniedHandler;
+import github.com.jbabe.web.filters.JwtExceptionFilter;
 import github.com.jbabe.web.filters.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtTokenConfig jwtTokenConfig;
+    private final JwtExceptionFilter jwtExceptionFilter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -37,8 +39,8 @@ public class SecurityConfig {
                     e.authenticationEntryPoint(new CustomAuthenticationEntryPoint());
                     e.accessDeniedHandler(new CustomExceptionDeniedHandler());
                 })
-                .addFilterBefore(new JwtFilter(jwtTokenConfig), UsernamePasswordAuthenticationFilter.class);
-
+                .addFilterBefore(new JwtFilter(jwtTokenConfig), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, JwtFilter.class);
         return http.build();
 
     }

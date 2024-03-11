@@ -13,7 +13,7 @@ import java.util.Random;
 public class EmailCertificationConfig {
     @Value("${email.address}")
     private String emailAddress;
-    @Value("${email.appPassword}")
+    @Value("${email.app-password}")
     private String appPassword;
 
     @Bean

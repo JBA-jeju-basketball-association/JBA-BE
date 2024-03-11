@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,7 @@ public class CustomUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userJpa.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Not Found User", email));
-        List<String> roles = Arrays.asList(String.valueOf(user.getRole()));
+        List<String> roles = Collections.singletonList(String.valueOf(user.getRole()));
 
         return CustomUserDetails.builder()
                 .userId(user.getUserId())

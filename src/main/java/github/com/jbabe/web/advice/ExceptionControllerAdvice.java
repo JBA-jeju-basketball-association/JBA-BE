@@ -86,5 +86,23 @@ public class ExceptionControllerAdvice {
 //        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 //    }
 
+    @ExceptionHandler(ExpiredJwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse ExpiredJwtException(ExpiredJwtException ex) {
+        return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "ExpiredJwt", ex.getDetailMessage(), ex.getRequest());
+    }
+
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse JwtException(JwtException ex) {
+        return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "JwtError", ex.getDetailMessage(), ex.getRequest());
+    }
+
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse RedisConnectionFailureException(RedisConnectionFailureException ex) {
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "RedisConnectionFail", ex.getDetailMessage(), ex.getRequest());
+    }
+
 
 }
