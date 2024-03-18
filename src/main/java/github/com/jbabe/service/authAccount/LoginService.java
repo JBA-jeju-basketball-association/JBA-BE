@@ -3,10 +3,7 @@ package github.com.jbabe.service.authAccount;
 import github.com.jbabe.config.security.JwtTokenConfig;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
-import github.com.jbabe.service.exception.BadRequestException;
-import github.com.jbabe.service.exception.ExpiredJwtException;
-import github.com.jbabe.service.exception.NotAcceptableException;
-import github.com.jbabe.service.exception.NotFoundException;
+import github.com.jbabe.service.exception.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +57,9 @@ public class LoginService {
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Token 저장
 
             return accessToken;
-        }catch (Exception e) {
+        }catch (CustomBadCredentialsException e){
+            throw e;
+        } catch (Exception e) {
             e.printStackTrace();
             throw new NotAcceptableException("로그인 할 수 없습니다.", email);
         }

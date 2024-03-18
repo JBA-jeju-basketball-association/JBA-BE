@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class CustomBadCredentialsException extends RuntimeException{
     private final String detailMessage;
-    private final String request;
+    private final Object request;
 
-    public CustomBadCredentialsException(String detailMessage, String request) {
+    public CustomBadCredentialsException(String detailMessage, Object request) {
         this.detailMessage = detailMessage;
         this.request = request;
     }

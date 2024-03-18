@@ -110,6 +110,35 @@ public class User {
         System.out.println(genders);
         return genders.contains(Gender.valueOf(gender));
     }
+
+    //login_extended
+    public boolean isLocked(){
+        return this.userStatus == UserStatus.HIDE;
+    }
+    public boolean isDisabled(){
+        return this.userStatus == UserStatus.HIDE || this.userStatus == UserStatus.DELETE;
+    }
+    public boolean isUnlockTime(){
+        return this.lockAt != null
+                && this.lockAt.isBefore(LocalDateTime.now().minusMinutes(5));
+    }
+    public boolean isFailureCountingOrLocking(){
+        return this.failureCount < 4;
+    }
+
+
+    public void loginValueSetting(boolean failure){
+        this.userStatus = failure ?
+                (isFailureCountingOrLocking()||isUnlockTime() ? UserStatus.NORMAL : UserStatus.HIDE)
+                : UserStatus.NORMAL;
+        this.failureCount = failure ?
+                (isUnlockTime() ?
+                        1
+                        : (isFailureCountingOrLocking() ? failureCount + 1 : 0))
+                : 0;
+        this.lockAt = failure ? LocalDateTime.now() : null;
+    }
+
 }
 
 

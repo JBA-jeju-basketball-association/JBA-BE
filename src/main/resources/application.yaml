@@ -10,6 +10,7 @@ spring:
       matching-strategy: ant_path_matcher
   jpa:
     open-in-view: false
+    show-sql: true
   data:
     redis:
       host: localhost
