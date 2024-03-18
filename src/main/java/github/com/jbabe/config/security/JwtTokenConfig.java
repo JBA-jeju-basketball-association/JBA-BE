@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
 import java.util.Date;
@@ -94,6 +95,7 @@ public class JwtTokenConfig {
         return Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody().getSubject();
     }
 
+    @Transactional
     public void saveRedisTokens(String accessToken, String refreshToken) {
         redisUtil.setDataExpire(accessToken, refreshToken, Long.parseLong(refreshTokenValidMillisecond));
     }

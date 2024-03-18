@@ -46,7 +46,7 @@ public class LoginService {
         }
     }
 
-    @Transactional
+
     public String login(String email, String password) {
 
         try {
@@ -54,9 +54,10 @@ public class LoginService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String accessToken = jwtTokenConfig.createAccessToken(email);
             String refreshToken = jwtTokenConfig.createRefreshToken(email);
+            //saveRedisTokens 메서드에 Transactional 적용
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Token 저장
-
             return accessToken;
+            //⬇️ 리스너에서 날린 익셉션 그대로 던지기
         }catch (CustomBadCredentialsException e){
             throw e;
         } catch (Exception e) {

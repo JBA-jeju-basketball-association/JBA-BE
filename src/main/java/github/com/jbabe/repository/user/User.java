@@ -78,7 +78,7 @@ public class User {
 
     @Getter
     public enum UserStatus{
-        NORMAL, HIDE, DELETE
+        NORMAL, HIDE, DELETE, LOCKED
     }
 
     @Getter
@@ -113,7 +113,7 @@ public class User {
 
     //login_extended
     public boolean isLocked(){
-        return this.userStatus == UserStatus.HIDE;
+        return this.userStatus == UserStatus.LOCKED;
     }
     public boolean isDisabled(){
         return this.userStatus == UserStatus.HIDE || this.userStatus == UserStatus.DELETE;
@@ -129,7 +129,7 @@ public class User {
 
     public void loginValueSetting(boolean failure){
         this.userStatus = failure ?
-                (isFailureCountingOrLocking()||isUnlockTime() ? UserStatus.NORMAL : UserStatus.HIDE)
+                (isFailureCountingOrLocking()||isUnlockTime() ? UserStatus.NORMAL : UserStatus.LOCKED)
                 : UserStatus.NORMAL;
         this.failureCount = failure ?
                 (isUnlockTime() ?
