@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
-public class ExceptionController {
+public class ExceptionControllerAdvice {
 
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 요청 에러
@@ -22,9 +22,9 @@ public class ExceptionController {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(AccessDenied.class)
+    @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN) //권한이 없을때
-    public ResponseEntity<ErrorResponse> handleNotAccessDenied(AccessDenied ex) {
+    public ResponseEntity<ErrorResponse> handleNotAccessDenied(AccessDeniedException ex) {
         ErrorResponse errorRequestResponse = new ErrorResponse(403, "FORBIDDEN" ,  ex.getDetailMessage(), ex.getRequest());
         return new ResponseEntity<>(errorRequestResponse, HttpStatus.FORBIDDEN);
     }
@@ -68,7 +68,7 @@ public class ExceptionController {
     @ExceptionHandler(InvalidReqeustException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse invalidRequestException(InvalidReqeustException ex) {
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), ex.getDetailMessage(), ex.getRequest());
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid_Request", ex.getDetailMessage(), ex.getRequest());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -85,6 +85,24 @@ public class ExceptionController {
 //         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid_Request", ex.getBindingResult().getFieldError().getDefaultMessage(), ex.getBindingResult().getFieldError().getCode());
 //        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 //    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse ExpiredJwtException(ExpiredJwtException ex) {
+        return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "ExpiredJwt", ex.getDetailMessage(), ex.getRequest());
+    }
+
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse JwtException(JwtException ex) {
+        return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "JwtError", ex.getDetailMessage(), ex.getRequest());
+    }
+
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse RedisConnectionFailureException(RedisConnectionFailureException ex) {
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "RedisConnectionFail", ex.getDetailMessage(), ex.getRequest());
+    }
 
 
 }

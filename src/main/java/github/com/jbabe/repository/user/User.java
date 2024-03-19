@@ -1,6 +1,5 @@
 package github.com.jbabe.repository.user;
 
-import github.com.jbabe.repository.userRole.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +49,13 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column(name = "team", nullable = false)
+    private String team;
+
     @Column(name = "failure_count", nullable = false)
     private Integer failureCount;
 
@@ -64,9 +71,6 @@ public class User {
     @Column(name = "lock_at")
     private LocalDateTime lockAt;
 
-    @OneToMany(mappedBy = "user")
-    private List<UserRole> userRoles;
-
 
     @Getter
     public enum Gender{
@@ -76,6 +80,11 @@ public class User {
     @Getter
     public enum UserStatus{
         NORMAL, HIDE, DELETE
+    }
+
+    @Getter
+    public enum Role{
+        ROLE_USER, ROLE_MASTER, ROLE_ADMIN, ROLE_REFEREE_LEADER, ROLE_REFEREE, ROLE_TABLE_OFFICIAL_LEADER, ROLE_TABLE_OFFICIAL
     }
 
 
@@ -98,9 +107,16 @@ public class User {
     }
 
     public static boolean isValidGender(String gender) {
-        List<Gender> genders = new ArrayList<>(Arrays.asList(Gender.values()));
-        System.out.println(genders);
-        return genders.contains(Gender.valueOf(gender));
+        List<String> genders = new ArrayList<>();
+        genders.add("MALE");
+        genders.add("FEMALE");
+        return genders.contains(gender);
+    }
+
+    public static boolean isValidBirthday(Integer year, Integer month, Integer day) {
+        LocalDate dateOfBirth = LocalDate.of(year, month, day);
+        LocalDate now = LocalDate.now();
+        return dateOfBirth.isBefore(now);
     }
 }
 

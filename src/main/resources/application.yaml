@@ -20,10 +20,14 @@ jasypt:
     password: ${JASYPT_SECRET_KEY}
     bean: jasyptStringEncryptor
 
-jwtpassword:
-  source: ENC(NKBTDg6Hc5JyF6wsKIZye0fbqEMUyCJt7GYJWBK8dcY=)
+jwt:
+  jwt-password:
+    source: ENC(NKBTDg6Hc5JyF6wsKIZye0fbqEMUyCJt7GYJWBK8dcY=)
+  valid-time:
+    access-token: ENC(vujujnO99OhlHLvYfC8K6w==)
+    refresh-token: ENC(+B8tychnWMB+mp7xxWPUH5sfOgnz+mcM)
 
 email:
   address: ENC(wCAUHlRDnSdjxSZEczI9XG3Q6BUXy+Inhi2xKIzScA8=)
-  appPassword: ENC(BT49Z4LzbQSP2NLoXTvebjiAYJmILhq0ScaUDE9qWuw=)
+  app-password: ENC(BT49Z4LzbQSP2NLoXTvebjiAYJmILhq0ScaUDE9qWuw=)
 
