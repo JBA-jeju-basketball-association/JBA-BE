@@ -25,6 +25,9 @@ public class CompetitionRecord {
     @JoinColumn(name = "division_id", nullable = false)
     private Division division;
 
+    @Column(name = "floor", nullable = false)
+    private String floor;
+
     @Column(name = "time", nullable = false)
     private LocalDateTime time;
 
