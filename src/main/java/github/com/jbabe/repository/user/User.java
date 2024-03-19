@@ -79,7 +79,7 @@ public class User {
 
     @Getter
     public enum UserStatus{
-        NORMAL, HIDE, DELETE
+        NORMAL, HIDE, DELETE, LOCKED
     }
 
     @Getter
@@ -118,6 +118,35 @@ public class User {
         LocalDate now = LocalDate.now();
         return dateOfBirth.isBefore(now);
     }
+
+    //login_extended
+    public boolean isLocked(){
+        return this.userStatus == UserStatus.LOCKED;
+    }
+    public boolean isDisabled(){
+        return this.userStatus == UserStatus.HIDE || this.userStatus == UserStatus.DELETE;
+    }
+    public boolean isUnlockTime(){
+        return this.lockAt != null
+                && this.lockAt.isBefore(LocalDateTime.now().minusMinutes(5));
+    }
+    public boolean isFailureCountingOrLocking(){
+        return this.failureCount < 4;
+    }
+
+
+    public void loginValueSetting(boolean failure){
+        this.userStatus = failure ?
+                (isFailureCountingOrLocking()||isUnlockTime() ? UserStatus.NORMAL : UserStatus.LOCKED)
+                : UserStatus.NORMAL;
+        this.failureCount = failure ?
+                (isUnlockTime() ?
+                        1
+                        : (isFailureCountingOrLocking() ? failureCount + 1 : 0))
+                : 0;
+        this.lockAt = failure ? LocalDateTime.now() : null;
+    }
+
 }
 
 
