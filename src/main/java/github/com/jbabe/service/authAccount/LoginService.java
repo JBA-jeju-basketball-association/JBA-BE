@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,7 +44,7 @@ public class LoginService {
             }
         }catch (RedisSystemException e) {
             throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.", "");
-        }
+        }//토큰 validateToken 실패시 로직 작성되야됨
     }
 
 
@@ -57,8 +58,8 @@ public class LoginService {
             //saveRedisTokens 메서드에 Transactional 적용
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Token 저장
             return accessToken;
-            //⬇️ 리스너에서 날린 익셉션 그대로 던지기
-        }catch (CustomBadCredentialsException e){
+            //⬇️ 리스너 or 유저디테일서비스에서  날린 익셉션 그대로 던지기
+        }catch (CustomBadCredentialsException | InternalAuthenticationServiceException e){
             throw e;
         } catch (Exception e) {
             e.printStackTrace();

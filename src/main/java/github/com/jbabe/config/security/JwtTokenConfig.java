@@ -45,6 +45,8 @@ public class JwtTokenConfig {
         key = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
+    public static final String EXCEPTION_HEADER_NAME = "AUTH_EXCEPTION";
+
     public String resolveToken(HttpServletRequest request) {
         return request.getHeader("AccessToken");
     }
@@ -73,17 +75,16 @@ public class JwtTokenConfig {
     }
 
     public boolean validateToken(String jwtToken) {
-        try {
             Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
             Date now = new Date();
             return !claims.getExpiration().before(now);
-        }catch (ExpiredJwtException e) {
-            log.error(e.getMessage());
-            throw new github.com.jbabe.service.exception.ExpiredJwtException("토큰이 만료되었습니다.");
-        }catch (JwtException e) {
-            log.error(e.getMessage());
-            throw new github.com.jbabe.service.exception.JwtException("Jwt 인증 오류");
-        }
+//        catch (ExpiredJwtException e) {
+//            log.error(e.getMessage());
+//            throw new github.com.jbabe.service.exception.ExpiredJwtException("토큰이 만료되었습니다.");
+//        }catch (JwtException e) {
+//            log.error(e.getMessage());
+//            throw new github.com.jbabe.service.exception.JwtException("Jwt 인증 오류");
+//        }
     }
 
     public Authentication getAuthentication(String jwtToken) {
