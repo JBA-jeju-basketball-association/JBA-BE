@@ -68,7 +68,7 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(InvalidReqeustException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse invalidRequestException(InvalidReqeustException ex) {
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), ex.getDetailMessage(), ex.getRequest());
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid_Request", ex.getDetailMessage(), ex.getRequest());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

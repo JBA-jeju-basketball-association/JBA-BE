@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,9 +107,16 @@ public class User {
     }
 
     public static boolean isValidGender(String gender) {
-        List<Gender> genders = new ArrayList<>(Arrays.asList(Gender.values()));
-        System.out.println(genders);
-        return genders.contains(Gender.valueOf(gender));
+        List<String> genders = new ArrayList<>();
+        genders.add("MALE");
+        genders.add("FEMALE");
+        return genders.contains(gender);
+    }
+
+    public static boolean isValidBirthday(Integer year, Integer month, Integer day) {
+        LocalDate dateOfBirth = LocalDate.of(year, month, day);
+        LocalDate now = LocalDate.now();
+        return dateOfBirth.isBefore(now);
     }
 }
 

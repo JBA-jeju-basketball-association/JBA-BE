@@ -1,4 +1,4 @@
-package github.com.jbabe.repository.schedule;
+package github.com.jbabe.repository.competition;
 
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
@@ -7,27 +7,24 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "schedule")
+@Table(name = "competition")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Schedule {
+public class Competition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "schedule_id")
-    private Integer scheduleId;
+    @Column(name = "competition_id")
+    private Integer competitionId;
 
     @JoinColumn(name = "user_id", nullable = false)
     @ManyToOne
     private User user;
 
-    @Column(name = "name", nullable = false, unique = true)
-    private String name;
-
-    @Column(name = "divition", nullable = false)
-    private String division; // 대회 종별
+    @Column(name = "competition_name", nullable = false, unique = true)
+    private String competitionName;
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate; // 대회 시작일
@@ -35,17 +32,14 @@ public class Schedule {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate; // 대회 종료일
 
-    @Column(name = "place", nullable = false)
-    private String place;
-
     @Column(name = "related_url")
     private String relatedUrl; // 대회 관련 URL
 
     @Column(name = "content")
     private String content;
 
-    @Column(name = "schedule_status", nullable = false)
-    private ScheduleStatus scheduleStatus;
+    @Column(name = "competition_status", nullable = false)
+    private ScheduleStatus competitionStatus;
 
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
