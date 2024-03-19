@@ -1,12 +1,15 @@
 package github.com.jbabe.web.controller.authAccount;
 
 import github.com.jbabe.service.authAccount.LoginService;
+import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.authAccount.ExpiredAccessToken;
 import github.com.jbabe.web.dto.authAccount.LoginRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +25,11 @@ public class LoginController {
     public ResponseDto Login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
         String accessToken = loginService.login(loginRequest.getEmail(), loginRequest.getPassword());
         httpServletResponse.setHeader("AccessToken", accessToken);
+        return new ResponseDto();
+    }
+    @PostMapping("/logout")
+    public ResponseDto logout(@AuthenticationPrincipal CustomUserDetails customUserDetails, HttpServletRequest httpServletRequest){
+        loginService.disableToken(customUserDetails.getUsername(), httpServletRequest.getHeader("AccessToken"));
         return new ResponseDto();
     }
 

@@ -1,5 +1,6 @@
 package github.com.jbabe.config.security;
 
+import github.com.jbabe.repository.redis.RedisTokenRepository;
 import github.com.jbabe.service.authAccount.RedisUtil;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
@@ -25,6 +26,7 @@ public class JwtTokenConfig {
 
     private final UserDetailsService userDetailsService;
     private final RedisUtil redisUtil;
+    private final RedisTokenRepository redisTokenRepository;
 
     @Value("${jwt.jwt-password.source}")
     private String secretKey;
@@ -77,7 +79,9 @@ public class JwtTokenConfig {
     public boolean validateToken(String jwtToken) {
             Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
             Date now = new Date();
-            return !claims.getExpiration().before(now);
+            boolean isLogoutToken = redisTokenRepository.getBlacklist(claims.getSubject())
+                    .contains(jwtToken);
+            return !claims.getExpiration().before(now)&&!isLogoutToken;
 //        catch (ExpiredJwtException e) {
 //            log.error(e.getMessage());
 //            throw new github.com.jbabe.service.exception.ExpiredJwtException("토큰이 만료되었습니다.");
@@ -99,5 +103,10 @@ public class JwtTokenConfig {
     @Transactional
     public void saveRedisTokens(String accessToken, String refreshToken) {
         redisUtil.setDataExpire(accessToken, refreshToken, Long.parseLong(refreshTokenValidMillisecond));
+    }
+
+    //토큰 만료시간 파싱
+    public Date getTokenValidity(String refreshToken) {
+        return Jwts.parser().setSigningKey(key).parseClaimsJws(refreshToken).getBody().getExpiration();
     }
 }

@@ -58,7 +58,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             return  "잘못된 서명의 토큰";
         } else if (exception instanceof RedisConnectionFailureException) {
             return  "redis 서버 에러";
-        } else return "토큰 정보 없음";
+        } else return "무효한 토큰";
     }
 
     private void makeResponse(String[] message, HttpServletResponse response) throws IOException {
