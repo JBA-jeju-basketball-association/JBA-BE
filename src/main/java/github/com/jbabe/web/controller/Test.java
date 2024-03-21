@@ -77,7 +77,7 @@ public class Test {
         return amazonS3Client.initiateMultipartUpload(initiateRequest);
     }
 
-    @PostMapping("/presigned-url")//presigned 발급
+    @PostMapping("/presigned-url") //presigned 발급
     public URL initiateUpload(@RequestBody PreSignedUrlCreateRequest request) {
         LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(10);
         Date expiration = Date.from(expirationTime.atZone(ZoneId.systemDefault()).toInstant());
