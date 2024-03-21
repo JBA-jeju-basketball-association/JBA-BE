@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
 @RestControllerAdvice
@@ -71,11 +72,23 @@ public class ExceptionControllerAdvice {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), ex.getDetailMessage(), ex.getRequest());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class, MethodArgumentTypeMismatchException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse methodValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        log.warn("MethodArgumentNotValidException 발생!! url:{}, trace:{}", request.getRequestURL(), ex.getStackTrace());
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid_Request", ex.getBindingResult().getFieldError().getDefaultMessage(), ex.getBindingResult().getFieldError().getField());
+    public ErrorResponse methodValidException(Exception ex, HttpServletRequest request) {
+        if(ex instanceof MethodArgumentNotValidException validException){
+            log.warn("MethodArgumentNotValidException 발생!! url:{}, trace:{}", request.getRequestURL(), ex.getStackTrace());
+            return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid_Request", validException.getBindingResult().getFieldError().getDefaultMessage(), validException.getBindingResult().getFieldError().getField());
+        } else  {
+            MethodArgumentTypeMismatchException typeMismatchException = (MethodArgumentTypeMismatchException) ex;
+            return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid_Request"
+            , typeMismatchException.getMessage(),typeMismatchException.getValue());
+        }
+    }
+
+    @ExceptionHandler(FileUploadFailedException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse fileUploadFailed(FileUploadFailedException fileUploadFailedException){
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal_Server_Error", fileUploadFailedException.getDetailMessage(), fileUploadFailedException.getRequest());
     }
 
 //    @ExceptionHandler(MethodArgumentNotValidException.class)

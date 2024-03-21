@@ -7,11 +7,15 @@ import github.com.jbabe.repository.redis.RedisTokenRepository;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.NotFoundException;
+import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
+import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest.FinishUploadRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUrlAbortRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUrlCreateRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUploadInitiateRequest;
+import github.com.jbabe.web.dto.awsTest2.SaveDto;
+import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,6 +44,7 @@ public class Test {
     private final UserJpa userJpa;
     private final RedisTokenRepository redisTokenRepository;
     private final AmazonS3 amazonS3Client;
+    private final StorageService storageService;
 
 
 //    public Test(UserJpa userJpa) {
@@ -130,25 +135,14 @@ public class Test {
 //        amazonS3Client.putObject(putObjectRequest);
 //    }
     @PostMapping("/multipart-files")
-    public String uploadMultipleFiles(//여러개 업로드
+    public ResponseDto uploadMultipleFiles(//여러개 업로드
             @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
-            @RequestParam String type
-    ) throws IOException {
-        for (MultipartFile file : multipartFiles) {
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentType(file.getContentType());
-            objectMetadata.setContentLength(file.getSize());
-
-            PutObjectRequest putObjectRequest = new PutObjectRequest(
-                    "bucketName",
-                    "objectKey",
-                    file.getInputStream(),
-                    objectMetadata
-            );
-
-            amazonS3Client.putObject(putObjectRequest);
-        }
-        return "업로드 완료";
+            @RequestParam SaveFileType type
+    ) {
+        List<String> fileUrls = storageService.fileUploadAndGetUrl(multipartFiles, type);
+        return new ResponseDto(fileUrls);
     }
+
+
 
 }

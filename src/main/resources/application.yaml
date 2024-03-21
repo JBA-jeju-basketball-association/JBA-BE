@@ -43,5 +43,8 @@ email:
 
 aws:
   s3:
-    access-key: ENC(SvBJqnv5tYo53mT23B/Y223gyupTReVT61OGYjmj5LI=)
-    secret-key: ENC(FI28/24HZ+U+rZ9R6nCbyaAC+TnUoI9OzphERKWSLeKQtPyIFT0sqtxbwsSehVunXtfy2XwkbiU=)
+    credentials:
+      access-key: ENC(3GPc4s7104mBP6+PswGBPiXzNHj/Rj+BSaArVv0yf9w=)
+      secret-key: ENC(EG1UGvGC37vl4JwRD+L9BC9OD2GkR7Ndi/WW7x3QVGjs2uj7/kcvXhjJVEES45CylP97MV9gymg=)
+    bucket-name: ENC(GHq5AsY5Cl8UqcGhxt0uZ+FqwAvozPZT)
+    region: ENC(N2HhGgAsrLMJpKwIKsLW1KgGBZyGVt8c)

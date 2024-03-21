@@ -1,8 +1,9 @@
 package github.com.jbabe.service.exception;
 
+import lombok.Getter;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
-
-public class FileUploadFailedException extends FileUploadException {
+@Getter
+public class FileUploadFailedException extends RuntimeException {
 
     private final String detailMessage;
     private final String request;
