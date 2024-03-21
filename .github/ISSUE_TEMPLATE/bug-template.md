@@ -1,6 +1,6 @@
 ---
 name: Bug Template
-about: Create a report to help us improve
+about: 버그 관련 템플릿
 title: "[BUG]"
 labels: 버그
 assignees: ''

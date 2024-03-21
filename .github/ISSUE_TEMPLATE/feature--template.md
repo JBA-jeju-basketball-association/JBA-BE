@@ -1,6 +1,6 @@
 ---
 name: "Feature \bTemplate"
-about: Suggest an idea for this project
+about: 기능 관련 템플릿
 title: "[FEAT]"
 labels: "\b개발"
 assignees: ''
