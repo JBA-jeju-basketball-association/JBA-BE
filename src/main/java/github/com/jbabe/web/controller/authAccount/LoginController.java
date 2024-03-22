@@ -1,8 +1,10 @@
 package github.com.jbabe.web.controller.authAccount;
 
+import github.com.jbabe.config.security.JwtTokenConfig;
 import github.com.jbabe.service.authAccount.LoginService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
+import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
 import github.com.jbabe.web.dto.authAccount.ExpiredAccessToken;
 import github.com.jbabe.web.dto.authAccount.LoginRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,8 +25,9 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseDto Login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
-        String accessToken = loginService.login(loginRequest.getEmail(), loginRequest.getPassword());
-        httpServletResponse.setHeader("AccessToken", accessToken);
+        AccessAndRefreshToken accessAndRefreshToken = loginService.login(loginRequest.getEmail(), loginRequest.getPassword());
+        httpServletResponse.setHeader("AccessToken", accessAndRefreshToken.getAccessToken());
+        httpServletResponse.setHeader("Set-Cookie", accessAndRefreshToken.getCookie().toString());
         return new ResponseDto();
     }
     @PostMapping("/logout")

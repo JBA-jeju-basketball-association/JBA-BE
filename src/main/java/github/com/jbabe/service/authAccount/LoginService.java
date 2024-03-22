@@ -5,10 +5,13 @@ import github.com.jbabe.repository.redis.RedisTokenRepository;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.*;
+import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.RedisSystemException;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,11 +29,14 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class LoginService {
+    private final UserJpa userJpa;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenConfig jwtTokenConfig;
     private final RedisUtil redisUtil;
     private final RedisTokenRepository redisTokenRepository;
-    private final UserJpa userJpa;
+
+    @Value("${jwt.valid-time.refresh-token}")
+    private String expirationTimeRefreshToken;
 
     @Transactional
     public String refreshToken(String expiredAccessToken) {
@@ -40,9 +46,10 @@ public class LoginService {
             String refreshToken = redisUtil.getData(expiredAccessToken);
             if (jwtTokenConfig.validateToken(refreshToken)) {
                 String userEmail = jwtTokenConfig.getAuthentication(refreshToken).getName();
+                String role = String.valueOf(jwtTokenConfig.getAuthentication(refreshToken).getAuthorities().stream().findFirst());
 
-                String newAccessToken = jwtTokenConfig.createAccessToken(userEmail);
-                String newRefreshToken = jwtTokenConfig.createRefreshToken(userEmail);
+                String newAccessToken = jwtTokenConfig.createAccessToken(userEmail, role);
+                String newRefreshToken = jwtTokenConfig.regenerateRefreshToken(refreshToken);
 
                 jwtTokenConfig.saveRedisTokens(newAccessToken, newRefreshToken);
                 redisUtil.deleteData(expiredAccessToken);
@@ -56,16 +63,24 @@ public class LoginService {
     }
 
 
-    public String login(String email, String password) {
-
+    public AccessAndRefreshToken login(String email, String password) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String accessToken = jwtTokenConfig.createAccessToken(email);
-            String refreshToken = jwtTokenConfig.createRefreshToken(email);
-            //saveRedisTokens 메서드에 Transactional 적용
-            jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Token 저장
-            return accessToken;
+            String userEmail = authentication.getName();
+            String role = String.valueOf(authentication.getAuthorities().stream().findFirst().orElse(null));
+
+            String accessToken = jwtTokenConfig.createAccessToken(userEmail, role);
+            String refreshToken = jwtTokenConfig.createRefreshToken();
+            jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Tokens 저장
+            ResponseCookie cookie = ResponseCookie.from("RefreshToken", refreshToken)
+                    .maxAge(Long.parseLong(expirationTimeRefreshToken)/1000 + 60*60*9) // 쿠키의 유효 시간
+                    .path("/")  // 모든 페이지에서 사용가능
+                    .secure(false) // https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
+                    .sameSite("None") // 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능
+                    .httpOnly(true)  // 브라우저에서 쿠키에 접근할 수 없도록 제한
+                    .build();
+            return new AccessAndRefreshToken(accessToken, cookie);
 
             //⬇️ 리스너 or 유저디테일서비스에서  날린 익셉션 그대로 던지기
         }catch (CustomBadCredentialsException | InternalAuthenticationServiceException e){
