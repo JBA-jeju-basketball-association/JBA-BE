@@ -27,14 +27,14 @@ public class StorageService {
     public List<String> fileUploadAndGetUrl(List<MultipartFile> multipartFiles, SaveFileType type){
         List<String> fileUrls = new ArrayList<>();
         switch (type){
-            case image:
+            case small:
                 for(MultipartFile file : multipartFiles){
                     PutObjectRequest putObjectRequest = makePutObjectRequest(file);
                     amazonS3Client.putObject(putObjectRequest);
                     fileUrls.add(amazonS3Client.getUrl(bucketName,putObjectRequest.getKey()).toString());
                 }
                 break;
-            case video:
+            case large:
                 //TODO: 추후 하이라이트 영상 같은 이미지에 비해 고용량 업로드가 필요할시
                 // 로딩바 구현을위해 aws s3 로 구현
                 break;
@@ -44,7 +44,6 @@ public class StorageService {
 
     private PutObjectRequest makePutObjectRequest(MultipartFile file) {
         String storageFileName = makeStorageFileName(file.getOriginalFilename());
-        if(file.getOriginalFilename()!=null)       throw new FileUploadFailedException("File Upload Failed", file.getOriginalFilename());
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(file.getContentType());
