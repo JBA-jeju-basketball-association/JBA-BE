@@ -6,6 +6,8 @@ import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.*;
 import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,27 +41,36 @@ public class LoginService {
     private String expirationTimeRefreshToken;
 
     @Transactional
-    public String refreshToken(String expiredAccessToken) {
-        try {
-            // redis에 accessToken 에 맞는 refreshToken 이 없다면 에러
-            // validateToken이 false일 경우 에러
-            String refreshToken = redisUtil.getData(expiredAccessToken);
-            if (jwtTokenConfig.validateToken(refreshToken)) {
-                String userEmail = jwtTokenConfig.getAuthentication(refreshToken).getName();
-                String role = String.valueOf(jwtTokenConfig.getAuthentication(refreshToken).getAuthorities().stream().findFirst());
+    public AccessAndRefreshToken refreshToken(String requestAccessToken, String requestRefreshToken) {
+        String redisRefreshToken = redisUtil.getData(requestAccessToken);
 
-                String newAccessToken = jwtTokenConfig.createAccessToken(userEmail, role);
-                String newRefreshToken = jwtTokenConfig.regenerateRefreshToken(refreshToken);
+        if (!redisRefreshToken.equals(requestRefreshToken)) throw new ExpiredJwtException("RefreshToken 인증 오류");
+        try {
+            if (jwtTokenConfig.refreshTokenValidate(redisRefreshToken)) {
+                Date refreshTokenExpiredTime = jwtTokenConfig.getTokenValidity(redisRefreshToken);
+                String userEmail = jwtTokenConfig.getUserEmail(redisRefreshToken);
+
+                String newAccessToken = jwtTokenConfig.createAccessToken(userEmail);
+                String newRefreshToken = jwtTokenConfig.regenerateRefreshToken(userEmail, redisRefreshToken);
+                ResponseCookie cookie = ResponseCookie.from("RefreshToken", newRefreshToken)
+                        .maxAge(Long.parseLong(expirationTimeRefreshToken)/1000) // 쿠키의 유효 시간
+                        .path("/")  // 모든 페이지에서 사용가능
+                        .secure(false) //TODO https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
+                        .sameSite("None") //TODO 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능 -> 배포 시 변경필요
+                        .httpOnly(true)  // 브라우저에서 쿠키에 접근할 수 없도록 제한
+                        .build();
 
                 jwtTokenConfig.saveRedisTokens(newAccessToken, newRefreshToken);
-                redisUtil.deleteData(expiredAccessToken);
-                return newAccessToken;
+                redisUtil.deleteData(requestAccessToken);
+                return new AccessAndRefreshToken(newAccessToken, cookie);
             }else{
                 throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.");
             }
         }catch (RedisSystemException e) {
-            throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.", "");
-        }//토큰 validateToken 실패시 로직 작성되야됨
+            throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.");
+        }catch (ExpiredJwtException e) {
+            throw new ExpiredJwtException("refresh 토큰이 말료되었습니다.");
+        }
     }
 
 
@@ -68,16 +79,15 @@ public class LoginService {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String userEmail = authentication.getName();
-            String role = String.valueOf(authentication.getAuthorities().stream().findFirst().orElse(null));
 
-            String accessToken = jwtTokenConfig.createAccessToken(userEmail, role);
-            String refreshToken = jwtTokenConfig.createRefreshToken();
+            String accessToken = jwtTokenConfig.createAccessToken(userEmail);
+            String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Tokens 저장
             ResponseCookie cookie = ResponseCookie.from("RefreshToken", refreshToken)
-                    .maxAge(Long.parseLong(expirationTimeRefreshToken)/1000 + 60*60*9) // 쿠키의 유효 시간
+                    .maxAge(Long.parseLong(expirationTimeRefreshToken)/1000) // 쿠키의 유효 시간
                     .path("/")  // 모든 페이지에서 사용가능
-                    .secure(false) // https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
-                    .sameSite("None") // 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능
+                    .secure(false) //TODO https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
+                    .sameSite("None") //TODO 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능 -> 배포 시 변경필요
                     .httpOnly(true)  // 브라우저에서 쿠키에 접근할 수 없도록 제한
                     .build();
             return new AccessAndRefreshToken(accessToken, cookie);

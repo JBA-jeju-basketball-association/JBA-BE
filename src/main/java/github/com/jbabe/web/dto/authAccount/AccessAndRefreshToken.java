@@ -1,5 +1,6 @@
 package github.com.jbabe.web.dto.authAccount;
 
+import jakarta.servlet.http.Cookie;
 import lombok.*;
 import org.springframework.http.ResponseCookie;
 
@@ -7,8 +8,8 @@ import org.springframework.http.ResponseCookie;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class AccessAndRefreshToken {
     private String accessToken;
-    private ResponseCookie cookie;
+    private ResponseCookie responseCookie;
+
 }

@@ -37,10 +37,10 @@ public class JwtTokenConfig {
     private String key;
 
     @Value("${jwt.valid-time.access-token}")
-    private String accessTokenValidMillisecond; // access token 유효기간
+    private String accessTokenValidMillisecond; // access token 유효기간 : 1분
 
     @Value("${jwt.valid-time.refresh-token}")
-    private String refreshTokenValidMillisecond; // refresh token 유효기간
+    private String refreshTokenValidMillisecond; // refresh token 유효기간 : 24시간
 
 
 
@@ -56,13 +56,13 @@ public class JwtTokenConfig {
         return request.getHeader("AccessToken");
     }
 
-    public String createAccessToken(String email, String role) {
+    public String createAccessToken(String email) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + Long.parseLong(accessTokenValidMillisecond) + 1000*60*60*9);
+        Date expiration = new Date(now.getTime() + Long.parseLong(accessTokenValidMillisecond));
         User user = userJpa.findByEmail(email).orElseThrow(() -> new NotFoundException("해당 이메일로 유저를 찾을 수 없습니다.", email));
 
         Claims claims = Jwts.claims().setSubject(email);
-        claims.put("role", role);
+        claims.put("role", user.getRole());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -73,31 +73,40 @@ public class JwtTokenConfig {
                 .compact();
     }
 
-    public String createRefreshToken() {
+    public String createRefreshToken(String email) {
         Date now = new Date();
         return Jwts.builder()
+                .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + Long.parseLong(refreshTokenValidMillisecond)))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
+
     }
 
-    public String regenerateRefreshToken(String refreshToken) {
+    public String regenerateRefreshToken(String email, String refreshToken) {
         Date expirationTime = Jwts.parser().setSigningKey(key).parseClaimsJws(refreshToken).getBody().getExpiration();
         Date now = new Date();
         return Jwts.builder()
+                .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expirationTime)
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
 
-    public boolean validateToken(String jwtToken) {
+    public boolean accessTokenValidate(String jwtToken) {
         Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
         Date now = new Date();
         boolean isLogoutToken = redisTokenRepository.getBlacklist(claims.getSubject())
                 .contains(jwtToken);
         return !claims.getExpiration().before(now) && !isLogoutToken;
+    }
+
+    public Boolean refreshTokenValidate(String jwtToken) {
+        Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
+        Date now = new Date();
+        return !claims.getExpiration().before(now);
     }
 
     public Authentication getAuthentication(String jwtToken) {
@@ -109,9 +118,15 @@ public class JwtTokenConfig {
         return Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody().getSubject();
     }
 
+    public String getRole(String email) {
+        User user = userJpa.findByEmail(email).orElseThrow(() -> new NotFoundException("이메일에 해당하는 유저를 찾을 수 없습니다.", email));
+        return user.getRole().toString();
+    }
+
     @Transactional
     public void saveRedisTokens(String accessToken, String refreshToken) {
-        redisUtil.setDataExpire(accessToken, refreshToken, Long.parseLong(refreshTokenValidMillisecond));
+        Date expirationTime = Jwts.parser().setSigningKey(key).parseClaimsJws(refreshToken).getBody().getExpiration();
+        redisUtil.setDataExpire(accessToken, refreshToken, expirationTime.getTime());
     }
 
     //토큰 만료시간 파싱
