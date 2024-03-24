@@ -122,7 +122,7 @@ public class JwtTokenConfig {
 
     @Transactional
     public void saveRedisTokens(String accessToken, String refreshToken) {
-        Date expirationTime = Jwts.parser().setSigningKey(key).parseClaimsJws(refreshToken).getBody().getExpiration();
+        Date expirationTime = getTokenValidity(refreshToken);
         redisUtil.setDataExpire(accessToken, refreshToken, expirationTime.getTime());
     }
 

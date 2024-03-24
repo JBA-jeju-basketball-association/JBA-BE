@@ -101,24 +101,26 @@ public class LoginService {
 
     @Transactional
     public ResponseCookie disableToken(String email, String accessToken) {
-        try{
-        String refreshToken = redisUtil.getData(accessToken);
-        Date dataExp = jwtTokenConfig.getTokenValidity(accessToken);
+        try {
+            String refreshToken = redisUtil.getData(accessToken);
+            Date dataExp = jwtTokenConfig.getTokenValidity(accessToken);
         /*액세스토큰의 리프레시 토큰이 있는경우 리프레시 토큰과 액세스 토큰 둘다 해당 이메일의 토큰 무효화 리스트에 추가
         저장된 레디스 데이터의 유효시간은 리프레시토큰이 있는경우 액세스 토큰의 유효시간과 비교하여 더 긴 값으로 지정*/
-        Set<String> tokens = new HashSet<>(Set.of(accessToken));
-        if(refreshToken!=null) {
-            tokens.add(refreshToken);
-            Date refreshTokenExpiration = jwtTokenConfig.getTokenValidity(refreshToken);
-            dataExp = refreshTokenExpiration.after(dataExp) ? refreshTokenExpiration : dataExp;
-        }
-        redisTokenRepository.addBlacklistToken(email, tokens,
-                Duration.between(Instant.now(), dataExp.toInstant()));
+            Set<String> tokens = new HashSet<>(Set.of(accessToken));
+            if (refreshToken != null) {
+                tokens.add(refreshToken);
+                Date refreshTokenExpiration = jwtTokenConfig.getTokenValidity(refreshToken);
+                dataExp = refreshTokenExpiration.after(dataExp) ? refreshTokenExpiration : dataExp;
+            } else throw new BadRequestException("이미 로그아웃된 유저입니다.", accessToken);
+            redisTokenRepository.addBlacklistToken(email, tokens,
+                    Duration.between(Instant.now(), dataExp.toInstant()));
 
             return ResponseCookie.from("RefreshToken", "") // 클라이언트 refreshToken 삭제용 쿠키
-                .maxAge(0)
-                .build();
-        }catch (Exception e){
+                    .maxAge(0)
+                    .build();
+        } catch (BadRequestException e) {
+            throw new BadRequestException("이미 로그아웃된 유저입니다.", accessToken);
+        } catch (Exception e) {
             throw new BadRequestException(e.getMessage(), accessToken);
         }
     }
