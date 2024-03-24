@@ -100,7 +100,7 @@ public class LoginService {
     }
 
     @Transactional
-    public void disableToken(String email, String accessToken) {
+    public ResponseCookie disableToken(String email, String accessToken) {
         try{
         String refreshToken = redisUtil.getData(accessToken);
         Date dataExp = jwtTokenConfig.getTokenValidity(accessToken);
@@ -114,6 +114,10 @@ public class LoginService {
         }
         redisTokenRepository.addBlacklistToken(email, tokens,
                 Duration.between(Instant.now(), dataExp.toInstant()));
+
+            return ResponseCookie.from("RefreshToken", "") // 클라이언트 refreshToken 삭제용 쿠키
+                .maxAge(0)
+                .build();
         }catch (Exception e){
             throw new BadRequestException(e.getMessage(), accessToken);
         }

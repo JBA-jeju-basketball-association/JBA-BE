@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,8 +36,9 @@ public class LoginController {
         return new ResponseDto();
     }
     @PostMapping("/logout")
-    public ResponseDto logout(@AuthenticationPrincipal CustomUserDetails customUserDetails, HttpServletRequest httpServletRequest){
-        loginService.disableToken(customUserDetails.getUsername(), httpServletRequest.getHeader("AccessToken"));
+    public ResponseDto logout(@AuthenticationPrincipal CustomUserDetails customUserDetails, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
+        ResponseCookie cookie = loginService.disableToken(customUserDetails.getUsername(), httpServletRequest.getHeader("AccessToken"));
+        httpServletResponse.setHeader("Set-Cookie", cookie.toString());
         return new ResponseDto();
     }
 
@@ -50,7 +52,7 @@ public class LoginController {
         AccessAndRefreshToken newTokens = loginService.refreshToken(expiredAccessToken, refreshToken);
 
         response.setHeader("AccessToken", newTokens.getAccessToken());
-        response.addHeader("Set-Cookie", newTokens.getResponseCookie().toString());
+        response.setHeader("Set-Cookie", newTokens.getResponseCookie().toString());
 
         return new ResponseDto();
     }
