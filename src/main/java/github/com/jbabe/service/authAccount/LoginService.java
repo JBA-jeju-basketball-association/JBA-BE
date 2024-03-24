@@ -31,32 +31,32 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class LoginService {
-    private final UserJpa userJpa;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenConfig jwtTokenConfig;
     private final RedisUtil redisUtil;
     private final RedisTokenRepository redisTokenRepository;
 
-    @Value("${jwt.valid-time.refresh-token}")
-    private String expirationTimeRefreshToken;
-
     @Transactional
     public AccessAndRefreshToken refreshToken(String requestAccessToken, String requestRefreshToken) {
-        String redisRefreshToken = redisUtil.getData(requestAccessToken);
 
-        if (!redisRefreshToken.equals(requestRefreshToken)) throw new ExpiredJwtException("RefreshToken 인증 오류");
         try {
+            String redisRefreshToken = redisUtil.getData(requestAccessToken);
+            if (!redisRefreshToken.equals(requestRefreshToken)) throw new ExpiredJwtException("RefreshToken 인증 오류");
+
             if (jwtTokenConfig.refreshTokenValidate(redisRefreshToken)) {
                 Date refreshTokenExpiredTime = jwtTokenConfig.getTokenValidity(redisRefreshToken);
+                long cookieExpiredTime = new Date(refreshTokenExpiredTime.getTime() - new Date().getTime()).getTime()/1000;
+
                 String userEmail = jwtTokenConfig.getUserEmail(redisRefreshToken);
 
                 String newAccessToken = jwtTokenConfig.createAccessToken(userEmail);
                 String newRefreshToken = jwtTokenConfig.regenerateRefreshToken(userEmail, redisRefreshToken);
                 ResponseCookie cookie = ResponseCookie.from("RefreshToken", newRefreshToken)
-                        .maxAge(Long.parseLong(expirationTimeRefreshToken)/1000) // 쿠키의 유효 시간
+                        .maxAge(cookieExpiredTime) // 쿠키의 유효 시간
                         .path("/")  // 모든 페이지에서 사용가능
                         .secure(false) //TODO https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
-                        .sameSite("None") //TODO 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능 -> 배포 시 변경필요
+                        .sameSite("None") //TODO
+                        // 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능 -> 배포 시 변경필요
                         .httpOnly(true)  // 브라우저에서 쿠키에 접근할 수 없도록 제한
                         .build();
 
@@ -66,10 +66,8 @@ public class LoginService {
             }else{
                 throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.");
             }
-        }catch (RedisSystemException e) {
+        }catch (RedisSystemException | NullPointerException | ExpiredJwtException e) {
             throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.");
-        }catch (ExpiredJwtException e) {
-            throw new ExpiredJwtException("refresh 토큰이 말료되었습니다.");
         }
     }
 
@@ -84,7 +82,7 @@ public class LoginService {
             String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Tokens 저장
             ResponseCookie cookie = ResponseCookie.from("RefreshToken", refreshToken)
-                    .maxAge(Long.parseLong(expirationTimeRefreshToken)/1000) // 쿠키의 유효 시간
+                    .maxAge(Long.parseLong(jwtTokenConfig.getRefreshTokenValidMillisecond())/1000) // 쿠키의 유효 시간
                     .path("/")  // 모든 페이지에서 사용가능
                     .secure(false) //TODO https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
                     .sameSite("None") //TODO 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능 -> 배포 시 변경필요

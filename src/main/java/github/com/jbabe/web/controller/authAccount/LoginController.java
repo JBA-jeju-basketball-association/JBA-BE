@@ -14,10 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -28,7 +25,6 @@ import java.util.Date;
 @Slf4j
 public class LoginController {
     private final LoginService loginService;
-    private final JwtTokenConfig jwtTokenConfig;
 
     @PostMapping("/login")
     public ResponseDto Login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
@@ -45,12 +41,11 @@ public class LoginController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseDto refreshToken(HttpServletRequest request, HttpServletResponse response){
-        String expiredAccessToken = request.getHeader("AccessToken");
+    public ResponseDto refreshToken(HttpServletRequest request, HttpServletResponse response,
+                                    @CookieValue(name = "RefreshToken", required = false) String refreshToken){
 
-        Cookie cookie = Arrays.stream(request.getCookies()).filter((c)-> c.getName().equals("RefreshToken")).findFirst()
-                .orElseThrow(()-> new ExpiredJwtException("RefreshToken을 찾을 수 없습니다."));
-        String refreshToken = cookie.getValue();
+        if (refreshToken.isEmpty()) throw new ExpiredJwtException("쿠키에 리프레시 토큰이 없습니다.");
+        String expiredAccessToken = request.getHeader("AccessToken");
 
         AccessAndRefreshToken newTokens = loginService.refreshToken(expiredAccessToken, refreshToken);
 

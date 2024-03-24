@@ -8,6 +8,7 @@ import github.com.jbabe.service.exception.NotFoundException;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,7 @@ public class JwtTokenConfig {
     @Value("${jwt.valid-time.access-token}")
     private String accessTokenValidMillisecond; // access token 유효기간 : 1분
 
+    @Getter
     @Value("${jwt.valid-time.refresh-token}")
     private String refreshTokenValidMillisecond; // refresh token 유효기간 : 24시간
 
@@ -85,7 +87,7 @@ public class JwtTokenConfig {
     }
 
     public String regenerateRefreshToken(String email, String refreshToken) {
-        Date expirationTime = Jwts.parser().setSigningKey(key).parseClaimsJws(refreshToken).getBody().getExpiration();
+        Date expirationTime = getTokenValidity(refreshToken);
         Date now = new Date();
         return Jwts.builder()
                 .setSubject(email)
@@ -116,11 +118,6 @@ public class JwtTokenConfig {
 
     public String getUserEmail(String jwtToken) {
         return Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody().getSubject();
-    }
-
-    public String getRole(String email) {
-        User user = userJpa.findByEmail(email).orElseThrow(() -> new NotFoundException("이메일에 해당하는 유저를 찾을 수 없습니다.", email));
-        return user.getRole().toString();
     }
 
     @Transactional
