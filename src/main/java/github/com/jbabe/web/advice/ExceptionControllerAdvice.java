@@ -85,10 +85,10 @@ public class ExceptionControllerAdvice {
         }
     }
 
-    @ExceptionHandler(FileUploadFailedException.class)
+    @ExceptionHandler(StorageUpdateFailedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse fileUploadFailed(FileUploadFailedException fileUploadFailedException){
-        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal_Server_Error", fileUploadFailedException.getDetailMessage(), fileUploadFailedException.getRequest());
+    public ErrorResponse fileUploadFailed(StorageUpdateFailedException storageUpdateFailedException){
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal_Server_Error", storageUpdateFailedException.getDetailMessage(), storageUpdateFailedException.getRequest());
     }
 
 //    @ExceptionHandler(MethodArgumentNotValidException.class)

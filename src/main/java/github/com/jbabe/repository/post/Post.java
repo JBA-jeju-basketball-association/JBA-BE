@@ -34,10 +34,11 @@ public class Post {
     private Long viewCount;
 
     @Column(name = "post_status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private PostStatus postStatus;
 
-    @Column(name = "announcement_status", nullable = false)
-    private Boolean announcementStatus; // 공지여부 ==> true : 공지, false : 일반
+    @Column(name = "is_announcement", nullable = false)
+    private Boolean isAnnouncement; // 공지여부 ==> true : 공지, false : 일반
 
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
