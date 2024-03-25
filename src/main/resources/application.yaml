@@ -23,10 +23,10 @@ jasypt:
 
 jwt:
   jwt-password:
-    source: ENC(NKBTDg6Hc5JyF6wsKIZye0fbqEMUyCJt7GYJWBK8dcY=)
+    source: ENC(xwbs64JM9WVz5G5WO0xNPcFkSxEqlRUunveya2a2TiE=)
   valid-time:
-    access-token: ENC(vujujnO99OhlHLvYfC8K6w==)
-    refresh-token: ENC(+B8tychnWMB+mp7xxWPUH5sfOgnz+mcM)
+    access-token: ENC(0L/0Uyraw3HqEA5603az8Q==)
+    refresh-token: ENC(JW8jyHqCPkBJ8NTvex3rEmeQWe5acRiI)
 
 email:
   address: ENC(wCAUHlRDnSdjxSZEczI9XG3Q6BUXy+Inhi2xKIzScA8=)

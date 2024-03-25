@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Set;
 
 @Repository
@@ -24,6 +25,7 @@ public class RedisTokenRepository {
         logoutTokenValueOperation.set(email, oldValue, exp);
     }
     public Set<String> getBlacklist(String email){
-        return logoutTokenValueOperation.get(email);
+        Set<String> blacklist = logoutTokenValueOperation.get(email);
+        return blacklist != null ? blacklist : Collections.emptySet();
     }
 }
