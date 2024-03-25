@@ -77,10 +77,13 @@ public class JwtTokenConfig {
     }
 
     public boolean validateToken(String jwtToken) {
+
             Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
+        System.out.println(claims.getExpiration());
             Date now = new Date();
-            boolean isLogoutToken = redisTokenRepository.getBlacklist(claims.getSubject())
+            boolean isLogoutToken;isLogoutToken = redisTokenRepository.getBlacklist(claims.getSubject())
                     .contains(jwtToken);
+
             return !claims.getExpiration().before(now)&&!isLogoutToken;
 //        catch (ExpiredJwtException e) {
 //            log.error(e.getMessage());

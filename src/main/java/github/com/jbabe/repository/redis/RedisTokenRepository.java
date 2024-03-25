@@ -5,16 +5,15 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Set;
 
 @Repository
 public class RedisTokenRepository {
-    private final RedisTemplate<String,Set<String>> logoutTokenTemplate;
     private final ValueOperations<String,Set<String>> logoutTokenValueOperation;
 
     public RedisTokenRepository(RedisTemplate<String,Set<String>> bean) {
-        this.logoutTokenTemplate = bean;
-        this.logoutTokenValueOperation = logoutTokenTemplate.opsForValue();
+        this.logoutTokenValueOperation = bean.opsForValue();
     }
 
     public void addBlacklistToken(String email, Set<String> accessAndRefreshToken, Duration exp){
@@ -24,6 +23,7 @@ public class RedisTokenRepository {
         logoutTokenValueOperation.set(email, oldValue, exp);
     }
     public Set<String> getBlacklist(String email){
-        return logoutTokenValueOperation.get(email);
+        Set<String> blacklist = logoutTokenValueOperation.get(email);
+        return blacklist != null ? blacklist : Collections.emptySet();
     }
 }

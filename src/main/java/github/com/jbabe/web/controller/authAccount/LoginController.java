@@ -23,8 +23,6 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseDto Login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
-        Integer s = null;
-        s.toString();
         String accessToken = loginService.login(loginRequest.getEmail(), loginRequest.getPassword());
         httpServletResponse.setHeader("AccessToken", accessToken);
         return new ResponseDto();

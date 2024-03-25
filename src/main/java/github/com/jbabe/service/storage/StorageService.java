@@ -1,11 +1,10 @@
 package github.com.jbabe.service.storage;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import github.com.jbabe.service.exception.CustomBadCredentialsException;
-import github.com.jbabe.service.exception.FileUploadFailedException;
+import github.com.jbabe.service.exception.StorageUpdateFailedException;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +50,7 @@ public class StorageService {
         try {
             return new PutObjectRequest(bucketName, storageFileName, file.getInputStream(), objectMetadata);
         }catch (IOException ioException){
-            throw new FileUploadFailedException("File Upload Failed", file.getOriginalFilename());
+            throw new StorageUpdateFailedException("File Upload Failed", file.getOriginalFilename());
         }
 
 
@@ -60,5 +59,18 @@ public class StorageService {
     public String makeStorageFileName(String originalFileName){
         String extension = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
         return UUID.randomUUID() + "." + extension;
+    }
+
+    public void uploadCancel(List<String> fileUrls) {
+        try{
+            for(String url : fileUrls){
+                String[] parts = url.split("/");
+                String key = parts[parts.length - 1];
+                amazonS3Client.deleteObject(bucketName,key);
+            }
+        }catch (AmazonS3Exception e){
+          e.printStackTrace();
+          throw new StorageUpdateFailedException("File Delete Failed "+e.getMessage(), fileUrls.toString());
+        }
     }
 }

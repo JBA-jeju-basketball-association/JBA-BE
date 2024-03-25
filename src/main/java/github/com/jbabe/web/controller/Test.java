@@ -9,12 +9,12 @@ import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
+import github.com.jbabe.web.advice.errorResponseDto.ErrorResponse;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest.FinishUploadRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUrlAbortRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUrlCreateRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUploadInitiateRequest;
-import github.com.jbabe.web.dto.awsTest2.SaveDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +28,7 @@ import java.net.URLConnection;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.lettuce.core.LettuceFutures.awaitAll;
@@ -137,10 +134,16 @@ public class Test {
     @PostMapping("/multipart-files")
     public ResponseDto uploadMultipleFiles(//여러개 업로드
             @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
-            @RequestParam SaveFileType type
+            @RequestParam(required = false) Optional<SaveFileType> type
     ) {
-        List<String> fileUrls = storageService.fileUploadAndGetUrl(multipartFiles, type);
+        List<String> fileUrls = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
         return new ResponseDto(fileUrls);
+    }
+
+    @DeleteMapping("/multipart-files")//업로드 취소 (삭제)
+    public ResponseDto uploadMultipleFiles(@RequestParam(value = "file-url") List<String> fileUrls ) {
+        storageService.uploadCancel(fileUrls);
+        return new ResponseDto();
     }
 
 
