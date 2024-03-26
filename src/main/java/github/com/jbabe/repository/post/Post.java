@@ -1,10 +1,13 @@
 package github.com.jbabe.repository.post;
 
+import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
+import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "post")
@@ -49,8 +52,19 @@ public class Post {
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
 
+    @OneToMany(mappedBy = "post")
+    private Set<PostAttachedFile> postAttachedFiles;
+
+    @OneToMany(mappedBy = "post")
+    private Set<PostImg> postImgs;
+
+
     @Getter
     public enum PostStatus{
         NORMAL, HIDE, DELETE
+    }
+
+    public void increaseViewCount(){
+        this.viewCount++;
     }
 }

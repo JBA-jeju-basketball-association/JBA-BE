@@ -1,8 +1,16 @@
 package github.com.jbabe.repository.postCategory;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import github.com.jbabe.repository.post.Post;
+import github.com.jbabe.service.exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.*;
+import org.checkerframework.checker.units.qual.C;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 @Entity
 @Table(name = "post_category")
@@ -27,6 +35,24 @@ public class PostCategory {
 
     @Getter
     public enum Category{
-        ASSOCIATION_ANNOUNCEMENT, COMPETITION_ANNOUNCEMENT, REFERENCE_ROOM, NEWS, REFEREE_ANNOUNCEMENT, TABLE_OFFICIAL_ANNOUNCEMENT
+        ASSOCIATION_ANNOUNCEMENT("association-announcement"),
+        COMPETITION_ANNOUNCEMENT("competition-announcement"),
+        REFERENCE_ROOM("reference-room"),
+        NEWS("news"),
+        REFEREE_ANNOUNCEMENT("referee-announcement"),
+        TABLE_OFFICIAL_ANNOUNCEMENT("table-official-announcement");
+        private final String value;
+        Category(String value){
+            this.value = value;
+        }
+
+
+        public static Category inValue(String category){
+            for(Category c : EnumSet.allOf(Category.class)){
+                if(c.value.equals(category)) return c;
+            }
+            throw new BadRequestException("Enum Mismatch Category", category);
+        }
+
     }
 }
