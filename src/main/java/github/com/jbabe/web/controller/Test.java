@@ -51,8 +51,7 @@ public class Test {
     @GetMapping("/test")
     public String test(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         User user = userJpa.findById(customUserDetails.getUserId()).orElseThrow(()-> new NotFoundException("Not Found User", ""));
-        String userName = user.getName();
-        return userName;
+        return user.getName();
     }
 
     @PostMapping("/logoutTest")

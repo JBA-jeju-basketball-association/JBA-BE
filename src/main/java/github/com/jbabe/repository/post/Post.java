@@ -34,7 +34,7 @@ public class Post {
     private String content;
 
     @Column(name = "view_count", nullable = false)
-    private Long viewCount;
+    private Integer viewCount;
 
     @Column(name = "post_status", nullable = false)
     @Enumerated(EnumType.STRING)
