@@ -1,10 +1,14 @@
 package github.com.jbabe.config.security;
 
 import github.com.jbabe.repository.redis.RedisTokenRepository;
+import github.com.jbabe.repository.user.User;
+import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.authAccount.RedisUtil;
+import github.com.jbabe.service.exception.NotFoundException;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,12 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class JwtTokenConfig {
+    private final UserJpa userJpa;
 
     private final UserDetailsService userDetailsService;
     private final RedisUtil redisUtil;
@@ -34,10 +38,11 @@ public class JwtTokenConfig {
     private String key;
 
     @Value("${jwt.valid-time.access-token}")
-    private String accessTokenValidMillisecond; // access token 유효기간
+    private String accessTokenValidMillisecond; // access token 유효기간 : 1분
 
+    @Getter
     @Value("${jwt.valid-time.refresh-token}")
-    private String refreshTokenValidMillisecond; // refresh token 유효기간
+    private String refreshTokenValidMillisecond; // refresh token 유효기간 : 24시간
 
 
 
@@ -54,21 +59,26 @@ public class JwtTokenConfig {
     }
 
     public String createAccessToken(String email) {
-        Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
+        Date expiration = new Date(now.getTime() + Long.parseLong(accessTokenValidMillisecond));
+        User user = userJpa.findByEmail(email).orElseThrow(() -> new NotFoundException("해당 이메일로 유저를 찾을 수 없습니다.", email));
+
+        Claims claims = Jwts.claims().setSubject(email);
+        claims.put("role", user.getRole());
+
         return Jwts.builder()
                 .setClaims(claims)
+                .setAudience(user.getName())
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + Long.parseLong(accessTokenValidMillisecond)))
+                .setExpiration(expiration)
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
 
     public String createRefreshToken(String email) {
-        Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
         return Jwts.builder()
-                .setClaims(claims)
+                .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + Long.parseLong(refreshTokenValidMillisecond)))
                 .signWith(SignatureAlgorithm.HS256, key)
@@ -76,22 +86,29 @@ public class JwtTokenConfig {
 
     }
 
-    public boolean validateToken(String jwtToken) {
+    public String regenerateRefreshToken(String email, String refreshToken) {
+        Date expirationTime = getTokenValidity(refreshToken);
+        Date now = new Date();
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expirationTime)
+                .signWith(SignatureAlgorithm.HS256, key)
+                .compact();
+    }
 
-            Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
-        System.out.println(claims.getExpiration());
-            Date now = new Date();
-            boolean isLogoutToken;isLogoutToken = redisTokenRepository.getBlacklist(claims.getSubject())
-                    .contains(jwtToken);
+    public boolean accessTokenValidate(String jwtToken) {
+        Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
+        Date now = new Date();
+        boolean isLogoutToken = redisTokenRepository.getBlacklist(claims.getSubject())
+                .contains(jwtToken);
+        return !claims.getExpiration().before(now) && !isLogoutToken;
+    }
 
-            return !claims.getExpiration().before(now)&&!isLogoutToken;
-//        catch (ExpiredJwtException e) {
-//            log.error(e.getMessage());
-//            throw new github.com.jbabe.service.exception.ExpiredJwtException("토큰이 만료되었습니다.");
-//        }catch (JwtException e) {
-//            log.error(e.getMessage());
-//            throw new github.com.jbabe.service.exception.JwtException("Jwt 인증 오류");
-//        }
+    public Boolean refreshTokenValidate(String jwtToken) {
+        Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
+        Date now = new Date();
+        return !claims.getExpiration().before(now);
     }
 
     public Authentication getAuthentication(String jwtToken) {
@@ -99,13 +116,14 @@ public class JwtTokenConfig {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    private String getUserEmail(String jwtToken) {
+    public String getUserEmail(String jwtToken) {
         return Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody().getSubject();
     }
 
     @Transactional
     public void saveRedisTokens(String accessToken, String refreshToken) {
-        redisUtil.setDataExpire(accessToken, refreshToken, Long.parseLong(refreshTokenValidMillisecond));
+        Date expirationTime = getTokenValidity(refreshToken);
+        redisUtil.setDataExpire(accessToken, refreshToken, expirationTime.getTime());
     }
 
     //토큰 만료시간 파싱

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Getter
 public class SignUpRequest {
     @Email(message = "이메일 형식이 올바르지 않습니다.")
-    @NotEmpty(message = "이메일을 입력해주세요.")
+    @NotEmpty
     private String email;
 
     @Pattern(regexp="^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", message = "비밀번호는 영문과 특수문자 숫자를 포함하며 8자 이상 20자 이하여야 합니다.")
@@ -26,7 +26,7 @@ public class SignUpRequest {
     @NotEmpty
     private String gender;
 
-    @Min(1990)
+    @Min(1900)
     @Max(2030)
     private Integer year;
 
@@ -38,7 +38,7 @@ public class SignUpRequest {
     @Max(31)
     private Integer day;
 
-    @NotEmpty(message = "소속팀을 입력해주세요")
+    @NotEmpty
     private String team;
 
     public boolean equalsPasswordAndPasswordConfirm() {
