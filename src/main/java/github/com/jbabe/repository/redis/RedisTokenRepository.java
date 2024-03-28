@@ -10,12 +10,10 @@ import java.util.Set;
 
 @Repository
 public class RedisTokenRepository {
-    private final RedisTemplate<String,Set<String>> logoutTokenTemplate;
     private final ValueOperations<String,Set<String>> logoutTokenValueOperation;
 
     public RedisTokenRepository(RedisTemplate<String,Set<String>> bean) {
-        this.logoutTokenTemplate = bean;
-        this.logoutTokenValueOperation = logoutTokenTemplate.opsForValue();
+        this.logoutTokenValueOperation = bean.opsForValue();
     }
 
     public void addBlacklistToken(String email, Set<String> accessAndRefreshToken, Duration exp){
