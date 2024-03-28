@@ -75,3 +75,10 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+tasks.named('bootJar'){
+    mainClass = 'github.com.jbabe.JbaBeApplication'
+    destinationDirectory = file("./serverBootJar")
+    archivesBaseName = 'Jba'
+    archiveFileName = 'jba_ver0328.jar'
+    archiveVersion = "0.0.1"
+}
