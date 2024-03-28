@@ -86,7 +86,6 @@ public class JwtTokenConfig {
 
     }
 
-
     public String regenerateRefreshToken(String email, String refreshToken) {
         Date expirationTime = getTokenValidity(refreshToken);
         Date now = new Date();
