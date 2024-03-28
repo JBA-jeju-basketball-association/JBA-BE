@@ -11,15 +11,16 @@ import java.util.Optional;
 
 @Repository
 public interface PostJpa extends JpaRepository<Post, Integer> {
-    Page<Post> findByIsAnnouncementFalseAndPostStatus(Pageable pageable, Post.PostStatus postStatus);
-    List<Post> findByIsAnnouncementTrueAndPostStatus(Post.PostStatus postStatus);
+    Page<Post> findByIsAnnouncementFalseAndPostStatusAndCategory(Pageable pageable, Post.PostStatus postStatus, Post.Category category);
+    List<Post> findByIsAnnouncementTrueAndPostStatusAndCategory(Post.PostStatus postStatus, Post.Category category);
 
     @Query(
             "SELECT p " +
                     "FROM Post p " +
                     "LEFT JOIN FETCH p.postAttachedFiles " +
                     "LEFT JOIN FETCH p.postImgs " +
-                    "WHERE p.postId = :postId"
+                    "WHERE p.category = :category " +
+                    "AND p.postId = :postId"
     )
-    Optional<Post> findByIdUrlsJoin(Integer postId);
+    Optional<Post> findByIdUrlsJoin(Post.Category category, Integer postId);
 }
