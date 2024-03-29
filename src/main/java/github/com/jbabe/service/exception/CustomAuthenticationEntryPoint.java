@@ -28,15 +28,23 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         log.warn(authException.getMessage());
 
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE+";charset=UTF-8");
 
         Object exception = request.getAttribute(JwtTokenConfig.EXCEPTION_HEADER_NAME);
 
+        int statusCode = getStatusCode(exception);
+
+        response.setStatus(statusCode);
+        
         String[] responseStr = checkExceptionAndMakeMessage(request, exception);
 
-        makeResponse(responseStr, response);
+        makeResponse(responseStr, statusCode,response);
 
+    }
+
+    private int getStatusCode(Object exception) {
+        return (exception instanceof RedisConnectionFailureException) ?
+                HttpStatus.NOT_IMPLEMENTED.value() : HttpStatus.UNAUTHORIZED.value();
     }
 
     private String[] checkExceptionAndMakeMessage(HttpServletRequest request, Object exception) {
@@ -61,8 +69,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         } else return "무효한 토큰";
     }
 
-    private void makeResponse(String[] message, HttpServletResponse response) throws IOException {
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), message[1], message[2], message[0]);
+    private void makeResponse(String[] message, int statusCode, HttpServletResponse response) throws IOException {
+        ErrorResponse errorResponse = new ErrorResponse(statusCode, message[1], message[2], message[0]);
         new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
     }
 }
