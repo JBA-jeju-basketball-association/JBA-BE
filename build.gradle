@@ -66,6 +66,9 @@ dependencies {
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // jedis -> java로 redis control
+    implementation 'redis.clients:jedis:5.1.0'
+
 }
 
 tasks.named('test') {

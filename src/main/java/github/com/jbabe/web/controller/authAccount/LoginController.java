@@ -2,6 +2,7 @@ package github.com.jbabe.web.controller.authAccount;
 
 import github.com.jbabe.config.security.JwtTokenConfig;
 import github.com.jbabe.service.authAccount.LoginService;
+import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.ExpiredJwtException;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,10 +46,10 @@ public class LoginController {
 
     @PostMapping("/refresh-token")
     public ResponseDto refreshToken(HttpServletRequest request, HttpServletResponse response,
-                                    @CookieValue(name = "RefreshToken", required = false) String refreshToken){
-
+                                    @CookieValue(name = "RefreshToken", required = false, defaultValue = "") String refreshToken){
         if (refreshToken.isEmpty()) throw new ExpiredJwtException("쿠키에 리프레시 토큰이 없습니다.");
         String expiredAccessToken = request.getHeader("AccessToken");
+        if (expiredAccessToken == null || expiredAccessToken.isEmpty()) throw new BadRequestException("Header에 AccessToken 이 없습니다.", "");
 
         AccessAndRefreshToken newTokens = loginService.refreshToken(expiredAccessToken, refreshToken);
 
