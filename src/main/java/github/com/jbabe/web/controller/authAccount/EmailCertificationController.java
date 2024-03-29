@@ -19,10 +19,10 @@ public class EmailCertificationController {
 
     private final EmailCertificationService emailCertificationService;
 
-    @PostMapping("/send-mail")
-    public ResponseDto sendMail(@RequestBody @Valid EmailRequest emailRequest) {
+    @PostMapping("/sign-up-send-mail")
+    public ResponseDto signUpSendEmail(@RequestBody @Valid EmailRequest emailRequest) {
         System.out.println("이메일 인증 이메일 : " + emailRequest.getEmail());
-        emailCertificationService.joinEmail(emailRequest.getEmail());
+        emailCertificationService.signUpSendEmail(emailRequest.getEmail());
         return new ResponseDto();
     }
 
