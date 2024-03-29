@@ -1,8 +1,10 @@
-name: test
+name: jba-ci/cd
 
 on:
   push:
     branches: [ test-ec2_server ]
+  pull_request:
+    branches: [ main ]
 
 env:
   AWS_REGION: ap-northeast-2
