@@ -5,6 +5,7 @@ on:
     branches: [ test-ec2_server ]
   pull_request:
     branches: [ main ]
+    types: [ closed ]
 
 env:
   AWS_REGION: ap-northeast-2
