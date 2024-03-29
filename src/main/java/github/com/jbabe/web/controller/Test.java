@@ -140,10 +140,21 @@ public class Test {
     }
 
     @DeleteMapping("/multipart-files")//업로드 취소 (삭제)
-    public ResponseDto uploadMultipleFiles(@RequestParam(value = "file-url") List<String> fileUrls ) {
+    public ResponseDto deleteMultipleFiles(@RequestParam(value = "file-url") List<String> fileUrls ) {
         storageService.uploadCancel(fileUrls);
         return new ResponseDto();
     }
+    @PutMapping("/multipart-files")
+    public ResponseDto modifyMultipleFiles(@RequestParam(value = "file-url") List<String> deleteFileUrls,
+                                           @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
+                                           @RequestParam(required = false) Optional<SaveFileType> type){
+
+        List<String> fileUrls = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
+        storageService.uploadCancel(deleteFileUrls);
+        return new ResponseDto(fileUrls);
+    }
+
+
 
 
 
