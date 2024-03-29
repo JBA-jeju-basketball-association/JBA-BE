@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.3'
+    id 'org.springframework.boot' version '3.2.1'
     id 'io.spring.dependency-management' version '1.1.4'
 }
 
@@ -22,20 +22,68 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // mariaDB
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
+
+    // env-hide
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
-    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
+
+    // jasypt
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+
+    // Mapstruct
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    // token
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // email 인증
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '2.6.3'
+    implementation 'javax.mail:mail:1.4.7'
+
+    // Spring Context Support
+    implementation 'org.springframework:spring-context-support:5.3.9'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+
+    // jedis -> java로 redis control
+    implementation 'redis.clients:jedis:5.1.0'
+
+    //aws
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.683'
+
+
 
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+tasks.named('bootJar'){
+    mainClass = 'github.com.jbabe.JbaBeApplication'
+    destinationDirectory = file("./building")
+    archivesBaseName = 'Jba'
+    archiveFileName = 'jba_ver0328.jar'
+    archiveVersion = "0.0.1"
 }

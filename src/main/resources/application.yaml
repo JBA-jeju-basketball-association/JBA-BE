@@ -1,13 +1,50 @@
 
-datasource:
-  username: ENC(OTwkQfDYEvRuk9SUGSs3R7StBgVUJIiI)
-  password: ENC(f44b5Yz90E9uq6ObB1wtP20y23yzAb9k)
-  driver-class-name: org.mariadb.jdbc.Driver
-  url: ENC(z+3mjYVLvMei6KDOLWgbe1w5btKrg2dG5CPK/WwCzOmWzLBfagI6S5VWkpKhlKFx2x5eWUPuzg0V93lHZuWBN7uYwfxDzITLzXIQoLmmd7y9dhS4XPsLfqLyEFt1dJp0)
-
 spring:
+  #aws⬇️
+  servlet:
+    multipart:
+      enabled: true # 멀티파트 업로드 지원여부 (default: true)
+      file-size-threshold: 0B # 파일을 디스크에 저장하지 않고 메모리에 저장하는 최소 크기 (default: 0B)
+      location: /users/charming/temp # 업로드된 파일이 임시로 저장되는 디스크 위치 (default: WAS가 결정)
+      max-file-size: 10MB # 한개 파일의 최대 사이즈 (default: 1MB)
+      max-request-size: 10MB # 한개 요청의 최대 사이즈 (default: 10MB)
+
+  datasource:
+    username: ENC(dwj/vyhyvJGjquwmQNALlTOLF7W+TDrx)
+    password: ENC(Geo4IHpXtYZNzzFrXKJSrvLMYPembAnGT7ajiPagSDg=)
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ENC(V8aQFNv5wr4Ql3VJodqyM0NlrIhdCqh5IRPrYlMZwR2DjK7NZZihjtMQDeNr4fCpKFl812vkWJ6y8zA6cUyAVOSrjRW0W3olBqRfUO04eXrdrxEJe/H4GjToB4yRFCxH)
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
   jpa:
     open-in-view: false
+    show-sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jasypt:
+  encryptor:
+    password: ${JASYPT_SECRET_KEY}
+    bean: jasyptStringEncryptor
+
+jwt:
+  jwt-password:
+    source: ENC(xwbs64JM9WVz5G5WO0xNPcFkSxEqlRUunveya2a2TiE=)
+  valid-time:
+    access-token: ENC(0L/0Uyraw3HqEA5603az8Q==)
+    refresh-token: ENC(JW8jyHqCPkBJ8NTvex3rEmeQWe5acRiI)
+
+email:
+  address: ENC(wCAUHlRDnSdjxSZEczI9XG3Q6BUXy+Inhi2xKIzScA8=)
+  app-password: ENC(BT49Z4LzbQSP2NLoXTvebjiAYJmILhq0ScaUDE9qWuw=)
+
+aws:
+  s3:
+    credentials:
+      access-key: ENC(3GPc4s7104mBP6+PswGBPiXzNHj/Rj+BSaArVv0yf9w=)
+      secret-key: ENC(EG1UGvGC37vl4JwRD+L9BC9OD2GkR7Ndi/WW7x3QVGjs2uj7/kcvXhjJVEES45CylP97MV9gymg=)
+    bucket-name: ENC(GHq5AsY5Cl8UqcGhxt0uZ+FqwAvozPZT)
+    region: ENC(N2HhGgAsrLMJpKwIKsLW1KgGBZyGVt8c)
