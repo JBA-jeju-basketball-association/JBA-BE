@@ -3,7 +3,7 @@ name: jba-ci/cd
 
 on:
   push:
-    branches: [ test-ec2_server ]
+    branches: [ feat-ec2_server ]
   pull_request:
     branches: [ main ]
     types: [ closed ]
@@ -30,7 +30,7 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'adopt'
+          distribution: 'jetbrains'
           java-version: '17'
 
 
