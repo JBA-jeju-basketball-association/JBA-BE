@@ -39,7 +39,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v8.5
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: clean bootJar -x test
 
