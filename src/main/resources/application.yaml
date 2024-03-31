@@ -1,4 +1,10 @@
 
+elasticsearch:
+  host: localhost
+  port: 9200
+  indecies:
+    studentsIndexName: students
+    testIndexName: tests
 spring:
   #aws⬇️
   servlet:
@@ -8,6 +14,7 @@ spring:
       location: /users/charming/temp # 업로드된 파일이 임시로 저장되는 디스크 위치 (default: WAS가 결정)
       max-file-size: 10MB # 한개 파일의 최대 사이즈 (default: 1MB)
       max-request-size: 10MB # 한개 요청의 최대 사이즈 (default: 10MB)
+
 
   datasource:
     username: ENC(dwj/vyhyvJGjquwmQNALlTOLF7W+TDrx)

@@ -23,9 +23,11 @@ public class PostController {
 
     }
 
-    @GetMapping("/{category}/{postId}")
+    @GetMapping("/{category}/{postId}")//게시물 상세조회
     public ResponseDto getPostDetails(@PathVariable String category, @PathVariable Integer postId){
         return new ResponseDto(postService.getPostByPostId(category, postId));
     }
+
+
 
 }
