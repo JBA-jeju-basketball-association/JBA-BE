@@ -23,4 +23,6 @@ public class GalleryImg {
 
     @Column(name = "img_url", nullable = false)
     private String imgUrl;
+    @Column(name = "file_name", nullable = false)
+    private String fileName;
 }

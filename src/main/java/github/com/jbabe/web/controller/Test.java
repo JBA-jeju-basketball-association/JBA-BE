@@ -130,32 +130,5 @@ public class Test {
 //
 //        amazonS3Client.putObject(putObjectRequest);
 //    }
-    @PostMapping("/multipart-files")
-    public ResponseDto uploadMultipleFiles(//여러개 업로드
-            @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
-            @RequestParam(required = false) Optional<SaveFileType> type
-    ) {
-        List<String> fileUrls = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
-        return new ResponseDto(fileUrls);
-    }
-
-    @DeleteMapping("/multipart-files")//업로드 취소 (삭제)
-    public ResponseDto deleteMultipleFiles(@RequestParam(value = "file-url") List<String> fileUrls ) {
-        storageService.uploadCancel(fileUrls);
-        return new ResponseDto();
-    }
-    @PutMapping("/multipart-files")
-    public ResponseDto modifyMultipleFiles(@RequestParam(value = "file-url") List<String> deleteFileUrls,
-                                           @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
-                                           @RequestParam(required = false) Optional<SaveFileType> type){
-
-        List<String> fileUrls = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
-        storageService.uploadCancel(deleteFileUrls);
-        return new ResponseDto(fileUrls);
-    }
-
-
-
-
 
 }
