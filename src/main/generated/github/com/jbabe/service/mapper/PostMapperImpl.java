@@ -9,7 +9,9 @@ import javax.annotation.processing.Generated;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
+
     date = "2024-03-30T16:56:44+0900",
+
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.9 (JetBrains s.r.o.)"
 )
 public class PostMapperImpl implements PostMapper {
