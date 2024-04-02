@@ -25,4 +25,6 @@ public class CompetitionRecordFile {
 
     @Column(name = "file_path", nullable = false)
     private Integer filePath;
+    @Column(name = "file_name", nullable = false)
+    private String fileName;
 }
