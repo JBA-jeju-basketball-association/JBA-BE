@@ -1,10 +1,12 @@
 package github.com.jbabe.repository.gallery;
 
+import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "gallery")
@@ -30,6 +32,7 @@ public class Gallery {
     private Boolean isOfficial; // false : 갤러리, true : 스탭갤러리
 
     @Column(name = "gallery_status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private GalleryStatus galleryStatus;
 
     @Column(name = "create_at", nullable = false)
@@ -40,6 +43,9 @@ public class Gallery {
 
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
+
+    @OneToMany(mappedBy = "gallery")
+    private List<GalleryImg> galleryImgs;
 
     @Getter
     public enum GalleryStatus {
