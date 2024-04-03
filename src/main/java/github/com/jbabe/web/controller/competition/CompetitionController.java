@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CompetitionController {
     @PostMapping("/add")
     public ResponseDto addCompetition() {
-
+        return new ResponseDto();
     }
 
 }

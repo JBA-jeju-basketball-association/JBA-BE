@@ -4,17 +4,17 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.StorageUpdateFailedException;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
+import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,14 +23,16 @@ public class StorageService {
     private String bucketName;
     private final AmazonS3 amazonS3Client;
 
-    public List<String> fileUploadAndGetUrl(List<MultipartFile> multipartFiles, SaveFileType type){
-        List<String> fileUrls = new ArrayList<>();
+    public List<FileDto> fileUploadAndGetUrl(List<MultipartFile> multipartFiles, SaveFileType type){
+        List<FileDto> response = new ArrayList<>();
+
         switch (type){
             case small:
                 for(MultipartFile file : multipartFiles){
                     PutObjectRequest putObjectRequest = makePutObjectRequest(file);
                     amazonS3Client.putObject(putObjectRequest);
-                    fileUrls.add(amazonS3Client.getUrl(bucketName,putObjectRequest.getKey()).toString());
+                    String url = amazonS3Client.getUrl(bucketName,putObjectRequest.getKey()).toString();
+                    response.add(new FileDto(file.getOriginalFilename(), url));
                 }
                 break;
             case large:
@@ -38,11 +40,11 @@ public class StorageService {
                 // 로딩바 구현을위해 aws s3 로 구현
                 break;
         }
-        return fileUrls;
+        return response;
     }
 
     private PutObjectRequest makePutObjectRequest(MultipartFile file) {
-        String storageFileName = makeStorageFileName(file.getOriginalFilename());
+        String storageFileName = makeStorageFileName(Objects.requireNonNull(file.getOriginalFilename()));
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(file.getContentType());
