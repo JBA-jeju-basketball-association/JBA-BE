@@ -4,6 +4,7 @@ import github.com.jbabe.repository.redis.RedisTokenRepository;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.authAccount.RedisUtil;
+import github.com.jbabe.service.exception.ExpiredJwtException;
 import github.com.jbabe.service.exception.NotFoundException;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
@@ -34,15 +35,11 @@ public class JwtTokenConfig {
 
     @Value("${jwt.jwt-password.source}")
     private String secretKey;
-
     private String key;
-
-    @Value("${jwt.valid-time.access-token}")
-    private String accessTokenValidMillisecond; // access token 유효기간 : 1분
+    private final long accessTokenValidMillisecond = 6000; // access token 유효기간 : 10초
 
     @Getter
-    @Value("${jwt.valid-time.refresh-token}")
-    private String refreshTokenValidMillisecond; // refresh token 유효기간 : 24시간
+    private final long refreshTokenValidMillisecond = 20000; // refresh token 유효기간 : 60초
 
 
 
@@ -60,7 +57,7 @@ public class JwtTokenConfig {
 
     public String createAccessToken(String email) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + Long.parseLong(accessTokenValidMillisecond));
+        Date expiration = new Date(now.getTime() + accessTokenValidMillisecond);
         User user = userJpa.findByEmail(email).orElseThrow(() -> new NotFoundException("해당 이메일로 유저를 찾을 수 없습니다.", email));
 
         Claims claims = Jwts.claims().setSubject(email);
@@ -77,10 +74,11 @@ public class JwtTokenConfig {
 
     public String createRefreshToken(String email) {
         Date now = new Date();
+        Date expiration = new Date(now.getTime() + refreshTokenValidMillisecond);
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + Long.parseLong(refreshTokenValidMillisecond)))
+                .setExpiration(expiration)
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
 
@@ -106,9 +104,14 @@ public class JwtTokenConfig {
     }
 
     public Boolean refreshTokenValidate(String jwtToken) {
-        Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
-        Date now = new Date();
-        return !claims.getExpiration().before(now);
+        try {
+            Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtToken).getBody();
+            Date now = new Date();
+            return !claims.getExpiration().before(now);
+        }catch (Exception e) {
+            throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.");
+        }
+
     }
 
     public Authentication getAuthentication(String jwtToken) {

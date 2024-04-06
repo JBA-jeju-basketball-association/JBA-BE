@@ -54,9 +54,10 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000")); // 쿠키 자동저장을 위해 프론트 포트 설정
-        corsConfiguration.setAllowCredentials(true); // cross-origin 문제 해결을 위해 Credentials 설정
-        corsConfiguration.addExposedHeader("AccessToken");
+        corsConfiguration.setAllowedOrigins(List.of("*")); // TODO: 쿠키사용 시 변경
+//        corsConfiguration.setAllowCredentials(true); // TODO: 쿠키사용 시 변경
+        corsConfiguration.addExposedHeader("access-token");
+        corsConfiguration.addExposedHeader("refresh-token");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowedMethods(List.of("GET","PUT","POST","PATCH","DELETE","OPTIONS"));
         corsConfiguration.setMaxAge(1000L*60*60);
