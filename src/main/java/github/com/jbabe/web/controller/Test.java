@@ -16,6 +16,7 @@ import github.com.jbabe.web.dto.awsTest.PreSignedUrlAbortRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUrlCreateRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUploadInitiateRequest;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,11 +43,6 @@ public class Test {
     private final RedisTokenRepository redisTokenRepository;
     private final AmazonS3 amazonS3Client;
     private final StorageService storageService;
-
-
-//    public Test(UserJpa userJpa) {
-//        this.userJpa = userJpa;
-//    }
 
     @GetMapping("/test")
     public String test(@AuthenticationPrincipal CustomUserDetails customUserDetails) {

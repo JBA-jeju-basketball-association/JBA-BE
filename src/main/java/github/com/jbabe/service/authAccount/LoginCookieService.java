@@ -2,16 +2,14 @@ package github.com.jbabe.service.authAccount;
 
 import github.com.jbabe.config.security.JwtTokenConfig;
 import github.com.jbabe.repository.redis.RedisTokenRepository;
-import github.com.jbabe.repository.user.User;
-import github.com.jbabe.repository.user.UserJpa;
-import github.com.jbabe.service.exception.*;
+import github.com.jbabe.service.exception.BadRequestException;
+import github.com.jbabe.service.exception.CustomBadCredentialsException;
+import github.com.jbabe.service.exception.ExpiredJwtException;
+import github.com.jbabe.service.exception.NotAcceptableException;
 import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,43 +28,51 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class LoginService {
+public class LoginCookieService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenConfig jwtTokenConfig;
     private final RedisUtil redisUtil;
     private final RedisTokenRepository redisTokenRepository;
 
-
-
     @Transactional
-    public AccessAndRefreshToken refreshToken(String requestAccessToken, String requestRefreshToken) {
+    public AccessAndRefreshToken refreshTokenCookie(String requestAccessToken, String requestRefreshToken) {
 
         try {
             String redisRefreshToken = redisUtil.getData(requestAccessToken);
             if (!redisRefreshToken.equals(requestRefreshToken)) throw new ExpiredJwtException("RefreshToken 인증 오류");
 
             if (jwtTokenConfig.refreshTokenValidate(redisRefreshToken)) {
-                String userEmail = jwtTokenConfig.getUserEmail(requestRefreshToken);
+                Date refreshTokenExpiredTime = jwtTokenConfig.getTokenValidity(requestRefreshToken);
+                long cookieExpiredTime = new Date(refreshTokenExpiredTime.getTime()).getTime()/1000;
+
+                String userEmail = jwtTokenConfig.getUserEmail(redisRefreshToken);
 
                 String newAccessToken = jwtTokenConfig.createAccessToken(userEmail);
                 String newRefreshToken = jwtTokenConfig.regenerateRefreshToken(userEmail, requestRefreshToken);
-
+                ResponseCookie cookie = ResponseCookie.from("RefreshToken", newRefreshToken)
+                        .maxAge(cookieExpiredTime) // 쿠키의 유효 시간
+                        .path("/")  // 모든 페이지에서 사용가능
+                        .secure(true) //TODO https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
+                        .sameSite("Strict") //TODO
+                        // 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능 -> 배포 시 변경필요
+                        .httpOnly(true)  // TODO : ssl 배포 시 true 변경 필요
+                        .build();
 
                 jwtTokenConfig.saveRedisTokens(newAccessToken, newRefreshToken);
                 redisUtil.deleteData(requestAccessToken);
-                return new AccessAndRefreshToken(newAccessToken, newRefreshToken);
+                return new AccessAndRefreshToken(newAccessToken, cookie);
             }else{
                 throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.");
             }
         }catch (RedisSystemException | NullPointerException | ExpiredJwtException e) {
-            throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.");
+            throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.(레디스, 널 등)");
         }
     }
 
 
 
 
-    public AccessAndRefreshToken login(String email, String password) {
+    public AccessAndRefreshToken loginCookie(String email, String password) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -75,8 +81,14 @@ public class LoginService {
             String accessToken = jwtTokenConfig.createAccessToken(userEmail);
             String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Tokens 저장
-
-            return new AccessAndRefreshToken(accessToken, refreshToken);
+            ResponseCookie cookie = ResponseCookie.from("RefreshToken", refreshToken)
+                    .maxAge(jwtTokenConfig.getRefreshTokenValidMillisecond()/1000) // 쿠키의 유효 시간
+                    .path("/")  // 모든 페이지에서 사용가능
+                    .secure(true) //TODO https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
+                    .sameSite("None") //TODO 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능 -> 배포 시 변경필요
+                    .httpOnly(true)  //TODO : ssl 배포 시 true 변경 필요
+                    .build();
+            return new AccessAndRefreshToken(accessToken, cookie);
 
             //⬇️ 리스너 or 유저디테일서비스에서  날린 익셉션 그대로 던지기
         }catch (CustomBadCredentialsException | InternalAuthenticationServiceException e){
@@ -87,8 +99,10 @@ public class LoginService {
         }
     }
 
+
+
     @Transactional
-    public void disableToken(String email, String accessToken) {
+    public ResponseCookie disableTokenCookie(String email, String accessToken) {
         try {
             String refreshToken = redisUtil.getData(accessToken);
             Date dataExp = jwtTokenConfig.getTokenValidity(accessToken);
@@ -102,10 +116,16 @@ public class LoginService {
             } else throw new BadRequestException("이미 로그아웃된 유저입니다.", accessToken);
             redisTokenRepository.addBlacklistToken(email, tokens,
                     Duration.between(Instant.now(), dataExp.toInstant()));
+
+            return ResponseCookie.from("RefreshToken", "") // 클라이언트 refreshToken 삭제용 쿠키
+                    .maxAge(0)
+                    .build();
         } catch (BadRequestException e) {
             throw new BadRequestException("이미 로그아웃된 유저입니다.", accessToken);
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage(), accessToken);
         }
     }
+
+
 }
