@@ -54,8 +54,10 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("*"));
-        corsConfiguration.addExposedHeader("Authorization");
+        corsConfiguration.setAllowedOrigins(List.of("*")); // TODO: 쿠키사용 시 변경
+//        corsConfiguration.setAllowCredentials(true); // TODO: 쿠키사용 시 변경
+        corsConfiguration.addExposedHeader("access-token");
+        corsConfiguration.addExposedHeader("refresh-token");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowedMethods(List.of("GET","PUT","POST","PATCH","DELETE","OPTIONS"));
         corsConfiguration.setMaxAge(1000L*60*60);
