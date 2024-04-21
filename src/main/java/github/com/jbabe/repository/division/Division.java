@@ -2,16 +2,14 @@ package github.com.jbabe.repository.division;
 
 import github.com.jbabe.repository.competition.Competition;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "division")
 public class Division {
     @Id

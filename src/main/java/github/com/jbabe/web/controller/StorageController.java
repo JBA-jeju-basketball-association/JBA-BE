@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -23,6 +24,13 @@ public class StorageController {
     ) {
         List<FileDto> response = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
         return new ResponseDto(response);
+    }
+
+    @PostMapping("/ck-editor-upload")
+    public Map<String, Object> ckEditorImgUpload(//한개 업로드
+                                  @RequestPart("uploadFile") MultipartFile multipartFile
+    ) {
+        return storageService.ckEditorImgUpload(multipartFile);
     }
 
     @DeleteMapping("/multipart-files")//업로드 취소 (삭제)
