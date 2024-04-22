@@ -2,17 +2,17 @@ package github.com.jbabe.web.dto.competition;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 @Getter
 @Setter
 public class AddCompetitionRequest {
-    @NotNull(message = "제목을 입력해주세요.")
+    @Pattern(regexp = "^[a-zA-Z0-9]{3,}$", message = "제목은 3글자 이상이고 특수문자를 포함할 수 없습니다.")
     private String title;
 
     @NotEmpty(message = "종별을 선택해주세요.")
