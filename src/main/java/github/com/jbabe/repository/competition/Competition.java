@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "competition")
@@ -27,10 +28,10 @@ public class Competition {
     private String competitionName;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate; // 대회 시작일
+    private Date startDate; // 대회 시작일
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime endDate; // 대회 종료일
+    private Date endDate; // 대회 종료일
 
     @Column(name = "related_url")
     private String relatedUrl; // 대회 관련 URL
@@ -39,7 +40,7 @@ public class Competition {
     private String content;
 
     @Column(name = "competition_status", nullable = false)
-    private ScheduleStatus competitionStatus;
+    private CompetitionStatus competitionStatus;
 
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
@@ -52,7 +53,7 @@ public class Competition {
 
 
     @Getter
-    public enum ScheduleStatus {
+    public enum CompetitionStatus {
         NORMAL, HIDE, DELETE
     }
 }
