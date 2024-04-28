@@ -1,11 +1,14 @@
 package github.com.jbabe.repository.competition;
 
+import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "competition")
@@ -51,9 +54,37 @@ public class Competition {
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
 
+    @OneToMany(mappedBy = "competition", fetch = FetchType.LAZY)
+    private List<Division> divisions;
+
 
     @Getter
     public enum CompetitionStatus {
         NORMAL, HIDE, DELETE
     }
+
+    public static Date getStartTimeThisYear(String year) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, Integer.parseInt(year));
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        return calendar.getTime();
+    }
+
+    public static Date getEndTimeThisYear(String year) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, Integer.parseInt(year));
+        calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 31);
+        calendar.set(Calendar.HOUR, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+
+        return calendar.getTime();
+    }
 }
+

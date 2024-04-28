@@ -17,16 +17,18 @@ import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.competition.AddCompetitionRequest;
+import github.com.jbabe.web.dto.competition.CompetitionListResponse;
 import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,5 +104,27 @@ public class CompetitionService {
         divisionJpa.saveAll(divisions);
 
         return competition.getCompetitionName();
+    }
+
+
+    public Page<CompetitionListResponse> getCompetitionList(String status, String year, Pageable pageable) {
+
+        Date startDateFilter = Competition.getStartTimeThisYear(year);
+        Date endDateFilter = Competition.getEndTimeThisYear(year);
+
+        return competitionJpa.findAllCompetitionPagination(status, startDateFilter, endDateFilter, pageable);
+    }
+
+    public List<Integer> getCompetitionYearList() {
+        List<Competition> competitions = competitionJpa.findAll();
+        List<Integer> yearList = new ArrayList<>();;
+        competitions.forEach((c) -> {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(c.getStartDate());
+                    int year = calendar.get(Calendar.YEAR);
+                    if (!yearList.contains(year)) yearList.add(year);
+                }
+        );
+        return yearList;
     }
 }

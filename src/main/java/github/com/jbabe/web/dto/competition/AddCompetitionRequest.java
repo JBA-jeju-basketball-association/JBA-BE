@@ -12,7 +12,8 @@ import java.util.List;
 @Getter
 @Setter
 public class AddCompetitionRequest {
-    @Pattern(regexp = "^[a-zA-Z0-9]{3,}$", message = "제목은 3글자 이상이고 특수문자를 포함할 수 없습니다.")
+//    @Pattern(regexp = "^[a-zA-Z0-9]{3,}$", message = "제목은 3글자 이상이고 특수문자를 포함할 수 없습니다.")
+    @NotNull(message = "제목을 입력해주세요.")
     private String title;
 
     @NotEmpty(message = "종별을 선택해주세요.")
