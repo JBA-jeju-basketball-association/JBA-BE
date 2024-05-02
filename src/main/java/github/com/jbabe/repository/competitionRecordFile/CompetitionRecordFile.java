@@ -2,16 +2,14 @@ package github.com.jbabe.repository.competitionRecordFile;
 
 import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "competition_record_file")
 public class CompetitionRecordFile {
     @Id
@@ -24,7 +22,7 @@ public class CompetitionRecordFile {
     private CompetitionRecord competitionRecord;
 
     @Column(name = "file_path", nullable = false)
-    private Integer filePath;
+    private String filePath;
     @Column(name = "file_name", nullable = false)
     private String fileName;
 }

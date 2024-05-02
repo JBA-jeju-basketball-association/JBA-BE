@@ -5,6 +5,7 @@ import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.competition.AddCompetitionRequest;
+import github.com.jbabe.web.dto.competition.AddCompetitionResultRequest;
 import github.com.jbabe.web.dto.competition.CompetitionDetailResponse;
 import github.com.jbabe.web.dto.competition.CompetitionListResponse;
 import jakarta.validation.Valid;
@@ -53,4 +54,12 @@ public class CompetitionController {
         return new ResponseDto(competitionService.getCompetitionYearList());
     }
 
+    @PostMapping("/add-result/{id}")
+    public ResponseDto addCompetitionResult(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                            @PathVariable Integer id,
+                                            @RequestBody @Valid List<AddCompetitionResultRequest> request) {
+        return new ResponseDto(competitionService.addCompetitionResult(customUserDetails, id,  request));
+    }
 }
+
+

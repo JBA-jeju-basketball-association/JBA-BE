@@ -2,10 +2,7 @@ package github.com.jbabe.repository.competitionRecord;
 
 import github.com.jbabe.repository.division.Division;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "competition_record")
 public class CompetitionRecord {
     @Id

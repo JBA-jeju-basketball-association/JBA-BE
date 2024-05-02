@@ -8,6 +8,10 @@ import github.com.jbabe.repository.competitionImg.CompetitionImg;
 import github.com.jbabe.repository.competitionImg.CompetitionImgJpa;
 import github.com.jbabe.repository.competitionPlace.CompetitionPlace;
 import github.com.jbabe.repository.competitionPlace.CompetitionPlaceJpa;
+import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
+import github.com.jbabe.repository.competitionRecord.CompetitionRecordJpa;
+import github.com.jbabe.repository.competitionRecordFile.CompetitionRecordFile;
+import github.com.jbabe.repository.competitionRecordFile.CompetitionRecordFileJpa;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.repository.user.User;
@@ -41,6 +45,8 @@ public class CompetitionService {
     private final CompetitionAttachedFileJpa competitionAttachedFileJpa;
     private final CompetitionPlaceJpa competitionPlaceJpa;
     private final DivisionJpa divisionJpa;
+    private final CompetitionRecordJpa competitionRecordJpa;
+    private final CompetitionRecordFileJpa competitionRecordFileJpa;
 
     @Transactional
     public String addCompetitionInfo(AddCompetitionRequest addCompetitionRequest, List<MultipartFile> files, Optional<SaveFileType> type, CustomUserDetails customUserDetails) {
@@ -170,4 +176,47 @@ public class CompetitionService {
     }
 
 
+    @Transactional
+    public String addCompetitionResult(CustomUserDetails customUserDetails, Integer id, List<AddCompetitionResultRequest> request) {
+        Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("해당 id로 대회를 찾을 수 없습니다.", id));
+        List<Division> divisions = divisionJpa.findAllByCompetition(competition);
+
+
+
+        List<CompetitionRecord> competitionRecords = new ArrayList<>();
+        request.forEach((req) -> {
+            req.getCompetitionResult().forEach((result) -> {
+                CompetitionRecord data = CompetitionRecord.builder()
+                        .division(divisions.stream().filter((d) -> d.getDivisionName().equals(result.getDivision())).toList().get(0))
+                        .floor(req.getFloor())
+                        .time(result.getStartTime())
+                        .homeName(result.getHomeName())
+                        .homeScore(result.getHomeScore())
+                        .awayName(result.getAwayName())
+                        .awayScore(result.getAwayScore())
+                        .build();
+                competitionRecords.add(data);
+            });
+        });
+        competitionRecordJpa.saveAll(competitionRecords);
+
+        List<CompetitionRecordFile> recordFiles = new ArrayList<>();
+        request.forEach((req) ->
+                req.getCompetitionResult().forEach((result) -> {
+                    if (result.getFileUrl() != null) {
+                        CompetitionRecordFile data = CompetitionRecordFile.builder()
+                                .competitionRecord(competitionRecords.stream().filter((r) ->
+                                        r.getFloor().equals(req.getFloor()) && r.getDivision().getDivisionName().equals(result.getDivision()) && r.getTime().equals(result.getStartTime()) && r.getHomeName().equals(result.getHomeName())
+                                ).toList().get(0))
+                                .filePath(result.getFileUrl())
+                                .fileName(result.getFileName())
+                                .build();
+                        recordFiles.add(data);
+                    }
+                })
+        );
+        competitionRecordFileJpa.saveAll(recordFiles);
+
+        return "OK";
+    }
 }
