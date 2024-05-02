@@ -2,7 +2,6 @@ package github.com.jbabe.web.dto.competition;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,11 +25,11 @@ public class AddCompetitionRequest {
     private Date endDate;
 
     @NotEmpty(message = "장소를 등록해주세요.")
-    private List<place> places;
+    private List<Place> places;
 
     private String relatedURL;
 
-    private String skData;
+    private String ckData;
 
     private List<String> realCkImgs;
 }

@@ -16,8 +16,7 @@ import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
-import github.com.jbabe.web.dto.competition.AddCompetitionRequest;
-import github.com.jbabe.web.dto.competition.CompetitionListResponse;
+import github.com.jbabe.web.dto.competition.*;
 import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +54,7 @@ public class CompetitionService {
                 .startDate(addCompetitionRequest.getStartDate())
                 .endDate(addCompetitionRequest.getEndDate())
                 .relatedUrl(addCompetitionRequest.getRelatedURL())
-                .content(addCompetitionRequest.getSkData())
+                .content(addCompetitionRequest.getCkData())
                 .competitionStatus(Competition.CompetitionStatus.NORMAL)
                 .createAt(LocalDateTime.now())
                 .build();
@@ -115,6 +114,48 @@ public class CompetitionService {
         return competitionJpa.findAllCompetitionPagination(status, startDateFilter, endDateFilter, pageable);
     }
 
+    public CompetitionDetailResponse getCompetitionDetail(Integer id) {
+        Competition competition = competitionJpa.findById(id)
+                .orElseThrow(()-> new NotFoundException("해당 아이디와 일치하는 대회를 찾을 수 없습니다.", id));
+        List<CompetitionPlace> competitionPlaces = competitionPlaceJpa.findAllByCompetition(competition);
+        List<CompetitionAttachedFile> competitionAttachedFiles = competitionAttachedFileJpa.findAllByCompetition(competition);
+        List<Division> divisions = divisionJpa.findAllByCompetition(competition);
+
+        List<CompetitionDetailPlace> competitionDetailPlaces = competitionPlaces.stream().map((p)->
+            CompetitionDetailPlace.builder()
+                    .competitionPlaceId(p.getCompetitionPlaceId())
+                    .placeName(p.getPlaceName())
+                    .latitude(p.getLatitude())
+                    .longitude(p.getLongitude())
+                    .address(p.getAddress())
+                    .build()
+        ).toList();
+
+        List<CompetitionDetailAttachedFile> competitionDetailAttachedFiles = competitionAttachedFiles.stream().map((f)->
+                CompetitionDetailAttachedFile.builder()
+                        .competitionAttachedFileId(f.getCompetitionAttachedFileId())
+                        .filePath(f.getFilePath())
+                        .fileName(f.getFileName())
+                        .build()
+                ).toList();
+
+        List<String> divisionList = new ArrayList<>();
+        divisions.forEach((d)-> divisionList.add(d.getDivisionName()));
+
+        return CompetitionDetailResponse.builder()
+                .competitionId(competition.getCompetitionId())
+                .title(competition.getCompetitionName())
+                .startDate(competition.getStartDate())
+                .endDate(competition.getEndDate())
+                .relatedUrl(competition.getRelatedUrl())
+                .content(competition.getContent())
+                .places(competitionDetailPlaces)
+                .competitionDetailAttachedFiles(competitionDetailAttachedFiles)
+                .divisions(divisionList)
+                .build();
+    }
+
+
     public List<Integer> getCompetitionYearList() {
         List<Competition> competitions = competitionJpa.findAll();
         List<Integer> yearList = new ArrayList<>();;
@@ -127,4 +168,6 @@ public class CompetitionService {
         );
         return yearList;
     }
+
+
 }

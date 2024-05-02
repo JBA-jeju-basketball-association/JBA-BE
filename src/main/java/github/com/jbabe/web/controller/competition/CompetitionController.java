@@ -5,6 +5,7 @@ import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.competition.AddCompetitionRequest;
+import github.com.jbabe.web.dto.competition.CompetitionDetailResponse;
 import github.com.jbabe.web.dto.competition.CompetitionListResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,12 @@ public class CompetitionController {
                                           Pageable pageable) {
         Page<CompetitionListResponse> data = competitionService.getCompetitionList(status, year, pageable);
     return new ResponseDto(data);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseDto getCompetitionDetail(@PathVariable Integer id) {
+        CompetitionDetailResponse data = competitionService.getCompetitionDetail(id);
+        return new ResponseDto(data);
     }
 
     @GetMapping("/find-year-list")
