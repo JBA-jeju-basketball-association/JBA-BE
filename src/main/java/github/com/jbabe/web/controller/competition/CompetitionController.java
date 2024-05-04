@@ -60,6 +60,11 @@ public class CompetitionController {
                                             @RequestBody @Valid List<AddCompetitionResultRequest> request) {
         return new ResponseDto(competitionService.addCompetitionResult(customUserDetails, id,  request));
     }
+
+    @GetMapping("/result")
+    public ResponseDto getCompetitionResult(@RequestParam("id") Integer id) {
+        return new ResponseDto(competitionService.getCompetitionResult(id));
+    }
 }
 
 

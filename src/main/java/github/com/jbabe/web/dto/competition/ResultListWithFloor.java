@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResultList {
+public class ResultListWithFloor {
     private String floor;
     private String division;
     private LocalDateTime time;
@@ -19,15 +19,4 @@ public class ResultList {
     private Integer awayScore;
     private String filePath;
     private String fileName;
-
-    public ResultList(String division, LocalDateTime time, String homeName, Integer homeScore, String awayName, Integer awayScore, String filePath, String fileName) {
-        this.division = division;
-        this.time = time;
-        this.homeName = homeName;
-        this.homeScore = homeScore;
-        this.awayName = awayName;
-        this.awayScore = awayScore;
-        this.filePath = filePath;
-        this.fileName = fileName;
-    }
 }

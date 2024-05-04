@@ -40,4 +40,11 @@ public class CompetitionRecord {
 
     @Column(name = "away_score", nullable = false)
     private Integer awayScore;
+
+    @Column(name = "file_path", unique = true)
+    private String filePath;
+
+    @Column(name = "file_name")
+    private String fileName;
+
 }

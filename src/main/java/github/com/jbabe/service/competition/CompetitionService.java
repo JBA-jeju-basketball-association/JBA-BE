@@ -10,8 +10,6 @@ import github.com.jbabe.repository.competitionPlace.CompetitionPlace;
 import github.com.jbabe.repository.competitionPlace.CompetitionPlaceJpa;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecordJpa;
-import github.com.jbabe.repository.competitionRecordFile.CompetitionRecordFile;
-import github.com.jbabe.repository.competitionRecordFile.CompetitionRecordFileJpa;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.repository.user.User;
@@ -32,7 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +43,6 @@ public class CompetitionService {
     private final CompetitionPlaceJpa competitionPlaceJpa;
     private final DivisionJpa divisionJpa;
     private final CompetitionRecordJpa competitionRecordJpa;
-    private final CompetitionRecordFileJpa competitionRecordFileJpa;
 
     @Transactional
     public String addCompetitionInfo(AddCompetitionRequest addCompetitionRequest, List<MultipartFile> files, Optional<SaveFileType> type, CustomUserDetails customUserDetails) {
@@ -194,29 +190,67 @@ public class CompetitionService {
                         .homeScore(result.getHomeScore())
                         .awayName(result.getAwayName())
                         .awayScore(result.getAwayScore())
+                        .filePath(result.getFileUrl())
+                        .fileName(result.getAwayName())
                         .build();
                 competitionRecords.add(data);
             });
         });
         competitionRecordJpa.saveAll(competitionRecords);
 
-        List<CompetitionRecordFile> recordFiles = new ArrayList<>();
-        request.forEach((req) ->
-                req.getCompetitionResult().forEach((result) -> {
-                    if (result.getFileUrl() != null) {
-                        CompetitionRecordFile data = CompetitionRecordFile.builder()
-                                .competitionRecord(competitionRecords.stream().filter((r) ->
-                                        r.getFloor().equals(req.getFloor()) && r.getDivision().getDivisionName().equals(result.getDivision()) && r.getTime().equals(result.getStartTime()) && r.getHomeName().equals(result.getHomeName())
-                                ).toList().get(0))
-                                .filePath(result.getFileUrl())
-                                .fileName(result.getFileName())
-                                .build();
-                        recordFiles.add(data);
-                    }
-                })
-        );
-        competitionRecordFileJpa.saveAll(recordFiles);
+
 
         return "OK";
+    }
+
+    public getResultResponse getCompetitionResult(Integer id) {
+        List<ResultResponse> data = new ArrayList<>();
+        List<String> divisions = new ArrayList<>();
+        Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("해당 id로 대회를 찾을 수 없습니다.", id));
+        List<Division> divisionList = divisionJpa.findAllByCompetition(competition);
+        List<String> floorList = new ArrayList<>();
+        List<ResultListWithFloor> list = new ArrayList<>();
+            divisionList.forEach((d) -> {
+                divisions.add(d.getDivisionName());
+                List<CompetitionRecord> competitionRecords = d.getCompetitionRecords();
+                competitionRecords.forEach((c) -> {
+                    if (!floorList.contains(c.getFloor())) {
+                        floorList.add(c.getFloor());
+                    }
+                    list.add(ResultListWithFloor.builder()
+                            .floor(c.getFloor())
+                            .division(d.getDivisionName())
+                            .time(c.getTime())
+                            .homeName(c.getHomeName())
+                            .homeScore(c.getHomeScore())
+                            .awayName(c.getAwayName())
+                            .awayScore(c.getAwayScore())
+                            .filePath(c.getFilePath())
+                            .fileName(c.getFileName())
+                            .build());
+                });
+            });
+
+            floorList.forEach((floor) -> {
+                List<ResultList> results = new ArrayList<>();
+                list.stream().filter((l) -> floor.equals(l.getFloor())).forEach((fl) ->
+                        results.add(ResultList.builder()
+                                .division(fl.getDivision())
+                                .time(fl.getTime())
+                                .homeName(fl.getHomeName())
+                                .homeScore(fl.getHomeScore())
+                                .awayName(fl.getAwayName())
+                                .awayScore(fl.getAwayScore())
+                                .filePath(fl.getFilePath())
+                                .fileName(fl.getFileName())
+                                .build())
+                );
+                data.add(ResultResponse.builder()
+                        .floor(floor)
+                        .resultList(results)
+                        .build());
+            });
+
+        return new getResultResponse(divisions, data);
     }
 }
