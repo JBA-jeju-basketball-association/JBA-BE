@@ -22,7 +22,7 @@ public class Gallery {
     private Integer galleryId;
 
     @JoinColumn(name = "user_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(name = "name", nullable = false, unique = true)

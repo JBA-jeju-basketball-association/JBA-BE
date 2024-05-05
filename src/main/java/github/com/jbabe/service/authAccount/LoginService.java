@@ -41,6 +41,7 @@ public class LoginService {
 
         try {
             String redisRefreshToken = redisUtil.getData(requestAccessToken);
+
             if (!redisRefreshToken.equals(requestRefreshToken)) throw new ExpiredJwtException("RefreshToken 인증 오류");
 
             if (jwtTokenConfig.refreshTokenValidate(redisRefreshToken)) {

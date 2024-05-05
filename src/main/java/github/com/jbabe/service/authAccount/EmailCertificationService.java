@@ -5,7 +5,6 @@ import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.exception.NotAcceptableException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -26,7 +25,7 @@ public class EmailCertificationService {
     @Value("${email.address}")
     private String emailAddress;
 
-    public void joinEmail(String email) {
+    public void signUpSendEmail(String email) {
         if (userJpa.existsByEmail(email)) {
             throw new ConflictException("이미 가입된 이메일입니다.", email);
         }

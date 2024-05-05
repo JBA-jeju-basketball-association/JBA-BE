@@ -1,10 +1,12 @@
 package github.com.jbabe.service.authAccount;
 
+import github.com.jbabe.service.exception.RedisConnectionFailureException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.Jedis;
 
 import java.time.Duration;
 import java.util.Set;
@@ -33,5 +35,18 @@ public class RedisUtil {
 
     public void deleteData(String key) { // 지정된 key 에 해당하는 데이터를 Redis에서 삭제하는 메서드
         redisTemplate.delete(key);
+    }
+
+    public Boolean isRedisStatusOk() {
+        String redisHost = "localhost";
+        int redisPort = 6379;
+
+        try (Jedis jedis = new Jedis(redisHost, redisPort)) {
+            String pong = jedis.ping();
+
+            return pong.equals("PONG");
+        }catch (Exception e) {
+            throw new RedisConnectionFailureException("Redis 접속 실패", "");
+        }
     }
 }
