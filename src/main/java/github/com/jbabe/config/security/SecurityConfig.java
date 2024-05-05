@@ -37,10 +37,10 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfig()))
                 .authorizeRequests(a ->
                         a
-                                .requestMatchers("/test").hasRole("MASTER")
+                                .requestMatchers("/test","v1/api/competition/add-competition-info", "v1/api/competition/add-result").hasRole("MASTER")
                                 .requestMatchers("/v1/api/sign/logout").authenticated()
                                 .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
-                                        "/mail/*").permitAll()
+                                        "/mail/*", "v1/api/competition/competition").permitAll()
                 )
                 .exceptionHandling(e -> {
                     e.authenticationEntryPoint(new CustomAuthenticationEntryPoint());
@@ -54,8 +54,10 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("*"));
-        corsConfiguration.addExposedHeader("Authorization");
+        corsConfiguration.setAllowedOrigins(List.of("*")); // TODO: 쿠키사용 시 변경
+//        corsConfiguration.setAllowCredentials(true); // TODO: 쿠키사용 시 변경
+        corsConfiguration.addExposedHeader("access-token");
+        corsConfiguration.addExposedHeader("refresh-token");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowedMethods(List.of("GET","PUT","POST","PATCH","DELETE","OPTIONS"));
         corsConfiguration.setMaxAge(1000L*60*60);

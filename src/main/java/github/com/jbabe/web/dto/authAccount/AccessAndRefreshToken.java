@@ -11,5 +11,16 @@ import org.springframework.http.ResponseCookie;
 public class AccessAndRefreshToken {
     private String accessToken;
     private ResponseCookie responseCookie;
+    private String refreshToken;
 
+    public AccessAndRefreshToken(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
+
+    public AccessAndRefreshToken(String accessToken, ResponseCookie responseCookie) {
+        this.accessToken = accessToken;
+        this.responseCookie = responseCookie;
+    }
 }
+

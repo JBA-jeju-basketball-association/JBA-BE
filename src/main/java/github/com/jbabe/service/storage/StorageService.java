@@ -4,7 +4,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.StorageUpdateFailedException;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.storage.FileDto;
@@ -40,6 +39,18 @@ public class StorageService {
                 // 로딩바 구현을위해 aws s3 로 구현
                 break;
         }
+        return response;
+    }
+
+    public Map<String, Object> ckEditorImgUpload(MultipartFile file){
+        Map<String, Object> response = new HashMap<>();
+
+        PutObjectRequest putObjectRequest = makePutObjectRequest(file);
+        amazonS3Client.putObject(putObjectRequest);
+        String url = amazonS3Client.getUrl(bucketName, putObjectRequest.getKey()).toString();
+        response.put("uploaded", true);
+        response.put("url", url);
+
         return response;
     }
 
