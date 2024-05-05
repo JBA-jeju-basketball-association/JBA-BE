@@ -1,9 +1,12 @@
 package github.com.jbabe.web.controller.gallery;
 
 import github.com.jbabe.service.gallery.GalleryService;
+import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
+import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,6 +27,14 @@ public class GalleryController {
     @GetMapping("/{galleryId}")
     public ResponseDto getGalleryPost(@PathVariable int galleryId){
         return new ResponseDto(galleryService.getGalleryDetailsDto(galleryId));
+    }
+
+    @PostMapping("/register")
+    public ResponseDto regGalleryPost(@RequestBody GalleryDetailsDto requestRegister,
+                                      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                      @RequestParam(name = "official", required = false) boolean isOfficial){
+        galleryService.registerGalleryPost(requestRegister, customUserDetails.getUserId(), isOfficial);
+        return new ResponseDto();
     }
 
 

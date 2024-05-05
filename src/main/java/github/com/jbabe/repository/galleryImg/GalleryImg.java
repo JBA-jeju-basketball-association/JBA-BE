@@ -22,7 +22,7 @@ public class GalleryImg {
     private Gallery gallery;
 
     @Column(name = "img_url", nullable = false)
-    private String imgUrl;
+    private String fileUrl;
     @Column(name = "file_name", nullable = false)
     private String fileName;
 }

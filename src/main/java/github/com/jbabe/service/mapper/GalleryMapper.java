@@ -1,6 +1,7 @@
 package github.com.jbabe.service.mapper;
 
 import github.com.jbabe.repository.gallery.Gallery;
+import github.com.jbabe.repository.user.User;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
 import org.mapstruct.Mapper;
@@ -16,6 +17,12 @@ public interface GalleryMapper {
     GalleryListDto GalleryToGalleryListDto(Gallery gallery, String fileName, String imgUrl);
 
     @Mapping(target = "title", source = "gallery.name")
-    @Mapping(target = "imgs", source = "gallery.galleryImgs")
+    @Mapping(target = "files", source = "gallery.galleryImgs")
     GalleryDetailsDto GalleryToGalleryDetailsDto(Gallery gallery);
+
+    @Mapping(target = "galleryImgs", source = "galleryDetailsDto.files")
+    @Mapping(target = "name", source = "galleryDetailsDto.title")
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "isOfficial", source = "isOfficial")
+    Gallery GalleryDetailsDtoToGallery(GalleryDetailsDto galleryDetailsDto, User user, boolean isOfficial);
 }

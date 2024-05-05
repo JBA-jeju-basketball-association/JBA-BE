@@ -4,6 +4,7 @@ import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@DynamicInsert
 public class Gallery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +46,7 @@ public class Gallery {
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
 
-    @OneToMany(mappedBy = "gallery")
+    @OneToMany(mappedBy = "gallery", cascade = CascadeType.PERSIST)
     private List<GalleryImg> galleryImgs;
 
     @Getter

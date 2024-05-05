@@ -4,17 +4,23 @@ package github.com.jbabe.service.gallery;
 import github.com.jbabe.repository.gallery.Gallery;
 import github.com.jbabe.repository.gallery.GalleryJpa;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
+import github.com.jbabe.repository.galleryImg.GalleryImgJpa;
+import github.com.jbabe.repository.user.UserJpa;
+import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.GalleryMapper;
+import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +30,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GalleryService {
     private final GalleryJpa galleryJpa;
+    private final UserJpa userJpa;
+
     public Object getGalleryList(Pageable pageable, boolean official) {
         Page<Gallery> galleryPages = galleryJpa
                 .findByIsOfficialAndGalleryStatusJoin(official, Gallery.GalleryStatus.NORMAL, pageable);
@@ -38,7 +46,7 @@ public class GalleryService {
             GalleryImg firstImg = gallery.getGalleryImgs().get(0);
 
             GalleryListDto galleryListDto = GalleryMapper.INSTANCE
-                    .GalleryToGalleryListDto(gallery, firstImg.getFileName(), firstImg.getImgUrl());
+                    .GalleryToGalleryListDto(gallery, firstImg.getFileName(), firstImg.getFileUrl());
             responseList.add(galleryListDto);
         }
         return Map.of(
@@ -54,6 +62,23 @@ public class GalleryService {
         Gallery gallery = galleryJpa.findById(galleryId).orElseThrow(()->new NotFoundException("Not Found Gallery", galleryId));
 
         return GalleryMapper.INSTANCE.GalleryToGalleryDetailsDto(gallery);
+
+    }
+
+    @Transactional
+    public void registerGalleryPost(GalleryDetailsDto requestRegister, Integer userId, boolean isOfficial) {
+        Gallery galleryEntity = GalleryMapper.INSTANCE.GalleryDetailsDtoToGallery(requestRegister, userJpa.findById(userId)
+                .orElseThrow(()->new NotFoundException("NotFoundUser", userId)), isOfficial);
+
+        for(GalleryImg img: galleryEntity.getGalleryImgs()){
+            img.setGallery(galleryEntity);
+        }
+
+        try{
+            galleryJpa.save(galleryEntity);
+        }catch (DataIntegrityViolationException exception) {
+            throw new BadRequestException("SQLError", exception.getMessage());
+        }
 
     }
 }
