@@ -58,7 +58,7 @@ public class GalleryService {
 
 
     @Transactional(readOnly = true)
-    public Object getGalleryDetailsDto(int galleryId) {
+    public GalleryDetailsDto getGalleryDetailsDto(int galleryId) {
         Gallery gallery = galleryJpa.findById(galleryId).orElseThrow(()->new NotFoundException("Not Found Gallery", galleryId));
 
         return GalleryMapper.INSTANCE.GalleryToGalleryDetailsDto(gallery);
