@@ -10,4 +10,5 @@ import java.util.List;
 public interface CompetitionRecordJpa extends JpaRepository<CompetitionRecord, Integer> {
     List<CompetitionRecord> findAllByDivision(Division division);
 
+    Boolean existsAllByDivision(Division division);
 }

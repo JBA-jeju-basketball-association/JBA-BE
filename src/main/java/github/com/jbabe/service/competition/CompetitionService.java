@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @RequiredArgsConstructor
@@ -144,6 +145,13 @@ public class CompetitionService {
         List<String> divisionList = new ArrayList<>();
         divisions.forEach((d)-> divisionList.add(d.getDivisionName()));
 
+        AtomicBoolean existResult = new AtomicBoolean(false);
+        divisions.forEach((division -> {
+            if (!competitionRecordJpa.findAllByDivision(division).isEmpty()) {
+                existResult.set(true);
+            }
+        }));
+
         return CompetitionDetailResponse.builder()
                 .competitionId(competition.getCompetitionId())
                 .title(competition.getCompetitionName())
@@ -154,6 +162,7 @@ public class CompetitionService {
                 .places(competitionDetailPlaces)
                 .competitionDetailAttachedFiles(competitionDetailAttachedFiles)
                 .divisions(divisionList)
+                .existResult(existResult.get())
                 .build();
     }
 
@@ -212,7 +221,7 @@ public class CompetitionService {
         List<ResultListWithFloor> list = new ArrayList<>();
             divisionList.forEach((d) -> {
                 divisions.add(d.getDivisionName());
-                List<CompetitionRecord> competitionRecords = d.getCompetitionRecords();
+                List<CompetitionRecord> competitionRecords = competitionRecordJpa.findAllByDivision(d);
                 competitionRecords.forEach((c) -> {
                     if (!floorList.contains(c.getFloor())) {
                         floorList.add(c.getFloor());
