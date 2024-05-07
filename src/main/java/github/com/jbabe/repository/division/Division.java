@@ -27,6 +27,6 @@ public class Division {
     @Column(name = "division_name", nullable = false)
     private String divisionName;
 
-    @OneToMany(mappedBy = "division", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "division", fetch = FetchType.LAZY)
     private List<CompetitionRecord> competitionRecords;
 }
