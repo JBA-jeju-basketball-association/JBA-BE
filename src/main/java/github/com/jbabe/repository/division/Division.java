@@ -1,17 +1,18 @@
 package github.com.jbabe.repository.division;
 
 import github.com.jbabe.repository.competition.Competition;
+import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "division")
 public class Division {
     @Id
@@ -26,4 +27,6 @@ public class Division {
     @Column(name = "division_name", nullable = false)
     private String divisionName;
 
+    @OneToMany(mappedBy = "division", fetch = FetchType.EAGER)
+    private List<CompetitionRecord> competitionRecords;
 }

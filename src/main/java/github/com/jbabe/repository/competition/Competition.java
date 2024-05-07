@@ -1,10 +1,14 @@
 package github.com.jbabe.repository.competition;
 
+import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "competition")
@@ -27,10 +31,10 @@ public class Competition {
     private String competitionName;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate; // 대회 시작일
+    private Date startDate; // 대회 시작일
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime endDate; // 대회 종료일
+    private Date endDate; // 대회 종료일
 
     @Column(name = "related_url")
     private String relatedUrl; // 대회 관련 URL
@@ -39,7 +43,7 @@ public class Competition {
     private String content;
 
     @Column(name = "competition_status", nullable = false)
-    private ScheduleStatus competitionStatus;
+    private CompetitionStatus competitionStatus;
 
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
@@ -50,9 +54,37 @@ public class Competition {
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
 
+    @OneToMany(mappedBy = "competition", fetch = FetchType.LAZY)
+    private List<Division> divisions;
+
 
     @Getter
-    public enum ScheduleStatus {
+    public enum CompetitionStatus {
         NORMAL, HIDE, DELETE
     }
+
+    public static Date getStartTimeThisYear(String year) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, Integer.parseInt(year));
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        return calendar.getTime();
+    }
+
+    public static Date getEndTimeThisYear(String year) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, Integer.parseInt(year));
+        calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 31);
+        calendar.set(Calendar.HOUR, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+
+        return calendar.getTime();
+    }
 }
+

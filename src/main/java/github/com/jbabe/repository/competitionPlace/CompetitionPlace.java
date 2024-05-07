@@ -1,11 +1,9 @@
 package github.com.jbabe.repository.competitionPlace;
 
+import github.com.jbabe.repository.competition.Competition;
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -13,6 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "competition_place")
 @Entity
+@Builder
 public class CompetitionPlace{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +19,8 @@ public class CompetitionPlace{
     private Integer competitionPlaceId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "competition_id", nullable = false)
+    private Competition competition;
 
     @Column(name = "place_name", nullable = false)
     private String placeName;
