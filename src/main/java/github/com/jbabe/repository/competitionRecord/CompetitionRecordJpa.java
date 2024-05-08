@@ -10,6 +10,9 @@ import java.util.List;
 @Repository
 public interface CompetitionRecordJpa extends JpaRepository<CompetitionRecord, Integer> {
     List<CompetitionRecord> findAllByDivision(Division division);
+
     @Query("SELECT c.filePath FROM CompetitionRecord c WHERE c.filePath IS NOT NULL")
     List<String> findAllFilePath();
+
+    Boolean existsAllByDivision(Division division);
 }

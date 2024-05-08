@@ -20,4 +20,5 @@ public class CompetitionDetailResponse {
     private List<CompetitionDetailPlace> places;
     private List<CompetitionDetailAttachedFile> competitionDetailAttachedFiles;
     private List<String> divisions;
+    private Boolean existResult;
 }
