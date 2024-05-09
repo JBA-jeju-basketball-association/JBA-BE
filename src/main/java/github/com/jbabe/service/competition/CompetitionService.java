@@ -262,4 +262,41 @@ public class CompetitionService {
 
         return new getResultResponse(divisions, data);
     }
+
+    @Transactional
+    public String deleteCompetition(Integer id) {
+        Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("해당 id로 대회를 찾을 수 없습니다.", id));
+        List<CompetitionAttachedFile> competitionAttachedFiles = competitionAttachedFileJpa.findAllByCompetition(competition);
+        List<CompetitionPlace> competitionPlaces = competitionPlaceJpa.findAllByCompetition(competition);
+        List<CompetitionImg> competitionImgs = competitionImgJpa.findAllByCompetition(competition);
+        List<Division> divisions = divisionJpa.findAllByCompetition(competition);
+
+
+        List<String> deleteFiles = new ArrayList<>();
+        competitionAttachedFiles.forEach(item -> {
+            if (item.getFilePath() != null) deleteFiles.add(item.getFilePath());
+        });
+        competitionImgs.forEach(item -> {
+            if (item.getImgUrl() != null) deleteFiles.add(item.getImgUrl());
+        });
+        divisions.forEach(division -> {
+                    List<CompetitionRecord> competitionRecords = competitionRecordJpa.findAllByDivision(division);
+                    competitionRecords.forEach(item -> {
+                        if (item.getFilePath() != null) deleteFiles.add(item.getFilePath());
+                    });
+                    competitionRecordJpa.deleteAll(competitionRecords);
+                }
+
+        );
+        if (!deleteFiles.isEmpty()) {
+            storageService.uploadCancel(deleteFiles);
+        }
+        divisionJpa.deleteAll(divisions);
+        competitionImgJpa.deleteAll(competitionImgs);
+        competitionPlaceJpa.deleteAll(competitionPlaces);
+        competitionAttachedFileJpa.deleteAll(competitionAttachedFiles);
+        competitionJpa.delete(competition);
+
+        return "OK";
+    }
 }

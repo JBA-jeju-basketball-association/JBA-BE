@@ -65,6 +65,12 @@ public class CompetitionController {
     public ResponseDto getCompetitionResult(@RequestParam("id") Integer id) {
         return new ResponseDto(competitionService.getCompetitionResult(id));
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseDto deleteCompetition(@PathVariable Integer id,
+                                         @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return new ResponseDto(competitionService.deleteCompetition(id));
+    }
 }
 
 
