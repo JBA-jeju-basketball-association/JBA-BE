@@ -50,6 +50,11 @@ public class Test {
         return user.getName();
     }
 
+    @GetMapping("/testSihu")
+    public Object test() {
+        return storageService.cleanupS3Bucket();
+    }
+
     @PostMapping("/logoutTest")
     public String logoutTest(HttpServletRequest httpServletRequest){
         Set<String> oldToken = new HashSet<>();
