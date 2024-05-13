@@ -90,7 +90,7 @@ public class CompetitionService {
         List<CompetitionPlace> competitionPlaces = addCompetitionRequest.getPlaces().stream()
                 .map((place) -> CompetitionPlace.builder()
                         .competition(competition)
-                        .placeName(place.getName())
+                        .placeName(place.getPlaceName())
                         .latitude(place.getLatitude())
                         .longitude(place.getLongitude())
                         .address(place.getAddress())
