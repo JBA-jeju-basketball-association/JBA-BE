@@ -57,7 +57,7 @@ public class CompetitionController {
     public ResponseDto addCompetitionResult(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                             @PathVariable Integer id,
                                             @RequestBody @Valid List<AddCompetitionResultRequest> request) {
-        return new ResponseDto(competitionService.addCompetitionResult(customUserDetails, id,  request));
+        return new ResponseDto(competitionService.addCompetitionResult(id,  request));
     }
 
     @GetMapping("/result")

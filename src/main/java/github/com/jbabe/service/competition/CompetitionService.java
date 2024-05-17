@@ -188,14 +188,14 @@ public class CompetitionService {
 
 
     @Transactional
-    public String addCompetitionResult(CustomUserDetails customUserDetails, Integer id, List<AddCompetitionResultRequest> request) {
+    public String addCompetitionResult(Integer id, List<AddCompetitionResultRequest> request) {
         Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("해당 id로 대회를 찾을 수 없습니다.", id));
         List<Division> divisions = divisionJpa.findAllByCompetition(competition);
 
 
 
         List<CompetitionRecord> competitionRecords = new ArrayList<>();
-        request.forEach((req) -> {
+        request.forEach((req) ->
             req.getCompetitionResult().forEach((result) -> {
                 CompetitionRecord data = CompetitionRecord.builder()
                         .division(divisions.stream().filter((d) -> d.getDivisionName().equals(result.getDivision())).toList().get(0))
@@ -209,8 +209,8 @@ public class CompetitionService {
                         .fileName(result.getAwayName())
                         .build();
                 competitionRecords.add(data);
-            });
-        });
+            })
+        );
         competitionRecordJpa.saveAll(competitionRecords);
 
 
