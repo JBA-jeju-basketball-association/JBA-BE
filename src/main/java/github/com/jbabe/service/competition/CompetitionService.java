@@ -14,6 +14,7 @@ import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
+import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -152,6 +154,9 @@ public class CompetitionService {
             }
         }));
 
+        List<CompetitionImg> competitionImgs = competitionImgJpa.findAllByCompetition(competition);
+
+
         return CompetitionDetailResponse.builder()
                 .competitionId(competition.getCompetitionId())
                 .title(competition.getCompetitionName())
@@ -163,6 +168,7 @@ public class CompetitionService {
                 .competitionDetailAttachedFiles(competitionDetailAttachedFiles)
                 .divisions(divisionList)
                 .existResult(existResult.get())
+                .ckImgUrls(competitionImgs.stream().map(CompetitionImg::getImgUrl).collect(Collectors.toList()))
                 .build();
     }
 
@@ -264,6 +270,101 @@ public class CompetitionService {
     }
 
     @Transactional
+    public Integer updateCompetition(Integer id, UpdateCompetitionRequest request, List<MultipartFile> files, Optional<SaveFileType> type) {
+        Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("id에 해당하는 대회를 찾을 수 없습니다.", id));
+        List<CompetitionImg> competitionImgs = competitionImgJpa.findAllByCompetition(competition);
+        List<CompetitionAttachedFile> competitionAttachedFiles = competitionAttachedFileJpa.findAllByCompetition(competition);
+        List<Division> divisions = divisionJpa.findAllByCompetition(competition);
+
+        //competition table update
+        Competition UpdatedCompetition = Competition.builder()
+                .competitionId(id)
+                .user(competition.getUser())
+                .competitionName(request.getTitle())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .relatedUrl(request.getRelatedURL())
+                .content(request.getCkData())
+                .competitionStatus(competition.getCompetitionStatus())
+                .createAt(competition.getCreateAt())
+                .updateAt(LocalDateTime.now())
+                .build();
+        competitionJpa.save(UpdatedCompetition);
+
+
+        // competition_img table update
+        // 기존 ck 이미지 데이터에서 삭제된 이미지 데이터 삭제
+        if (!request.getDeletedCkImgUrls().isEmpty()) {
+            List<CompetitionImg> deletedCompetitionImgs = competitionImgs.stream().filter((item) -> request.getDeletedCkImgUrls().contains(item.getImgUrl())).toList();
+            competitionImgJpa.deleteAll(deletedCompetitionImgs);
+            storageService.uploadCancel(deletedCompetitionImgs.stream().map(CompetitionImg::getImgUrl).collect(Collectors.toList()));
+        }
+
+        // 새로운 ck 이미지 데이터 저장
+        List<CompetitionImg> newCompetitionImgs = request.getRealCkImgs().stream().map((r) ->
+                CompetitionImg.builder()
+                        .competition(competition)
+                        .imgUrl(r)
+                        .fileName(r)
+                        .build()
+        ).toList();
+        competitionImgJpa.saveAll(newCompetitionImgs);
+
+
+        // competition_place table update
+        List<Integer> NotDeletedPlaceIds = request.getUpdatePlaces().stream().map(UpdatePlace::getCompetitionPlaceId).filter(Objects::nonNull).collect(Collectors.toList());
+        if (NotDeletedPlaceIds.isEmpty()) {
+            competitionPlaceJpa.deleteAllByCompetition(competition);
+        }else {
+            competitionPlaceJpa.deleteAllExclusivePlaceId(competition, NotDeletedPlaceIds);
+        }
+        request.getUpdatePlaces().forEach((place -> {
+            if (place.getCompetitionPlaceId() == null) {
+                competitionPlaceJpa.save(CompetitionPlace.builder()
+                                .competition(competition)
+                                .placeName(place.getPlaceName())
+                                .latitude(place.getLatitude())
+                                .longitude(place.getLongitude())
+                                .address(place.getAddress())
+                        .build());
+            }
+        }));
+
+
+        // competition_attached_file table update
+        List<CompetitionAttachedFile> deletedAttachedFiles = competitionAttachedFiles.stream().filter((af) -> !request.getUploadedAttachedFiles().contains(af.getFilePath())).toList();
+        competitionAttachedFileJpa.deleteAll(deletedAttachedFiles);
+        if (files != null && !files.isEmpty()) {
+            List<FileDto> response = storageService.fileUploadAndGetUrl(files, type.orElseGet(()-> SaveFileType.small));
+            List<CompetitionAttachedFile> newCompetitionAttachedFiles = response.stream()
+                    .map((res) -> CompetitionAttachedFile.builder()
+                            .competition(competition)
+                            .filePath(res.getFileUrl())
+                            .fileName(res.getFileName())
+                            .build()).toList();
+            competitionAttachedFileJpa.saveAll(newCompetitionAttachedFiles);
+        }
+
+
+        // division table update
+        List<Division> deletedDivisions = divisions.stream().filter((d) -> !request.getDivisions().contains(d.getDivisionName())).toList();
+        deletedDivisions.forEach(item -> {if(competitionRecordJpa.existsAllByDivision(item)) throw new ConflictException("해당 종별은 결과가 이미 입력되어 있어 삭제가 불가능합니다.", item.getDivisionName());});
+        divisionJpa.deleteAll(deletedDivisions);
+
+        List<String> notUpdatedDivisionNames = request.getDivisions().stream().filter(d -> divisionJpa.existsByDivisionNameAndCompetition(d, competition)).toList();
+        List<String> newDivisionNames = request.getDivisions().stream().filter((item) -> !notUpdatedDivisionNames.contains(item)).toList();
+        List<Division> newDivisions = newDivisionNames.stream().map((divisionName) ->
+            Division.builder()
+                    .competition(competition)
+                    .divisionName(divisionName)
+                    .build()
+        ).toList();
+        divisionJpa.saveAll(newDivisions);
+
+        return competition.getCompetitionId();
+    }
+
+    @Transactional
     public String deleteCompetition(Integer id) {
         Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("해당 id로 대회를 찾을 수 없습니다.", id));
         List<CompetitionAttachedFile> competitionAttachedFiles = competitionAttachedFileJpa.findAllByCompetition(competition);
@@ -282,7 +383,7 @@ public class CompetitionService {
         divisions.forEach(division -> {
                     List<CompetitionRecord> competitionRecords = competitionRecordJpa.findAllByDivision(division);
                     competitionRecords.forEach(item -> {
-                        if (item.getFilePath() != null) deleteFiles.add(item.getFilePath());
+                        if (item.getFilePath() != null && !item.getFilePath().isEmpty()) deleteFiles.add(item.getFilePath());
                     });
                     competitionRecordJpa.deleteAll(competitionRecords);
                 }
@@ -299,4 +400,6 @@ public class CompetitionService {
 
         return "OK";
     }
+
+
 }

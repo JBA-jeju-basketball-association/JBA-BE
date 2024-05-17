@@ -1,13 +1,12 @@
 package github.com.jbabe.web.controller.competition;
 
+import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.competition.CompetitionService;
+import github.com.jbabe.service.exception.InvalidReqeustException;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
-import github.com.jbabe.web.dto.competition.AddCompetitionRequest;
-import github.com.jbabe.web.dto.competition.AddCompetitionResultRequest;
-import github.com.jbabe.web.dto.competition.CompetitionDetailResponse;
-import github.com.jbabe.web.dto.competition.CompetitionListResponse;
+import github.com.jbabe.web.dto.competition.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -64,6 +63,15 @@ public class CompetitionController {
     @GetMapping("/result")
     public ResponseDto getCompetitionResult(@RequestParam("id") Integer id) {
         return new ResponseDto(competitionService.getCompetitionResult(id));
+    }
+
+    @PostMapping("/update-competition-info/{id}")
+    public ResponseDto updateCompetition(@PathVariable Integer id,
+                                         @RequestPart("requestData") @Valid UpdateCompetitionRequest updateCompetitionRequest,
+                                         @RequestPart(value = "requestFiles",required = false)List<MultipartFile> files,
+                                         @RequestParam(required = false) Optional<SaveFileType> type,
+                                         @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return new ResponseDto(competitionService.updateCompetition(id, updateCompetitionRequest, files, type));
     }
 
     @DeleteMapping("/delete/{id}")
