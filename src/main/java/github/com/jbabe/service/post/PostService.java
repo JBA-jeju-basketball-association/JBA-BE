@@ -60,8 +60,6 @@ public class PostService {
         post.addFiles(files, postReqDto.getFiles());
         post.defaultValue();
 
-
-
         postJpa.save(post);
         return true;
 
