@@ -1,10 +1,13 @@
 package github.com.jbabe.repository.gallery;
 
+import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "gallery")
@@ -13,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@DynamicInsert
 public class Gallery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +24,7 @@ public class Gallery {
     private Integer galleryId;
 
     @JoinColumn(name = "user_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(name = "name", nullable = false, unique = true)
@@ -30,6 +34,7 @@ public class Gallery {
     private Boolean isOfficial; // false : 갤러리, true : 스탭갤러리
 
     @Column(name = "gallery_status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private GalleryStatus galleryStatus;
 
     @Column(name = "create_at", nullable = false)
@@ -40,6 +45,9 @@ public class Gallery {
 
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
+
+    @OneToMany(mappedBy = "gallery", cascade = CascadeType.PERSIST)
+    private List<GalleryImg> galleryImgs;
 
     @Getter
     public enum GalleryStatus {
