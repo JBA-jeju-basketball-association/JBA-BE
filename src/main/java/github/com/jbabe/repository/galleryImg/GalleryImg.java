@@ -18,11 +18,11 @@ public class GalleryImg {
     private Integer galleryImgId;
 
     @JoinColumn(name = "gallery_id", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Gallery gallery;
 
     @Column(name = "img_url", nullable = false)
-    private String imgUrl;
+    private String fileUrl;
     @Column(name = "file_name", nullable = false)
     private String fileName;
 }

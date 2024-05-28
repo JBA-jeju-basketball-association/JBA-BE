@@ -4,11 +4,14 @@ import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.exception.BadRequestException;
+import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -64,6 +67,13 @@ public class Post {
     @OneToMany(mappedBy = "post")
     private Set<PostImg> postImgs;
 
+    public void defaultValue() {
+        this.viewCount = 0;
+        this.createAt = LocalDateTime.now();
+        if (this.isAnnouncement == null) this.isAnnouncement = false;
+        this.postStatus = PostStatus.NORMAL;
+    }
+
 
     @Getter
     public enum PostStatus{
@@ -84,5 +94,28 @@ public class Post {
 
     public void increaseViewCount(){
         this.viewCount++;
+    }
+    public boolean addFiles(List<FileDto> files, List<FileDto> imgs){
+        try{
+            this.postAttachedFiles = new HashSet<>();
+            this.postImgs = new HashSet<>();
+            for(FileDto f: files) {
+                 PostAttachedFile postAttachedFile = PostAttachedFile.builder()
+                        .post(this)
+                        .filePath(f.getFileUrl())
+                        .fileName(f.getFileName()).build();
+                this.postAttachedFiles.add(postAttachedFile);
+            }
+            for(FileDto img: imgs) {
+                PostImg postImg = PostImg.builder()
+                        .post(this)
+                        .fileName(img.getFileName())
+                        .imgUrl(img.getFileUrl()).build();
+                this.postImgs.add(postImg);
+            }
+            return true;
+        }catch (Exception e){
+            return false;
+        }
     }
 }

@@ -3,6 +3,8 @@ package github.com.jbabe.service.mapper;
 import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postImg.PostImg;
+import github.com.jbabe.repository.user.User;
+import github.com.jbabe.web.dto.post.PostReqDto;
 import github.com.jbabe.web.dto.post.PostResponseDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
 import org.mapstruct.Mapper;
@@ -31,6 +33,11 @@ public interface PostMapper {
     @Mapping(target = "title", source = "name")
     PostResponseDto PostToPostResponseDto(Post post);
 
+    @Mapping(target = "category", source = "category")
+    @Mapping(target = "name", source = "postReqDto.title")
+    @Mapping(target = "user", source = "user")
+    Post PostRequestToPostEntity(PostReqDto postReqDto, Post.Category category, User user);
+
     @Named("getImgUrl")
     default List<String> imgUrl(Set<PostImg> postImgs){
         return postImgs.stream().map(pI->pI.getImgUrl()).toList();
@@ -39,4 +46,5 @@ public interface PostMapper {
     default List<String> postAttachedFile(Set<PostAttachedFile> postAttachedFiles){
         return postAttachedFiles.stream().map(pAF->pAF.getFilePath()).toList();
     }
+
 }

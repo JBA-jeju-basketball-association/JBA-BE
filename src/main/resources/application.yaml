@@ -47,4 +47,10 @@ aws:
     bucket-name: ENC(GHq5AsY5Cl8UqcGhxt0uZ+FqwAvozPZT)
     region: ENC(N2HhGgAsrLMJpKwIKsLW1KgGBZyGVt8c)
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /jba-docs.html
+  version: 1.0.0
 

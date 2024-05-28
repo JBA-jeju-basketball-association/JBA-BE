@@ -1,9 +1,16 @@
 package github.com.jbabe.service.storage;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.*;
+import github.com.jbabe.repository.competitionAttachedFile.CompetitionAttachedFile;
+import github.com.jbabe.repository.competitionAttachedFile.CompetitionAttachedFileJpa;
+import github.com.jbabe.repository.competitionImg.CompetitionImgJpa;
+import github.com.jbabe.repository.competitionRecord.CompetitionRecordJpa;
+import github.com.jbabe.repository.gallery.Gallery;
+import github.com.jbabe.repository.gallery.GalleryJpa;
+import github.com.jbabe.repository.galleryImg.GalleryImgJpa;
+import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
+import github.com.jbabe.repository.postImg.PostImgJpa;
 import github.com.jbabe.service.exception.StorageUpdateFailedException;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.storage.FileDto;
@@ -21,6 +28,14 @@ public class StorageService {
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
     private final AmazonS3 amazonS3Client;
+
+    private final CompetitionAttachedFileJpa competitionAttachedFileJpa;
+    private final CompetitionImgJpa competitionImgJpa;
+    private final CompetitionRecordJpa competitionRecordJpa;
+    private final GalleryImgJpa galleryImgJpa;
+    private final PostImgJpa postImgJpa;
+    private final PostAttachedFileJpa postAttachedFileJpa;
+
 
     public List<FileDto> fileUploadAndGetUrl(List<MultipartFile> multipartFiles, SaveFileType type){
         List<FileDto> response = new ArrayList<>();
@@ -85,5 +100,59 @@ public class StorageService {
           e.printStackTrace();
           throw new StorageUpdateFailedException("File Delete Failed "+e.getMessage(), fileUrls.toString());
         }
+    }
+
+    public List<String> cleanupS3Bucket() {
+        List<String> byDB = getAllFileKeysByDB();
+        List<String> byBucket = getAllFileKeysByBucket();
+        byBucket.removeAll(byDB);
+        try{
+            for(String removeKey :byBucket)
+                amazonS3Client.deleteObject(bucketName, removeKey);
+
+            return byBucket;
+
+        }catch (AmazonS3Exception e){
+            e.printStackTrace();
+            throw new StorageUpdateFailedException("Bucket Cleanup Failed"+e.getMessage(), "failed");
+        }
+    }
+
+    public List<String> getAllFileKeysByBucket(){
+        List<String> fileKeys = new ArrayList<>();
+        ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(bucketName);
+        ListObjectsV2Result result;
+        do{
+
+            result = amazonS3Client.listObjectsV2
+                    (new ListObjectsV2Request().withBucketName(bucketName));
+
+            for(S3ObjectSummary objectSummary : result.getObjectSummaries()){
+                String objectKey = objectSummary.getKey();
+                fileKeys.add(objectKey);
+            }
+            request.setContinuationToken(result.getNextContinuationToken());
+        }while (result.isTruncated());
+
+        return fileKeys;
+    }
+
+    public List<String> getAllFileKeysByDB(){
+        Set<String> filePath = new HashSet<>();
+        filePath.addAll(competitionAttachedFileJpa.findAllFilePath());
+        filePath.addAll(competitionImgJpa.findAllFilePath());
+        filePath.addAll(competitionRecordJpa.findAllFilePath());
+        filePath.addAll(galleryImgJpa.findAllFilePath());
+        filePath.addAll(postAttachedFileJpa.findAllFilePath());
+        filePath.addAll(postImgJpa.findAllFilePath());
+
+        List<String> uniqueFilePath = new ArrayList<>(filePath);
+
+        for(int i = 0; i<filePath.size(); i++){
+            String[] parts = uniqueFilePath.get(i).split("/");
+            String key = parts[parts.length - 1];
+            uniqueFilePath.set(i, key);
+        }
+        return uniqueFilePath;
     }
 }

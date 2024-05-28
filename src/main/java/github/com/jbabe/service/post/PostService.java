@@ -2,10 +2,13 @@ package github.com.jbabe.service.post;
 
 import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.repository.post.PostJpa;
+import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
+import github.com.jbabe.web.dto.post.PostReqDto;
 import github.com.jbabe.web.dto.post.PostResponseDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
+import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,21 +23,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PostService {
     private final PostJpa postJpa;
+    private final UserJpa userJpa;
     public Map<String, Object> getAllPostsList(Pageable pageable, String category) {
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
-        List<Post> notices = postJpa
+        List<Post> posts = postJpa
                 .findByIsAnnouncementTrueAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum);
-        Page<Post> posts = postJpa
+        Page<Post> pagePosts = postJpa
                 .findByIsAnnouncementFalseAndPostStatusAndCategory(pageable, Post.PostStatus.NORMAL, categoryEnum);
-        if(pageable.getPageNumber()+1>posts.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>pagePosts.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
         List<PostsListDto> postsListDto = new ArrayList<>();
-        for(Post notice: notices) postsListDto.add(PostMapper.INSTANCE.PostToPostsListDto(notice));
         for(Post post: posts) postsListDto.add(PostMapper.INSTANCE.PostToPostsListDto(post));
+        for(Post post: pagePosts) postsListDto.add(PostMapper.INSTANCE.PostToPostsListDto(post));
 
         return Map.of(
                 "posts", postsListDto,
-                "totalPosts", posts.getTotalElements()+notices.size(),
-                "totalPages", posts.getTotalPages()
+                "totalPosts", pagePosts.getTotalElements()+posts.size(),
+                "totalPages", pagePosts.getTotalPages()
         );
     }
 
@@ -45,5 +49,19 @@ public class PostService {
                 ()-> new NotFoundException("Post Not Found", postId));
         post.increaseViewCount();
         return PostMapper.INSTANCE.PostToPostResponseDto(post);
+    }
+
+    @Transactional
+    public boolean createPost(PostReqDto postReqDto, String category, List<FileDto> files) {
+        Post.Category categoryEnum = Post.Category.pathToEnum(category);
+        //테스트 임시 작성자임의 등록
+        Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(5).orElseThrow(()->
+                new NotFoundException("User Not Found", 5)));
+        post.addFiles(files, postReqDto.getFiles());
+        post.defaultValue();
+
+        postJpa.save(post);
+        return true;
+
     }
 }

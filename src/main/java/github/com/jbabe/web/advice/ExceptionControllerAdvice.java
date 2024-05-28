@@ -2,6 +2,7 @@ package github.com.jbabe.web.advice;
 
 import github.com.jbabe.service.exception.*;
 import github.com.jbabe.web.advice.errorResponseDto.ErrorResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class ExceptionControllerAdvice {
 
+    @ApiResponse(description = "잘못된 요청")
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 요청 에러
     public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex) {
