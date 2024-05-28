@@ -4,10 +4,7 @@ import github.com.jbabe.service.competition.CompetitionService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
-import github.com.jbabe.web.dto.competition.AddCompetitionRequest;
-import github.com.jbabe.web.dto.competition.AddCompetitionResultRequest;
-import github.com.jbabe.web.dto.competition.CompetitionDetailResponse;
-import github.com.jbabe.web.dto.competition.CompetitionListResponse;
+import github.com.jbabe.web.dto.competition.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -55,15 +52,39 @@ public class CompetitionController {
     }
 
     @PostMapping("/add-result/{id}")
-    public ResponseDto addCompetitionResult(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                            @PathVariable Integer id,
-                                            @RequestBody @Valid List<AddCompetitionResultRequest> request) {
-        return new ResponseDto(competitionService.addCompetitionResult(customUserDetails, id,  request));
+    public ResponseDto addCompetitionResult(@PathVariable Integer id,
+                                            @RequestBody @Valid AddCompetitionResultFinal request) {
+        return new ResponseDto(competitionService.addCompetitionResult(id,  request.getRequests()));
     }
 
     @GetMapping("/result")
     public ResponseDto getCompetitionResult(@RequestParam("id") Integer id) {
         return new ResponseDto(competitionService.getCompetitionResult(id));
+    }
+
+    @GetMapping("/result-with-title")
+    public ResponseDto getCompetitionResultWithTitle(@RequestParam("id") Integer id) {
+        return new ResponseDto(competitionService.getCompetitionResultWithTitle(id));
+    }
+
+
+    @PostMapping("/update-competition-info/{id}")
+    public ResponseDto updateCompetition(@PathVariable Integer id,
+                                         @RequestPart("requestData") @Valid UpdateCompetitionRequest updateCompetitionRequest,
+                                         @RequestPart(value = "requestFiles",required = false)List<MultipartFile> files,
+                                         @RequestParam(required = false) Optional<SaveFileType> type) {
+        return new ResponseDto(competitionService.updateCompetition(id, updateCompetitionRequest, files, type));
+    }
+
+    @PutMapping("/update-result/{id}")
+    public ResponseDto updateCompetitionResult(@PathVariable Integer id,
+                                               @RequestBody @Valid AddCompetitionResultFinal request) {
+        return new ResponseDto(competitionService.updateCompetitionResult(id, request.getRequests()));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseDto deleteCompetition(@PathVariable Integer id) {
+        return new ResponseDto(competitionService.deleteCompetition(id));
     }
 }
 

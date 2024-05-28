@@ -21,4 +21,5 @@ public class CompetitionDetailResponse {
     private List<CompetitionDetailAttachedFile> competitionDetailAttachedFiles;
     private List<String> divisions;
     private Boolean existResult;
+    private List<String> ckImgUrls;
 }
