@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class getResultResponse {
+public class GetResultResponse {
     private List<String> divisionList;
-    private List<ResultResponse> resultResponse;
+    private List<AddCompetitionResultRequest> resultResponse;
 }

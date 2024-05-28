@@ -205,8 +205,8 @@ public class CompetitionService {
                         .homeScore(result.getHomeScore())
                         .awayName(result.getAwayName())
                         .awayScore(result.getAwayScore())
-                        .filePath(result.getFileUrl())
-                        .fileName(result.getAwayName())
+                        .filePath(result.getFileUrl() == null || result.getFileUrl().isEmpty() ? null : result.getFileUrl())
+                        .fileName(result.getFileName() == null || result.getFileName().isEmpty() ? null : result.getFileName())
                         .build();
                 competitionRecords.add(data);
             })
@@ -218,8 +218,8 @@ public class CompetitionService {
         return "OK";
     }
 
-    public getResultResponse getCompetitionResult(Integer id) {
-        List<ResultResponse> data = new ArrayList<>();
+    public GetResultResponse getCompetitionResult(Integer id) {
+        List<AddCompetitionResultRequest> data = new ArrayList<>();
         List<String> divisions = new ArrayList<>();
         Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("해당 id로 대회를 찾을 수 없습니다.", id));
         List<Division> divisionList = divisionJpa.findAllByCompetition(competition);
@@ -233,6 +233,7 @@ public class CompetitionService {
                         floorList.add(c.getFloor());
                     }
                     list.add(ResultListWithFloor.builder()
+                            .competitionRecordId(c.getCompetitionRecordId())
                             .floor(c.getFloor())
                             .division(d.getDivisionName())
                             .time(c.getTime())
@@ -247,26 +248,80 @@ public class CompetitionService {
             });
 
             floorList.forEach((floor) -> {
-                List<ResultList> results = new ArrayList<>();
+                List<CompetitionResult> results = new ArrayList<>();
                 list.stream().filter((l) -> floor.equals(l.getFloor())).forEach((fl) ->
-                        results.add(ResultList.builder()
+                        results.add(CompetitionResult.builder()
+                                .competitionRecordId(fl.getCompetitionRecordId())
                                 .division(fl.getDivision())
-                                .time(fl.getTime())
+                                .startTime(fl.getTime())
                                 .homeName(fl.getHomeName())
                                 .homeScore(fl.getHomeScore())
                                 .awayName(fl.getAwayName())
                                 .awayScore(fl.getAwayScore())
-                                .filePath(fl.getFilePath())
+                                .fileUrl(fl.getFilePath())
                                 .fileName(fl.getFileName())
                                 .build())
                 );
-                data.add(ResultResponse.builder()
+                data.add(AddCompetitionResultRequest.builder()
                         .floor(floor)
-                        .resultList(results)
+                        .competitionResult(results)
                         .build());
             });
 
-        return new getResultResponse(divisions, data);
+        return new GetResultResponse(divisions, data);
+    }
+
+    public GetResultWithTitleResponse getCompetitionResultWithTitle(Integer id) {
+        List<AddCompetitionResultRequest> data = new ArrayList<>();
+        List<String> divisions = new ArrayList<>();
+        Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("해당 id로 대회를 찾을 수 없습니다.", id));
+        List<Division> divisionList = divisionJpa.findAllByCompetition(competition);
+        List<String> floorList = new ArrayList<>();
+        List<ResultListWithFloor> list = new ArrayList<>();
+        divisionList.forEach((d) -> {
+            divisions.add(d.getDivisionName());
+            List<CompetitionRecord> competitionRecords = competitionRecordJpa.findAllByDivision(d);
+            competitionRecords.forEach((c) -> {
+                if (!floorList.contains(c.getFloor())) {
+                    floorList.add(c.getFloor());
+                }
+                list.add(ResultListWithFloor.builder()
+                        .competitionRecordId(c.getCompetitionRecordId())
+                        .floor(c.getFloor())
+                        .division(d.getDivisionName())
+                        .time(c.getTime())
+                        .homeName(c.getHomeName())
+                        .homeScore(c.getHomeScore())
+                        .awayName(c.getAwayName())
+                        .awayScore(c.getAwayScore())
+                        .filePath(c.getFilePath())
+                        .fileName(c.getFileName())
+                        .build());
+            });
+        });
+
+        floorList.forEach((floor) -> {
+            List<CompetitionResult> results = new ArrayList<>();
+            list.stream().filter((l) -> floor.equals(l.getFloor())).forEach((fl) ->
+                    results.add(CompetitionResult.builder()
+                            .competitionRecordId(fl.getCompetitionRecordId())
+                            .division(fl.getDivision())
+                            .startTime(fl.getTime())
+                            .homeName(fl.getHomeName())
+                            .homeScore(fl.getHomeScore())
+                            .awayName(fl.getAwayName())
+                            .awayScore(fl.getAwayScore())
+                            .fileUrl(fl.getFilePath())
+                            .fileName(fl.getFileName())
+                            .build())
+            );
+            data.add(AddCompetitionResultRequest.builder()
+                    .floor(floor)
+                    .competitionResult(results)
+                    .build());
+        });
+
+        return new GetResultWithTitleResponse(competition.getCompetitionName(), competition.getStartDate(), competition.getEndDate(), divisions, data);
     }
 
     @Transactional
@@ -402,4 +457,49 @@ public class CompetitionService {
     }
 
 
+    public String updateCompetitionResult(Integer id, List<AddCompetitionResultRequest> request) {
+        Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("해당 id로 대회를 찾을 수 없습니다.", id));
+        List<Division> divisions = divisionJpa.findAllByCompetition(competition);
+
+
+
+        List<CompetitionRecord> competitionRecords = new ArrayList<>();
+        List<CompetitionRecord> newCompetitionRecords = new ArrayList<>();
+        request.forEach((req) ->
+                req.getCompetitionResult().forEach((result) -> {
+                    if (result.getCompetitionRecordId() == null) {
+                        CompetitionRecord data = CompetitionRecord.builder()
+                                .division(divisions.stream().filter((d) -> d.getDivisionName().equals(result.getDivision())).toList().get(0))
+                                .floor(req.getFloor())
+                                .time(result.getStartTime())
+                                .homeName(result.getHomeName())
+                                .homeScore(result.getHomeScore())
+                                .awayName(result.getAwayName())
+                                .awayScore(result.getAwayScore())
+                                .filePath(result.getFileUrl() == null || result.getFileUrl().isEmpty() ? null : result.getFileUrl())
+                                .fileName(result.getFileName() == null || result.getFileName().isEmpty() ? null : result.getFileName())
+                                .build();
+                        competitionRecords.add(data);
+                    }else {
+                        CompetitionRecord data = CompetitionRecord.builder()
+                                .competitionRecordId(result.getCompetitionRecordId())
+                                .division(divisions.stream().filter((d) -> d.getDivisionName().equals(result.getDivision())).toList().get(0))
+                                .floor(req.getFloor())
+                                .time(result.getStartTime())
+                                .homeName(result.getHomeName())
+                                .homeScore(result.getHomeScore())
+                                .awayName(result.getAwayName())
+                                .awayScore(result.getAwayScore())
+                                .filePath(result.getFileUrl() == null || result.getFileUrl().isEmpty() ? null : result.getFileUrl())
+                                .fileName(result.getFileName() == null || result.getFileName().isEmpty() ? null : result.getFileName())
+                                .build();
+                        newCompetitionRecords.add(data);
+                    }
+
+                })
+        );
+        competitionRecordJpa.saveAll(newCompetitionRecords);
+        competitionRecordJpa.saveAll(competitionRecords);
+        return "OK";
+    }
 }
