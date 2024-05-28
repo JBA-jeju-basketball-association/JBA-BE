@@ -14,6 +14,7 @@ spring:
     password: ENC(Geo4IHpXtYZNzzFrXKJSrvLMYPembAnGT7ajiPagSDg=)
     driver-class-name: org.mariadb.jdbc.Driver
     url: ENC(V8aQFNv5wr4Ql3VJodqyM0NlrIhdCqh5IRPrYlMZwR2DjK7NZZihjtMQDeNr4fCpKFl812vkWJ6y8zA6cUyAVOSrjRW0W3olBqRfUO04eXrdrxEJe/H4GjToB4yRFCxH)
+    
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
