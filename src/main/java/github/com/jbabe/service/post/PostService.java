@@ -54,7 +54,7 @@ public class PostService {
     @Transactional
     public boolean createPost(PostReqDto postReqDto, String category, List<FileDto> files) {
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
-        //Å×½ºÆ® ÀÓ½Ã ÀÛ¼ºÀÚÀÓÀÇ µî·Ï
+        ////í…ŒìŠ¤íŠ¸ ìž„ì‹œ ìž‘ì„±ìžìž„ì˜ ë“±ë¡
         Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(5).orElseThrow(()->
                 new NotFoundException("User Not Found", 5)));
         post.addFiles(files, postReqDto.getFiles());
