@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@Schema(description = "°øÅë ¿¡·¯ ÀÀ´ä °´Ã¼")
+@Schema(description = "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼")
 public class ErrorResponse {
     private Integer code;
     private String message;

@@ -2,6 +2,7 @@ package github.com.jbabe.web.advice;
 
 import github.com.jbabe.service.exception.*;
 import github.com.jbabe.web.advice.errorResponseDto.ErrorResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +21,13 @@ public class ExceptionControllerAdvice {
     @ApiResponse(description = "잘못된 요청")
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 요청 에러
+    @Hidden
     public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex) {
         ErrorResponse errorResponse = new ErrorResponse(400, "BAD_REQUEST", ex.getDetailMessage(), ex.getRequest());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @Hidden
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN) //권한이 없을때
     public ResponseEntity<ErrorResponse> handleNotAccessDenied(AccessDeniedException ex) {
@@ -32,6 +35,7 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(errorRequestResponse, HttpStatus.FORBIDDEN);
     }
 
+    @Hidden
     @ExceptionHandler(AccountLockedException.class)
     @ResponseStatus(HttpStatus.LOCKED) //계정이 잠겼을때
     public ResponseEntity<ErrorResponse> handleAccountLockedException(AccountLockedException ex) {
@@ -40,6 +44,7 @@ public class ExceptionControllerAdvice {
     }
 
 
+    @Hidden
     @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT) //입력한 키가 이미 존재할때
     public ResponseEntity<ErrorResponse> handleDuplicateKeyException(ConflictException ex) {
@@ -47,6 +52,7 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(errorRequestResponse, HttpStatus.CONFLICT);
     }
 
+    @Hidden
     @ExceptionHandler(NotAcceptableException.class)
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE) //처리할 수 없는 요청
     public ResponseEntity<ErrorResponse> handleNotAcceptException(NotAcceptableException ex) {
@@ -55,6 +61,7 @@ public class ExceptionControllerAdvice {
     }
 
 
+    @Hidden
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND) //찾을 수 없을때
     public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
@@ -62,18 +69,21 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(errorRequestResponse, HttpStatus.NOT_FOUND);
     }
 
+    @Hidden
     @ExceptionHandler(CustomBadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED) //비밀번호가 틀렸을때
     public ErrorResponse handleBadCredentialsException(CustomBadCredentialsException ex) {
         return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),HttpStatus.UNAUTHORIZED.name(), ex.getDetailMessage(), ex.getRequest());
     }
 
+    @Hidden
     @ExceptionHandler(InvalidReqeustException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse invalidRequestException(InvalidReqeustException ex) {
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid_Request", ex.getDetailMessage(), ex.getRequest());
     }
 
+    @Hidden
     @ExceptionHandler({MethodArgumentNotValidException.class, MethodArgumentTypeMismatchException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse methodValidException(Exception ex, HttpServletRequest request) {
@@ -87,6 +97,7 @@ public class ExceptionControllerAdvice {
         }
     }
 
+    @Hidden
     @ExceptionHandler(StorageUpdateFailedException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse fileUploadFailed(StorageUpdateFailedException storageUpdateFailedException){
@@ -101,18 +112,21 @@ public class ExceptionControllerAdvice {
 //        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 //    }
 
+    @Hidden
     @ExceptionHandler(ExpiredJwtException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse ExpiredJwtException(ExpiredJwtException ex) {
         return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "ExpiredJwt", ex.getDetailMessage(), ex.getRequest());
     }
 
+    @Hidden
     @ExceptionHandler(JwtException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse JwtException(JwtException ex) {
         return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "JwtError", ex.getDetailMessage(), ex.getRequest());
     }
 
+    @Hidden
     @ExceptionHandler(RedisConnectionFailureException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse RedisConnectionFailureException(RedisConnectionFailureException ex) {
