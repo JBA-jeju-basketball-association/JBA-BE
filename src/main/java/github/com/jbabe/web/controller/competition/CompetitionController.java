@@ -229,5 +229,3 @@ public class CompetitionController {
         return new ResponseDto(competitionService.deleteCompetition(id));
     }
 }
-
-
