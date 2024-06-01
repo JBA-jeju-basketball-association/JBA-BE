@@ -9,10 +9,15 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class AddCompetitionResultRequest {
     @NotNull(message = "스테이지를 입력해주세요.")
+    @Schema(description = "floor", example = "결승")
     private String floor;
 
     @Valid
+    @NotNull(message = "스테이지를 입력해주세요.")
     private List<CompetitionResult> competitionResult;
 }

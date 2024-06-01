@@ -24,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtTokenConfig jwtTokenConfig;
-//    private final JwtExceptionFilter jwtExceptionFilter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -37,8 +36,9 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfig()))
                 .authorizeRequests(a ->
                         a
-                                .requestMatchers("/test","v1/api/competition/add-competition-info", "v1/api/competition/add-result").hasRole("MASTER")
+                                .requestMatchers("/test","v1/api/competition/add-competition-info", "v1/api/competition/add-result", "v1/api/competition/delete/", "v1/api/competition/update-competition-info/", "/v1/api/competition/update-result/").hasRole("MASTER")
                                 .requestMatchers("/v1/api/sign/logout", "v1/api/gallery/register").authenticated()
+
                                 .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
                                         "/mail/*", "v1/api/competition/competition").permitAll()
                 )
@@ -47,7 +47,6 @@ public class SecurityConfig {
                     e.accessDeniedHandler(new CustomExceptionDeniedHandler());
                 })
                 .addFilterBefore(new JwtFilter(jwtTokenConfig), UsernamePasswordAuthenticationFilter.class);
-//                .addFilterBefore(jwtExceptionFilter, JwtFilter.class);
         return http.build();
 
     }

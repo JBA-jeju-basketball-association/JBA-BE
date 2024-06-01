@@ -36,10 +36,10 @@ public class JwtTokenConfig {
     @Value("${jwt.jwt-password.source}")
     private String secretKey;
     private String key;
-    private final long accessTokenValidMillisecond = 1000*60*10L; // access token 유효기간 : 10분
+    private final long accessTokenValidMillisecond = 1000*60*30L; // access token 유효기간 : 10분
 
     @Getter
-    private final long refreshTokenValidMillisecond = 1000*60*60*24L; // refresh token 유효기간 : 24시간
+    private final long refreshTokenValidMillisecond = 1000*60*60*24*3L; // refresh token 유효기간 : 24시간
 
 
 

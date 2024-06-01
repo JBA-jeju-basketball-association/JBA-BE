@@ -1,5 +1,7 @@
 package github.com.jbabe.web.dto.competition;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -8,10 +10,10 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.List;
 
+
 @Getter
 @Setter
-public class AddCompetitionRequest {
-//    @Pattern(regexp = "^[a-zA-Z0-9]{3,}$", message = "제목은 3글자 이상이고 특수문자를 포함할 수 없습니다.")
+public class UpdateCompetitionRequest {
     @NotNull(message = "제목을 입력해주세요.")
     @NotBlank(message = "제목을 입력해주세요.")
     @Schema(description = "대회 제목", example = "2024년도 제주특별자치도 도민체전")
@@ -28,7 +30,7 @@ public class AddCompetitionRequest {
     private Date endDate;
 
     @NotEmpty(message = "장소를 등록해주세요.")
-    private List<Place> places;
+    private List<UpdatePlace> updatePlaces;
 
     @Schema(description = "관련URL", example = "https://www.koreabasketball.or.kr/main/")
     private String relatedURL;
@@ -38,4 +40,10 @@ public class AddCompetitionRequest {
 
     @Schema(description = "ckImg", example = "https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/575e3d52-fe9c-4248-8913-0b6e7b1bec25.png")
     private List<String> realCkImgs;
+
+    @Schema(description = "기존 업데이트 되었던 파일 URL", example = "https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/575e3d52-fe9c-4248-8913-0b6e7b1bec25.png")
+    private List<String> uploadedAttachedFiles;
+
+    @Schema(description = "기존 업데이트 되었던 이미 URL", example = "https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/575e3d52-fe9c-4248-8913-0b6e7b1bec25.png")
+    private List<String> deletedCkImgUrls;
 }

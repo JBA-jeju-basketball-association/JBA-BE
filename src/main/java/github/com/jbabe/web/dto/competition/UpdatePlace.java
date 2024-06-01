@@ -1,10 +1,17 @@
 package github.com.jbabe.web.dto.competition;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-public class Place {
+@NoArgsConstructor
+@AllArgsConstructor
+public class UpdatePlace {
+    @Schema(description = "competitionPlaceId", example = "1")
+    private Integer competitionPlaceId;
+
     @Schema(description = "장소명", example = "구좌체육관")
     private String placeName;
 
@@ -17,3 +24,5 @@ public class Place {
     @Schema(description = "경도", example = "126.762179075482")
     private Double longitude;
 }
+
+

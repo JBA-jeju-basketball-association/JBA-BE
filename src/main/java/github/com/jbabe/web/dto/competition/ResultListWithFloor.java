@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ResultListWithFloor {
+    private Integer competitionRecordId;
     private String floor;
     private String division;
     private LocalDateTime time;
