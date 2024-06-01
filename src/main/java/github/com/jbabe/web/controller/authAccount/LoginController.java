@@ -94,7 +94,7 @@ public class LoginController {
 
         String refreshToken = request.getHeader("RefreshToken");
         String expiredAccessToken = request.getHeader("AccessToken");
-        if (refreshToken == null | expiredAccessToken == null) {
+        if (refreshToken == null || expiredAccessToken == null) {
             throw new NotFoundException("Header에 토큰이 없습니다.", "");
         }
         AccessAndRefreshToken newTokens = loginService.refreshToken(expiredAccessToken, refreshToken);

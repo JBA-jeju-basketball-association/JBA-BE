@@ -35,7 +35,7 @@ public class EmailCertificationController {
                     )),
             @ApiResponse(responseCode = "409", description = "이미 가입된 이메일",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "이미 가입된 이메일", value = "{\n  \"code\": 409,\n  \"message\": \"CONFLICT\",\n \"detailMessage\": \"이미 가입된 이메일입니다.\",\n \"hansol@gmail.com\": null\n}")
+                            examples = @ExampleObject(name = "이미 가입된 이메일", value = "{\n  \"code\": 409,\n  \"message\": \"CONFLICT\",\n \"detailMessage\": \"이미 가입된 이메일입니다.\",\n \"request\": \"hansol@gmail.com\"\n}")
                     ))
     })
     @PostMapping("/sign-up-send-mail")
