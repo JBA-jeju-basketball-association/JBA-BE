@@ -1,5 +1,8 @@
 package github.com.jbabe.web.dto.competition;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -11,7 +14,6 @@ import java.util.List;
 @Getter
 @Setter
 public class AddCompetitionRequest {
-//    @Pattern(regexp = "^[a-zA-Z0-9]{3,}$", message = "제목은 3글자 이상이고 특수문자를 포함할 수 없습니다.")
     @NotNull(message = "제목을 입력해주세요.")
     @NotBlank(message = "제목을 입력해주세요.")
     @Schema(description = "대회 제목", example = "2024년도 제주특별자치도 도민체전")
