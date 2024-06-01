@@ -136,7 +136,7 @@ public interface PostControllerDocs {
             boolean isOfficial,PostReqDto postReqDto, List<MultipartFile> multipartFiles,
             @Parameter(description = "첨부파일이 일반파일인지 대용량인지 기본값은 small  ex) small, large", examples = {
                     @ExampleObject(name = "일반첨부", value = "small", description = "일반 파일"),
-                    @ExampleObject(name = "대용량첨부", value = "large", description = "대용량 파일"),
+                    @ExampleObject(name = "대용량첨부", value = "large", description = "대용량 파일")
             })Optional<SaveFileType> type);
 
 }
