@@ -15,17 +15,18 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
-    @Bean
-    public OperationCustomizer customizer() {
-        return (operation, handlerMethod) -> {
-            ApiResponses apiResponses = operation.getResponses();
-            ApiResponse apiResponse = new ApiResponse()
-                    .description("Success")
-                    .content(new Content().addMediaType("application/json", new MediaType().schema(new Schema<>().example("{\n  \"code\": 200,\n  \"message\": \"OK\",\n  \"data\": \"데이터는 test로 확인\"\n}"))));
-            apiResponses.addApiResponse("200", apiResponse);
-            return operation;
-        };
-    }
+//    @Bean
+//    public OperationCustomizer customizer() {
+//        return (operation, handlerMethod) -> {
+//            ApiResponses apiResponses = operation.getResponses();
+//            ApiResponse apiResponse = new ApiResponse()
+//                    .description("Success")
+//                    .content(new Content().addMediaType("application/json", new MediaType().schema(new Schema<>().example("{\n  \"code\": 200,\n  \"message\": \"OK\",\n  \"data\": \"데이터는 test로 확인\"\n}"))));
+//            apiResponses.addApiResponse("200", apiResponse);
+//            return operation;
+//        };
+//    }
+
 
     @Bean
     public OpenAPI openAPI(@Value("${springdoc.version}") String openApiVersion) {

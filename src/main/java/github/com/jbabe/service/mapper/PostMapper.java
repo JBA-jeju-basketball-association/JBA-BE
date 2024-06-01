@@ -36,7 +36,8 @@ public interface PostMapper {
     @Mapping(target = "category", source = "category")
     @Mapping(target = "name", source = "postReqDto.title")
     @Mapping(target = "user", source = "user")
-    Post PostRequestToPostEntity(PostReqDto postReqDto, Post.Category category, User user);
+    @Mapping(target = "isAnnouncement", source = "isOfficial")
+    Post PostRequestToPostEntity(PostReqDto postReqDto, Post.Category category, User user, boolean isOfficial);
 
     @Named("getImgUrl")
     default List<String> imgUrl(Set<PostImg> postImgs){

@@ -3,6 +3,7 @@ package github.com.jbabe.service.post;
 import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.repository.post.PostJpa;
 import github.com.jbabe.repository.user.UserJpa;
+import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
 import github.com.jbabe.web.dto.post.PostReqDto;
@@ -11,10 +12,13 @@ import github.com.jbabe.web.dto.post.PostsListDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,15 +56,17 @@ public class PostService {
     }
 
     @Transactional
-    public boolean createPost(PostReqDto postReqDto, String category, List<FileDto> files) {
+    public boolean createPost(PostReqDto postReqDto, String category, List<FileDto> files, boolean isOfficial) {
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
         ////테스트 임시 작성자임의 등록
         Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(5).orElseThrow(()->
-                new NotFoundException("User Not Found", 5)));
+                new NotFoundException("User Not Found", 5)),isOfficial);
         post.addFiles(files, postReqDto.getFiles());
-        post.defaultValue();
-
-        postJpa.save(post);
+        try{
+            postJpa.save(post);
+        }catch (DataIntegrityViolationException sqlException){
+            throw new BadRequestException("DB에 반영하는데 실패하였습니다. (제목이 중복됐을 가능성이 있습니다.)  "+sqlException.getMessage(),postReqDto.getTitle());
+        }
         return true;
 
     }
