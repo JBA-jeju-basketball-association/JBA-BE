@@ -1,14 +1,23 @@
 package github.com.jbabe.web.controller.post;
 
+import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
+import github.com.jbabe.web.dto.post.PostModifyDto;
 import github.com.jbabe.web.dto.post.PostReqDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -136,10 +145,66 @@ public interface PostControllerDocs {
             @Parameter(description = "공지 여부 기본값은 false (공지일시 페이지 목록 상단에 고정됨)", examples = {
                     @ExampleObject(name = "공지", value = "true", description = "공지 (목록 상단 고정)"),
                     @ExampleObject(name = "안공지", value = "false", description = "공지 아님")})
-            boolean isOfficial,PostReqDto postReqDto, List<MultipartFile> multipartFiles,
+            boolean isOfficial,
+            @Parameter(description = "게시물 작성시 필요 정보 postImgs 배열에 들어가는 정보는 이미지 업로드 api로 " +
+                    "<br>이미지 업로드 후 반환된 정보를 담아 보내주세요")
+            PostReqDto postReqDto,
+            @Parameter(description = "multipart/form-data로 전송되는 파일들")
+            List<MultipartFile> multipartFiles,
             @Parameter(description = "첨부파일이 일반파일인지 대용량인지 기본값은 small  ex) small, large", examples = {
                     @ExampleObject(name = "일반첨부", value = "small", description = "일반 파일"),
                     @ExampleObject(name = "대용량첨부", value = "large", description = "대용량 파일")
             })Optional<SaveFileType> type);
+
+
+
+    @Operation(summary = "게시물 수정",
+            description = "게시물 작성 첨부파일은 key값을 uploadFiles로 게시물 내용은 key값 body로 둘다 form-data에 담아요청<br>" +
+                    "content 부분에 삽입된 이미지들은 올릴때 업로드 api로 바로 업로드 되구<br>" +
+                    "반환된 파일명과 url을 body안에 postImgs에 담아 요청 보내주시면 됩니다!<br>" +
+                    "body안에 files는 첨부파일 입니다. 삭제된 파일이 없다면 원 게시글에서 반환된 첨부파일 리스트를 그대로 보내주시면됩니다.")
+    @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "게시글 찾을 수 없음",
+                                    description = "⬆️⬆️ 게시물아이디가 존재하지 않는 아이디 일때",
+                                    value = "{\n" +
+                                            "  \"code\": 404,\n" +
+                                            "  \"message\": \"NOT_FOUND\",\n" +
+                                            "  \"detailMessage\": \"Post Not Found\",\n" +
+                                            "  \"request\": \"125125\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "200",description = "게시물 작성 성공",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "게시물 작성 성공 예",
+                                    description = "⬆️⬆️ 성공!",
+                                    value = "{\n" +
+                                            "  \"code\": 200,\n" +
+                                            "  \"message\": \"OK\"\n" +
+                                            "}")
+                    })
+    )
+    ResponseDto updatePost(
+            @Parameter(description = "로그인된 유저 정보 (토큰에서 파싱후 db조회해서 가져옴)")
+            CustomUserDetails customUserDetails,
+            @Parameter(description = "게시물 고유 번호", example = "60")
+            Integer postId,
+            @Parameter(description = "공지 여부 기본값은 false (공지일시 페이지 목록 상단에 고정됨)", examples = {
+                    @ExampleObject(name = "공지", value = "true", description = "공지 (목록 상단 고정)"),
+                    @ExampleObject(name = "안공지", value = "false", description = "공지 아님")})
+            boolean isOfficial,
+            @Parameter(description = "게시물 수정시 필요 정보 postImgs 배열에 들어가는 정보는 이미지 업로드 api로 " +
+                    "<br>이미지 업로드 후 반환된 정보를 담아 보내주세요. 삭제된 첨부파일은 삭제 API 요청 이후 원래 써있던 정보에서도 빼주세요. " +
+                    "<br>새로 들어온 값으로 교체된 후 새로 업로드된 파일 정보는 따로 추가됩니다.")
+            PostModifyDto postModifyDto,
+            @Parameter(description = "multipart/form-data로 전송되는 파일들")
+            List<MultipartFile> multipartFiles,
+            @Parameter(description = "첨부파일이 일반파일인지 대용량인지 기본값은 small  ex) small, large", examples = {
+                    @ExampleObject(name = "일반첨부", value = "small", description = "일반 파일"),
+                    @ExampleObject(name = "대용량첨부", value = "large", description = "대용량 파일")})
+            Optional<SaveFileType> type);
 
 }

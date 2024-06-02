@@ -56,7 +56,7 @@ public class PostController implements PostControllerDocs{
     public ResponseDto regPost(
             @PathVariable String category,
             @RequestParam(required = false) boolean isOfficial,
-            @RequestPart (value = "body") @Valid PostReqDto postReqDto,
+            @RequestPart (value = "body") PostReqDto postReqDto,
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> multipartFiles,
             @RequestParam(required = false) Optional<SaveFileType> type){
 

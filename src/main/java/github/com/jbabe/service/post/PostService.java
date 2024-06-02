@@ -74,6 +74,8 @@ public class PostService {
         return true;
 
     }
+
+
     @Transactional
     public boolean updatePost(PostModifyDto postModifyDto, Integer postId, List<FileDto> newFiles, boolean isOfficial, CustomUserDetails customUserDetails) {
         Integer userId = Optional.ofNullable(customUserDetails)
