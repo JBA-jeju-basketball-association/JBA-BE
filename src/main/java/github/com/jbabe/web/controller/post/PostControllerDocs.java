@@ -86,7 +86,10 @@ public interface PostControllerDocs {
 
 
 
-    @Operation(summary = "게시물 작성", description = "게시물 작성 첨부파일은 key값을 uploadFiles로 게시물 내용은 key값 body로 둘다 form-data에 담아요청<br>content 부분에 삽입된 이미지들은 올릴때 업로드 api로 바로 업로드 되구<br>반환된 파일명과 url을 files에 담아 요청 보내주시면 됩니다!")
+    @Operation(summary = "게시물 작성",
+            description = "게시물 작성 첨부파일은 key값을 uploadFiles로 게시물 내용은 key값 body로 둘다 form-data에 담아요청<br>" +
+            "content 부분에 삽입된 이미지들은 올릴때 업로드 api로 바로 업로드 되구<br>" +
+            "반환된 파일명과 url을 body안에 postImgs에 담아 요청 보내주시면 됩니다!")
     @ApiResponse(responseCode = "404", description = "작성자 미상",
             content = @Content(mediaType = "application/json",
                     examples = {

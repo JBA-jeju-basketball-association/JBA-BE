@@ -143,6 +143,8 @@ public class StorageService {
         return fileKeys;
     }
 
+
+
     public List<String> getAllFileKeysByDB(){
         Set<String> filePath = new HashSet<>();
         filePath.addAll(competitionAttachedFileJpa.findAllFilePath());

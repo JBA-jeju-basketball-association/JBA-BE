@@ -1,5 +1,6 @@
 package github.com.jbabe.web.dto.post;
 
+import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +14,7 @@ public class PostResponseDto {
     private String writer;
     private String createAt;
     private long viewCount;
-    private List<String> postAttachedFiles;
-    private List<String> postImgs;
+    private List<FileDto> files;
+    private List<FileDto> postImgs;
     private String content;
 }
