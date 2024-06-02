@@ -13,5 +13,5 @@ public class PostReqDto {
     @Schema(description = "응답 메세지", example = "<p>POST 페이지 더미데이터입니다.</p>")
     private String content;
     @Schema(description = "게시물 이미지 정보")
-    private List<FileDto> imgs;
+    private List<FileDto> postImgs;
 }
