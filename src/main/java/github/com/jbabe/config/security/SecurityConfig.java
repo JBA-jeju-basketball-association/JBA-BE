@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .authorizeRequests(a ->
                         a
                                 .requestMatchers("/test","v1/api/competition/add-competition-info", "v1/api/competition/add-result", "v1/api/competition/delete/", "v1/api/competition/update-competition-info/", "/v1/api/competition/update-result/").hasRole("MASTER")
-                                .requestMatchers("/v1/api/sign/logout", "v1/api/gallery/register").authenticated()
+                                .requestMatchers("/v1/api/sign/logout").authenticated()
 
                                 .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
                                         "/mail/*", "v1/api/competition/competition").permitAll()

@@ -7,6 +7,7 @@ import github.com.jbabe.repository.user.User;
 import github.com.jbabe.web.dto.post.PostReqDto;
 import github.com.jbabe.web.dto.post.PostResponseDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
+import github.com.jbabe.web.dto.storage.FileDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -29,22 +30,24 @@ public interface PostMapper {
     @Mapping(target = "createAt", dateFormat = "yyyy-MM-dd")
     @Mapping(target = "writer", source = "post.user.name")
     @Mapping(target = "postImgs",qualifiedByName = "getImgUrl")
-    @Mapping(target = "postAttachedFiles", qualifiedByName = "getPostAttachedFiles")
+    @Mapping(target = "files", source = "postAttachedFiles", qualifiedByName = "getPostAttachedFiles")
     @Mapping(target = "title", source = "name")
     PostResponseDto PostToPostResponseDto(Post post);
 
     @Mapping(target = "category", source = "category")
     @Mapping(target = "name", source = "postReqDto.title")
     @Mapping(target = "user", source = "user")
-    Post PostRequestToPostEntity(PostReqDto postReqDto, Post.Category category, User user);
+    @Mapping(target = "isAnnouncement", source = "isOfficial")
+    Post PostRequestToPostEntity(PostReqDto postReqDto, Post.Category category, User user, boolean isOfficial);
 
     @Named("getImgUrl")
-    default List<String> imgUrl(Set<PostImg> postImgs){
-        return postImgs.stream().map(pI->pI.getImgUrl()).toList();
+    default List<FileDto> imgUrl(Set<PostImg> postImgs){
+        //fileName과 imgUrl을 각각 변수에 삽입하여 FileDto 객체를 생성하여 반환
+        return postImgs.stream().map(pI->new FileDto(pI.getFileName(),pI.getImgUrl())).toList();
     }
     @Named("getPostAttachedFiles")
-    default List<String> postAttachedFile(Set<PostAttachedFile> postAttachedFiles){
-        return postAttachedFiles.stream().map(pAF->pAF.getFilePath()).toList();
+    default List<FileDto> postAttachedFile(Set<PostAttachedFile> postAttachedFiles){
+        return postAttachedFiles.stream().map(pAF->new FileDto(pAF.getFileName(),pAF.getFilePath())).toList();
     }
 
 }

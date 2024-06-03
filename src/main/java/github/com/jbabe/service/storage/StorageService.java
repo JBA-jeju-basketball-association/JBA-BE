@@ -106,15 +106,21 @@ public class StorageService {
         List<String> byDB = getAllFileKeysByDB();
         List<String> byBucket = getAllFileKeysByBucket();
         byBucket.removeAll(byDB);
+        if(byBucket.isEmpty()) return null;
         try{
-            for(String removeKey :byBucket)
-                amazonS3Client.deleteObject(bucketName, removeKey);
+            DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName)
+                    .withKeys(byBucket.toArray(new String[0]));
+            amazonS3Client.deleteObjects(deleteObjectsRequest);
+
+//            for(String removeKey :byBucket)
+//                amazonS3Client.deleteObject(bucketName, removeKey);
+
 
             return byBucket;
 
         }catch (AmazonS3Exception e){
             e.printStackTrace();
-            throw new StorageUpdateFailedException("Bucket Cleanup Failed"+e.getMessage(), "failed");
+            throw new StorageUpdateFailedException("Bucket Cleanup Failed "+e.getMessage(), "failed");
         }
     }
 
@@ -136,6 +142,8 @@ public class StorageService {
 
         return fileKeys;
     }
+
+
 
     public List<String> getAllFileKeysByDB(){
         Set<String> filePath = new HashSet<>();

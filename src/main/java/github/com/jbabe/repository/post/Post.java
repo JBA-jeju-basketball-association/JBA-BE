@@ -4,9 +4,12 @@ import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.exception.BadRequestException;
+import github.com.jbabe.web.dto.post.PostModifyDto;
+import github.com.jbabe.web.dto.post.PostReqDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
@@ -22,6 +25,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode(of = "postId")
+@DynamicInsert
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,17 +65,27 @@ public class Post {
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST)
     private Set<PostAttachedFile> postAttachedFiles;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST)
     private Set<PostImg> postImgs;
 
-    public void defaultValue() {
-        this.viewCount = 0;
-        this.createAt = LocalDateTime.now();
-        if (this.isAnnouncement == null) this.isAnnouncement = false;
-        this.postStatus = PostStatus.NORMAL;
+//    public void defaultValue() {
+//        this.viewCount = 0;
+//        this.createAt = LocalDateTime.now();
+//        if (this.isAnnouncement == null) this.isAnnouncement = false;
+//        this.postStatus = PostStatus.NORMAL;
+//    }
+
+    public void notifyAndEditSubjectLineContent(PostModifyDto postModifyDto, List<FileDto> newFiles, boolean isOfficial) {
+        this.isAnnouncement = isOfficial;
+        this.name = postModifyDto.getTitle();
+        this.content = postModifyDto.getContent();
+        if(newFiles!=null&&postModifyDto.getFiles()!=null) postModifyDto.getFiles().addAll(newFiles);
+        addFiles(postModifyDto.getFiles(), postModifyDto.getPostImgs());
+        this.updateAt = LocalDateTime.now();
+
     }
 
 
@@ -95,27 +109,27 @@ public class Post {
     public void increaseViewCount(){
         this.viewCount++;
     }
-    public boolean addFiles(List<FileDto> files, List<FileDto> imgs){
-        try{
+
+    public void addFiles(List<FileDto> files, List<FileDto> imgs){
+        if(files!=null && !files.isEmpty() ){
             this.postAttachedFiles = new HashSet<>();
-            this.postImgs = new HashSet<>();
             for(FileDto f: files) {
-                 PostAttachedFile postAttachedFile = PostAttachedFile.builder()
+                PostAttachedFile postAttachedFile = PostAttachedFile.builder()
                         .post(this)
                         .filePath(f.getFileUrl())
                         .fileName(f.getFileName()).build();
                 this.postAttachedFiles.add(postAttachedFile);
             }
-            for(FileDto img: imgs) {
+        }
+        if(imgs!=null && !imgs.isEmpty()) {
+            this.postImgs = new HashSet<>();
+            for (FileDto img : imgs) {
                 PostImg postImg = PostImg.builder()
                         .post(this)
                         .fileName(img.getFileName())
                         .imgUrl(img.getFileUrl()).build();
                 this.postImgs.add(postImg);
             }
-            return true;
-        }catch (Exception e){
-            return false;
         }
     }
 }

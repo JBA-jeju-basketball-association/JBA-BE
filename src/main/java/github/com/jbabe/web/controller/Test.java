@@ -19,6 +19,7 @@ import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +38,7 @@ import static org.springframework.web.servlet.function.ServerResponse.async;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class Test {
 
     private final UserJpa userJpa;
@@ -52,7 +54,16 @@ public class Test {
 
     @GetMapping("/testSihu")
     public Object test() {
-        return storageService.cleanupS3Bucket();
+
+        log.warn("파일 삭제 시작");
+        List<String> cleanupList = storageService.cleanupS3Bucket();
+        if(cleanupList == null)
+            log.info("제거 할 파일이 없습니다.");
+        else {
+            log.info("삭제된 파일 목록 : " + cleanupList);
+            log.info("미사용 첨부파일을 제거 하였습니다.");
+        }
+        return cleanupList;
     }
 
     @PostMapping("/logoutTest")

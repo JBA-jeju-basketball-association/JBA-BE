@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@Schema(description = "���� ���� ���� ��ü")
+@Schema(description = "공통 에러 응답 객체")
 public class ErrorResponse {
     private Integer code;
     private String message;

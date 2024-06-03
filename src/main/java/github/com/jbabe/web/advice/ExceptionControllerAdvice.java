@@ -18,7 +18,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class ExceptionControllerAdvice {
 
-    @ApiResponse(description = "잘못된 요청")
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST) // 요청 에러
     @Hidden
