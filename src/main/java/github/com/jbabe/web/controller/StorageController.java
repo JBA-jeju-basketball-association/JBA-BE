@@ -5,6 +5,7 @@ import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,9 +16,12 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/v1/api/storage")
 @RequiredArgsConstructor
-public class StorageController {
+public class StorageController implements StorageControllerDocs{
     private final StorageService storageService;
-    @PostMapping("/multipart-files")
+
+    @Override
+    @PostMapping(value = "/multipart-files",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDto uploadMultipleFiles(//여러개 업로드
                                            @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
                                            @RequestParam(required = false) Optional<SaveFileType> type
@@ -38,7 +42,8 @@ public class StorageController {
         storageService.uploadCancel(fileUrls);
         return new ResponseDto();
     }
-    @PutMapping("/multipart-files")
+    @PutMapping(value = "/multipart-files",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDto modifyMultipleFiles(@RequestParam(value = "file-url") List<String> deleteFileUrls,
                                            @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
                                            @RequestParam(required = false) Optional<SaveFileType> type){

@@ -67,8 +67,9 @@ public class GalleryService {
 
     @Transactional
     public void registerGalleryPost(GalleryDetailsDto requestRegister, Integer userId, boolean isOfficial) {
+
         Gallery galleryEntity = GalleryMapper.INSTANCE.GalleryDetailsDtoToGallery(requestRegister, userJpa.findById(userId)
-                .orElseThrow(()->new NotFoundException("NotFoundUser", userId)), isOfficial);
+                .orElseThrow(()->new NotFoundException("NotFoundUser", 5)), isOfficial);// 유저아이디 임시삽입
 
         for(GalleryImg img: galleryEntity.getGalleryImgs()){
             img.setGallery(galleryEntity);
