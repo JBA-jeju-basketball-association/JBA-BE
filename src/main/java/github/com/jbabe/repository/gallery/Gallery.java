@@ -46,7 +46,7 @@ public class Gallery {
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
 
-    @OneToMany(mappedBy = "gallery", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "gallery", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<GalleryImg> galleryImgs;
 
     @Getter

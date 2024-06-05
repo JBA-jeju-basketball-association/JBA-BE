@@ -1,6 +1,7 @@
 package github.com.jbabe.web.controller.gallery;
 
 import github.com.jbabe.service.gallery.GalleryService;
+import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class GalleryController implements GalleryControllerDocs{
     private final GalleryService galleryService;
 
+
     @Override
     @GetMapping()//갤러리 목록조회
     public ResponseDto getGalleryList(
@@ -28,8 +30,7 @@ public class GalleryController implements GalleryControllerDocs{
 
     @Override
     @GetMapping("/{galleryId}")
-    public ResponseDto getGalleryPost(
-            @PathVariable int galleryId){
+    public ResponseDto getGalleryPost(@PathVariable int galleryId){
         return new ResponseDto(galleryService.getGalleryDetailsDto(galleryId));
     }
 
@@ -45,6 +46,12 @@ public class GalleryController implements GalleryControllerDocs{
                 .orElse(5);
         galleryService.registerGalleryPost(requestRegister,
                 userId, isOfficial);
+        return new ResponseDto();
+    }
+
+    @DeleteMapping("/{galleryId}")
+    public ResponseDto deleteGalleryPost(@PathVariable int galleryId){
+        galleryService.deleteGalleryPost(galleryId);
         return new ResponseDto();
     }
 

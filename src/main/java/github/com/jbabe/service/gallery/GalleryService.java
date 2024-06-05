@@ -9,6 +9,7 @@ import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.GalleryMapper;
+import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
@@ -29,7 +30,9 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class GalleryService {
+    private final StorageService storageService;
     private final GalleryJpa galleryJpa;
+    private final GalleryImgJpa galleryImgJpa;
     private final UserJpa userJpa;
 
     public Object getGalleryList(Pageable pageable, boolean official) {
@@ -80,6 +83,19 @@ public class GalleryService {
         }catch (DataIntegrityViolationException exception) {
             throw new BadRequestException("SQLError", exception.getMessage());
         }
+
+    }
+
+    @Transactional
+    public void deleteGalleryPost(int galleryId) {
+        if (!galleryJpa.existsById(galleryId))
+            throw new NotFoundException("Not Found Gallery", galleryId);
+
+        List<GalleryImg> imagesToDelete = galleryImgJpa.findAllByGalleryGalleryId(galleryId);
+        if (!imagesToDelete.isEmpty()) storageService.uploadCancel(imagesToDelete.stream()
+                .map(GalleryImg::getFileUrl).toList());
+
+        galleryJpa.deleteById(galleryId);
 
     }
 }

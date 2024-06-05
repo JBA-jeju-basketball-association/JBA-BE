@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Gallery", description = "갤러리 관련 API")
 public interface GalleryControllerDocs {
@@ -149,5 +150,33 @@ public interface GalleryControllerDocs {
                                               @ExampleObject(name = "안공식갤러리", value = "false", description = "일반갤러리임")})
                                     boolean isOfficial);
 
+    @Operation(summary = "갤러리 게시물 삭제", description = "갤러리 게시물 삭제입니다.")
+    @ApiResponse(responseCode = "200",description = "갤러리 삭제 성공",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "갤러리 삭제 성공 예",
+                                    description = "⬆️⬆️ 성공!",
+                                    value = "{\n" +
+                                            "  \"code\": 200,\n" +
+                                            "  \"message\": \"OK\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "404", description = "해당 게시물 찾을 수 없음",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "삭제하려는 갤러리 게시물 찾을 수 없음",
+                                    description = "⬆️⬆️ 요청들어온 갤러리 아이디가 DB상에 존재 하지 않을때",
+                                    value = "{\n" +
+                                            "  \"code\": 404,\n" +
+                                            "  \"message\": \"NOT_FOUND\",\n" +
+                                            "  \"detailMessage\": \"Gallery Not Found\",\n" +
+                                            "  \"request\": \"3\"\n" +
+                                            "}")
+                    })
+    )
+    ResponseDto deleteGalleryPost(
+            @Parameter(description = "삭제할 갤러리 고유번호", example = "3")
+            int galleryId);
 
 }

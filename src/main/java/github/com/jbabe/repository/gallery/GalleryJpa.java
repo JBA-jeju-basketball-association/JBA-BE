@@ -16,4 +16,5 @@ public interface GalleryJpa extends JpaRepository<Gallery, Integer> {
     Page<Gallery> findByIsOfficialAndGalleryStatusJoin(boolean isOfficial, Gallery.GalleryStatus galleryStatus, Pageable pageable);
     Page<Gallery> findAllByIsOfficialAndGalleryStatus(Pageable pageable, boolean isOfficial, Gallery.GalleryStatus galleryStatus);
 
+
 }
