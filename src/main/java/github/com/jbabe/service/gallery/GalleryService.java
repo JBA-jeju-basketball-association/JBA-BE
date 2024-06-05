@@ -13,6 +13,7 @@ import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
+import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -35,12 +36,10 @@ public class GalleryService {
     private final GalleryImgJpa galleryImgJpa;
     private final UserJpa userJpa;
 
+    @Transactional(readOnly = true)
     public Object getGalleryList(Pageable pageable, boolean official) {
         Page<Gallery> galleryPages = galleryJpa
-                .findByIsOfficialAndGalleryStatusJoin(official, Gallery.GalleryStatus.NORMAL, pageable);
-        Page<Gallery> galleryPagess = galleryJpa
-                .findAllByIsOfficialAndGalleryStatus(pageable, official, Gallery.GalleryStatus.NORMAL);
-        Page<Gallery> all = galleryJpa.findAll(pageable);
+                .findByIsOfficialAndGalleryStatus(official, Gallery.GalleryStatus.NORMAL, pageable);
 
         List<GalleryListDto> responseList = new ArrayList<>();
         if(pageable.getPageNumber()+1>galleryPages.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
@@ -101,4 +100,52 @@ public class GalleryService {
         if (!imagesToDelete.isEmpty()) storageService.uploadCancel(imagesToDelete.stream()
                 .map(GalleryImg::getFileUrl).toList());
     }
+
+    @Transactional
+    public void modifyGalleryPost(int galleryId, GalleryDetailsDto requestModify, boolean isOfficial){
+        Gallery orginalGallery = galleryJpa.findById(galleryId).orElseThrow(
+                ()-> new NotFoundException("Not Found Gallery", galleryId));
+        List<GalleryImg> originalImgs = orginalGallery.getGalleryImgs();
+
+        List<GalleryImg> imagesToBeErased = updateAndRemoveNonMatching(originalImgs, requestModify.getFiles());
+        galleryImgJpa.deleteAll(imagesToBeErased);
+
+        List<GalleryImg> imageToBeAdded = forMissingFilesClickAdd(requestModify.getFiles(), orginalGallery);
+        orginalGallery.notifyAndEditSubjectLineContent(requestModify, isOfficial, imageToBeAdded);
+
+    }
+
+    private List<GalleryImg> forMissingFilesClickAdd(List<FileDto> files, Gallery orginalGallery) {
+        List<GalleryImg> imageToBeAdded = new ArrayList<>();
+        for(FileDto file: files){
+            if(orginalGallery.getGalleryImgs().stream()
+                    .noneMatch(img -> img.getFileUrl().equals(file.getFileUrl()))
+            ){
+                GalleryImg img = GalleryImg.builder()
+                        .fileName(file.getFileName())
+                        .fileUrl(file.getFileUrl())
+                        .gallery(orginalGallery)
+                        .build();
+                imageToBeAdded.add(img);
+            }
+        }
+        return imageToBeAdded;
+    }
+
+    private List<GalleryImg> updateAndRemoveNonMatching(List<GalleryImg> originalImgs, List<FileDto> files) {
+        List<GalleryImg> imagesToBeErased = new ArrayList<>();
+
+
+        for(GalleryImg img: originalImgs){
+            if(files.stream()
+                    .noneMatch(fileDto -> fileDto.getFileUrl().equals(img.getFileUrl()))
+            ){
+                imagesToBeErased.add(img);
+            }
+        }
+        if(!imagesToBeErased.isEmpty()) storageService.uploadCancel(imagesToBeErased.stream()
+                .map(GalleryImg::getFileUrl).toList());
+        return imagesToBeErased;
+    }
+
 }

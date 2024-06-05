@@ -7,6 +7,7 @@ import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,10 @@ public class GalleryController implements GalleryControllerDocs{
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
             @RequestParam boolean official) {
-        return new ResponseDto(galleryService.getGalleryList(PageRequest.of(page, size), official));
+        return new ResponseDto(galleryService.getGalleryList(
+                PageRequest.of(page, size,Sort.by(Sort.Order.desc("createAt"))),
+                official)
+        );
     }
 
     @Override
@@ -52,6 +56,12 @@ public class GalleryController implements GalleryControllerDocs{
     @DeleteMapping("/{galleryId}")
     public ResponseDto deleteGalleryPost(@PathVariable int galleryId){
         galleryService.deleteGalleryPost(galleryId);
+        return new ResponseDto();
+    }
+    @PutMapping("/{galleryId}")
+    public ResponseDto modifyGalleryPost(@PathVariable int galleryId, @RequestBody GalleryDetailsDto requestModify,
+                                         @RequestParam(name = "official", required = false) boolean isOfficial){
+        galleryService.modifyGalleryPost(galleryId, requestModify, isOfficial);
         return new ResponseDto();
     }
 

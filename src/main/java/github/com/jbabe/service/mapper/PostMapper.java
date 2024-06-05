@@ -38,6 +38,7 @@ public interface PostMapper {
     @Mapping(target = "name", source = "postReqDto.title")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "isAnnouncement", source = "isOfficial")
+    @Mapping(target = "createAt", ignore = true)
     Post PostRequestToPostEntity(PostReqDto postReqDto, Post.Category category, User user, boolean isOfficial);
 
     @Named("getImgUrl")

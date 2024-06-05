@@ -8,13 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GalleryJpa extends JpaRepository<Gallery, Integer> {
-    @Query("SELECT g FROM Gallery g " +
-            "JOIN FETCH g.galleryImgs gI " +
-            "WHERE g.isOfficial = :isOfficial " +
-            "AND g.galleryStatus = :galleryStatus"
-    )
-    Page<Gallery> findByIsOfficialAndGalleryStatusJoin(boolean isOfficial, Gallery.GalleryStatus galleryStatus, Pageable pageable);
-    Page<Gallery> findAllByIsOfficialAndGalleryStatus(Pageable pageable, boolean isOfficial, Gallery.GalleryStatus galleryStatus);
 
+    Page<Gallery> findByIsOfficialAndGalleryStatus(boolean isOfficial, Gallery.GalleryStatus galleryStatus, Pageable pageable);
 
 }

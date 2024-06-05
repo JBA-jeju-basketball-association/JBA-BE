@@ -18,12 +18,14 @@ import github.com.jbabe.web.dto.post.PostReqDto;
 import github.com.jbabe.web.dto.post.PostResponseDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
 import github.com.jbabe.web.dto.storage.FileDto;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,21 +41,23 @@ public class PostService {
     private final PostAttachedFileJpa postAttachedFileJpa;
     private final StorageService storageService;
 
+
     public Map<String, Object> getAllPostsList(Pageable pageable, String category) {
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
-        List<Post> posts = postJpa
-                .findByIsAnnouncementTrueAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum);
-        Page<Post> pagePosts = postJpa
-                .findByIsAnnouncementFalseAndPostStatusAndCategory(pageable, Post.PostStatus.NORMAL, categoryEnum);
-        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>pagePosts.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+
+        List<Post> announcementPosts = postJpa
+                .findByIsAnnouncementTrueAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum, pageable.getSort());
+        Page<Post> generalPosts = postJpa
+                .findByIsAnnouncementFalseAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum, pageable);
+        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>generalPosts.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
         List<PostsListDto> postsListDto = new ArrayList<>();
-        for(Post post: posts) postsListDto.add(PostMapper.INSTANCE.PostToPostsListDto(post));
-        for(Post post: pagePosts) postsListDto.add(PostMapper.INSTANCE.PostToPostsListDto(post));
+        for(Post post: announcementPosts) postsListDto.add(PostMapper.INSTANCE.PostToPostsListDto(post));
+        for(Post post: generalPosts) postsListDto.add(PostMapper.INSTANCE.PostToPostsListDto(post));
 
         return Map.of(
                 "posts", postsListDto,
-                "totalPosts", pagePosts.getTotalElements()+posts.size(),
-                "totalPages", pagePosts.getTotalPages()
+                "totalPosts", generalPosts.getTotalElements()+announcementPosts.size(),
+                "totalPages", generalPosts.getTotalPages()
         );
     }
 

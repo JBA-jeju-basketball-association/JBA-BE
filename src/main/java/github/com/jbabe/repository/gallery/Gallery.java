@@ -2,6 +2,8 @@ package github.com.jbabe.repository.gallery;
 
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
+import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -48,6 +50,13 @@ public class Gallery {
 
     @OneToMany(mappedBy = "gallery", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<GalleryImg> galleryImgs;
+
+    public void notifyAndEditSubjectLineContent(GalleryDetailsDto requestModify, boolean isOfficial, List<GalleryImg> newImgs){
+        this.name = requestModify.getTitle();
+        this.isOfficial = isOfficial;
+        this.galleryImgs.addAll(newImgs);
+        this.updateAt = LocalDateTime.now();
+    }
 
     @Getter
     public enum GalleryStatus {
