@@ -2,11 +2,16 @@ package github.com.jbabe.service.post;
 
 import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.repository.post.PostJpa;
+import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
+import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
+import github.com.jbabe.repository.postImg.PostImg;
+import github.com.jbabe.repository.postImg.PostImgJpa;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotAcceptableException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
+import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.post.PostModifyDto;
 import github.com.jbabe.web.dto.post.PostReqDto;
@@ -30,6 +35,10 @@ import java.util.Optional;
 public class PostService {
     private final PostJpa postJpa;
     private final UserJpa userJpa;
+    private final PostImgJpa postImgJpa;
+    private final PostAttachedFileJpa postAttachedFileJpa;
+    private final StorageService storageService;
+
     public Map<String, Object> getAllPostsList(Pageable pageable, String category) {
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
         List<Post> posts = postJpa
@@ -90,5 +99,22 @@ public class PostService {
         originPost.notifyAndEditSubjectLineContent(postModifyDto, newFiles, isOfficial);
 
         return true;
+    }
+    @Transactional
+    public void deletePost(Integer postId) {
+        if (!postJpa.existsById(postId))
+            throw new NotFoundException("Post Not Found", postId);
+
+        deletePostAssociatedData(postId);
+
+        postJpa.deleteById(postId);
+    }
+    public void deletePostAssociatedData(Integer postId) {
+        List<PostImg> imagesToDelete = postImgJpa.findAllByPostPostId(postId);
+        List<PostAttachedFile> filesToDelete = postAttachedFileJpa.findAllByPostPostId(postId);
+        if(!imagesToDelete.isEmpty()) storageService.uploadCancel(imagesToDelete.stream()
+                .map(PostImg::getImgUrl).toList());
+        if(!filesToDelete.isEmpty()) storageService.uploadCancel(filesToDelete.stream()
+                .map(PostAttachedFile::getFilePath).toList());
     }
 }

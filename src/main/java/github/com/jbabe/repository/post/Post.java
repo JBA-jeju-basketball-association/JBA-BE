@@ -65,10 +65,10 @@ public class Post {
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<PostAttachedFile> postAttachedFiles;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<PostImg> postImgs;
 
 //    public void defaultValue() {

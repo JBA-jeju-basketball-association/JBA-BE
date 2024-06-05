@@ -91,11 +91,14 @@ public class GalleryService {
         if (!galleryJpa.existsById(galleryId))
             throw new NotFoundException("Not Found Gallery", galleryId);
 
-        List<GalleryImg> imagesToDelete = galleryImgJpa.findAllByGalleryGalleryId(galleryId);
-        if (!imagesToDelete.isEmpty()) storageService.uploadCancel(imagesToDelete.stream()
-                .map(GalleryImg::getFileUrl).toList());
+        deleteGalleryAssociatedData(galleryId);
 
         galleryJpa.deleteById(galleryId);
 
+    }
+    public void deleteGalleryAssociatedData(int galleryId){
+        List<GalleryImg> imagesToDelete = galleryImgJpa.findAllByGalleryGalleryId(galleryId);
+        if (!imagesToDelete.isEmpty()) storageService.uploadCancel(imagesToDelete.stream()
+                .map(GalleryImg::getFileUrl).toList());
     }
 }

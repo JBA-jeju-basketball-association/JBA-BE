@@ -94,4 +94,10 @@ public class PostController implements PostControllerDocs{
         else throw new BadRequestException("BRE", postModifyDto);
     }
 
+    @DeleteMapping("/{postId}")
+    public ResponseDto deletePost(@PathVariable int postId){
+        postService.deletePost(postId);
+        return new ResponseDto();
+    }
+
 }

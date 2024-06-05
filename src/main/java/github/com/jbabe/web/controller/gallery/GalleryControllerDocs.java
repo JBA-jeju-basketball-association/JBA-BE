@@ -150,7 +150,7 @@ public interface GalleryControllerDocs {
                                               @ExampleObject(name = "안공식갤러리", value = "false", description = "일반갤러리임")})
                                     boolean isOfficial);
 
-    @Operation(summary = "갤러리 게시물 삭제", description = "갤러리 게시물 삭제입니다.")
+    @Operation(summary = "갤러리 게시물 삭제", description = "갤러리 게시물 삭제입니다. aws api는 호출하지 않으셔도 됩니다. 내부에서 관련 첨부파일 url찾아서 삭제 합니다.")
     @ApiResponse(responseCode = "200",description = "갤러리 삭제 성공",
             content = @Content(mediaType = "application/json",
                     examples = {

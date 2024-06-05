@@ -125,6 +125,20 @@ public interface PostControllerDocs {
                                             "}")
                     })
     )
+
+    @ApiResponse(responseCode = "403", description = "권한이 없을때",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "해당 요청에 권한이 없음",
+                                    description = "⬆️⬆️ 요청한 유저의 권한이 충족되지 않았을때 (ex : 로그인된 정보의 권한이 일반 유저일때)",
+                                    value = "{\n" +
+                                            "  \"code\": 403,\n" +
+                                            "  \"message\": \"FORBIDDEN\",\n" +
+                                            "  \"detailMessage\": \"Acess_Denie\",\n" +
+                                            "  \"request\": \"user\"\n" +
+                                            "}")
+                    })
+    )
     @ApiResponse(responseCode = "200",description = "게시물 작성 성공",
             content = @Content(mediaType = "application/json",
                     examples = {
@@ -176,6 +190,19 @@ public interface PostControllerDocs {
                                             "}")
                     })
     )
+    @ApiResponse(responseCode = "403", description = "권한이 없을때",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "해당 요청에 권한이 없음",
+                                    description = "⬆️⬆️ 요청한 유저의 권한이 충족되지 않았을때 (ex : 로그인된 정보의 권한이 일반 유저일때)",
+                                    value = "{\n" +
+                                            "  \"code\": 403,\n" +
+                                            "  \"message\": \"FORBIDDEN\",\n" +
+                                            "  \"detailMessage\": \"Acess_Denie\",\n" +
+                                            "  \"request\": \"user\"\n" +
+                                            "}")
+                    })
+    )
     @ApiResponse(responseCode = "200",description = "게시물 작성 성공",
             content = @Content(mediaType = "application/json",
                     examples = {
@@ -206,5 +233,51 @@ public interface PostControllerDocs {
                     @ExampleObject(name = "일반첨부", value = "small", description = "일반 파일"),
                     @ExampleObject(name = "대용량첨부", value = "large", description = "대용량 파일")})
             Optional<SaveFileType> type);
+
+
+
+
+
+    @Operation(summary = "게시물 삭제", description = "게시물 삭제입니다. aws api는 호출하지 않으셔도 됩니다. 내부에서 관련 첨부파일 url찾아서 삭제 합니다.")
+    @ApiResponse(responseCode = "200",description = "게시물 삭제 성공",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "게시물 삭제 성공 예",
+                                    description = "⬆️⬆️ 성공!",
+                                    value = "{\n" +
+                                            "  \"code\": 200,\n" +
+                                            "  \"message\": \"OK\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "404", description = "해당 게시물 찾을 수 없음",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "삭제하려는 게시물 찾을 수 없음",
+                                    description = "⬆️⬆️ 요청들어온 게시물 아이디가 DB상에 존재 하지 않을때",
+                                    value = "{\n" +
+                                            "  \"code\": 404,\n" +
+                                            "  \"message\": \"NOT_FOUND\",\n" +
+                                            "  \"detailMessage\": \"Gallery Not Found\",\n" +
+                                            "  \"request\": \"3\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "403", description = "삭제 권한이 없을때",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "해당 요청에 권한이 없음",
+                                    description = "⬆️⬆️ 요청한 유저의 권한이 충족되지 않았을때 (ex : 로그인된 정보의 권한이 일반 유저일때)",
+                                    value = "{\n" +
+                                            "  \"code\": 403,\n" +
+                                            "  \"message\": \"FORBIDDEN\",\n" +
+                                            "  \"detailMessage\": \"Acess_Denie\",\n" +
+                                            "  \"request\": \"user\"\n" +
+                                            "}")
+                    })
+    )
+    ResponseDto deletePost(
+            @Parameter(description = "게시물 고유 번호", example = "5")
+            int postId);
 
 }
