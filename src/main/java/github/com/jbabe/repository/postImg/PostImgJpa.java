@@ -10,4 +10,5 @@ import java.util.List;
 public interface PostImgJpa extends JpaRepository<PostImg, Integer> {
     @Query("SELECT c.imgUrl FROM PostImg c WHERE c.imgUrl IS NOT NULL")
     List<String> findAllFilePath();
+    List<PostImg> findAllByPostPostId(Integer postId);
 }

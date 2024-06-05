@@ -11,4 +11,6 @@ public interface PostAttachedFileJpa extends JpaRepository<PostAttachedFile, Int
 
     @Query("SELECT p.filePath FROM PostAttachedFile p WHERE p.filePath IS NOT NULL")
     List<String> findAllFilePath();
+
+    List<PostAttachedFile> findAllByPostPostId(Integer postId);
 }

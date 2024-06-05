@@ -24,5 +24,6 @@ public interface GalleryMapper {
     @Mapping(target = "name", source = "galleryDetailsDto.title")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "isOfficial", source = "isOfficial")
+    @Mapping(target = "createAt", ignore = true)
     Gallery GalleryDetailsDtoToGallery(GalleryDetailsDto galleryDetailsDto, User user, boolean isOfficial);
 }

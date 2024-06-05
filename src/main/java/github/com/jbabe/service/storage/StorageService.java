@@ -92,6 +92,7 @@ public class StorageService {
     public void uploadCancel(List<String> fileUrls) {
         try{
             for(String url : fileUrls){
+
                 String[] parts = url.split("/");
                 String key = parts[parts.length - 1];
                 amazonS3Client.deleteObject(bucketName,key);
