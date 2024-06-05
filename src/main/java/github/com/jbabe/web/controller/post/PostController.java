@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,10 @@ public class PostController implements PostControllerDocs{
     public ResponseDto getAllPostsList(@RequestParam(name = "page", defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "10") int size,
                                        @PathVariable String category) {
-        return new ResponseDto(postService.getAllPostsList(PageRequest.of(page, size), category));
+        return new ResponseDto(postService.getAllPostsList(
+                PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
+                , category)
+        );
 
     }
 
@@ -92,6 +96,12 @@ public class PostController implements PostControllerDocs{
         boolean response = postService.updatePost(postModifyDto, postId, null, isOfficial, customUserDetails);
         if(response) return new ResponseDto();
         else throw new BadRequestException("BRE", postModifyDto);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseDto deletePost(@PathVariable int postId){
+        postService.deletePost(postId);
+        return new ResponseDto();
     }
 
 }

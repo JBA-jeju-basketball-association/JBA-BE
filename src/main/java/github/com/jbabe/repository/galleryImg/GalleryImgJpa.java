@@ -10,4 +10,6 @@ import java.util.List;
 public interface GalleryImgJpa extends JpaRepository<GalleryImg, Integer> {
     @Query("SELECT g.fileUrl FROM GalleryImg g WHERE g.fileUrl IS NOT NULL")
     List<String> findAllFilePath();
+
+    List<GalleryImg> findAllByGalleryGalleryId(int galleryId);
 }
