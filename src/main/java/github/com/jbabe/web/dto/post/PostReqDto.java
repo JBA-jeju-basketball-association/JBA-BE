@@ -12,6 +12,27 @@ public class PostReqDto {
     private String title;
     @Schema(description = "응답 메세지", example = "<p>POST 페이지 더미데이터입니다.</p>")
     private String content;
-    @Schema(description = "게시물 이미지 정보")
+    @Schema(description = "게시물 이미지 정보", example = "[\n" +
+            "    {\n" +
+            "        \"fileName\": \"1111.png\",\n" +
+            "        \"imgUrl\": \"1111.url\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "        \"fileName\": \"2222.png\",\n" +
+            "        \"imgUrl\": \"2222.url\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "        \"fileName\": \"3333.png\",\n" +
+            "        \"imgUrl\": \"3333.url\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "        \"fileName\": \"4444.png\",\n" +
+            "        \"imgUrl\": \"4444.url\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "        \"fileName\": \"5555.png\",\n" +
+            "        \"imgUrl\": \"5555.url\"\n" +
+            "    }\n" +
+            "]")
     private List<FileDto> postImgs;
 }

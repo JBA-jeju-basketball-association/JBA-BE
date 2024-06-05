@@ -12,10 +12,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "post")
@@ -78,12 +75,12 @@ public class Post {
 //        this.postStatus = PostStatus.NORMAL;
 //    }
 
-    public void notifyAndEditSubjectLineContent(PostModifyDto postModifyDto, List<FileDto> newFiles, boolean isOfficial) {
-        this.isAnnouncement = isOfficial;
+    public void notifyAndEditSubjectLineContent(PostModifyDto postModifyDto, Boolean isOfficial) {
+        if(isOfficial!=null) this.isAnnouncement = isOfficial;
         this.name = postModifyDto.getTitle();
         this.content = postModifyDto.getContent();
-        if(newFiles!=null&&postModifyDto.getFiles()!=null) postModifyDto.getFiles().addAll(newFiles);
-        addFiles(postModifyDto.getFiles(), postModifyDto.getPostImgs());
+
+        addFiles(postModifyDto.getRemainingFiles(), postModifyDto.getPostImgs());
         this.updateAt = LocalDateTime.now();
 
     }
@@ -111,8 +108,13 @@ public class Post {
     }
 
     public void addFiles(List<FileDto> files, List<FileDto> imgs){
-        if(files!=null && !files.isEmpty() ){
+        if(this.postImgs == null) {
+            this.postImgs = new HashSet<>();
+        }
+        if(this.postAttachedFiles == null) {
             this.postAttachedFiles = new HashSet<>();
+        }
+        if(files!=null && !files.isEmpty() ){
             for(FileDto f: files) {
                 PostAttachedFile postAttachedFile = PostAttachedFile.builder()
                         .post(this)
@@ -122,7 +124,6 @@ public class Post {
             }
         }
         if(imgs!=null && !imgs.isEmpty()) {
-            this.postImgs = new HashSet<>();
             for (FileDto img : imgs) {
                 PostImg postImg = PostImg.builder()
                         .post(this)

@@ -173,10 +173,12 @@ public interface PostControllerDocs {
 
 
     @Operation(summary = "게시물 수정",
-            description = "게시물 작성 첨부파일은 key값을 uploadFiles로 게시물 내용은 key값 body로 둘다 form-data에 담아요청<br>" +
+            description = "새로운 첨부파일은 key값을 uploadFiles로 게시물 내용은 key값 body로 둘다 form-data에 담아요청<br>" +
+                    "삭제 API는 따로 호출하지않아도 됩니다. DB에서 지우면서 aws 로직도 같이 동작해요 <br>" +
                     "content 부분에 삽입된 이미지들은 올릴때 업로드 api로 바로 업로드 되구<br>" +
-                    "반환된 파일명과 url을 body안에 postImgs에 담아 요청 보내주시면 됩니다!<br>" +
-                    "body안에 files는 첨부파일 입니다. 삭제된 파일이 없다면 원 게시글에서 반환된 첨부파일 리스트를 그대로 보내주시면됩니다.")
+                    "반환된 파일명과 url을 body안에 postImgs에 원래 있던 이미지에 추가로 담아 요청 보내주시면 됩니다!<br>" +
+                    "body안에 remainingFiles는 남길 첨부파일 입니다. 삭제된 파일이 없다면 원 게시글에서 반환된 첨부파일 리스트를 그대로 보내주시면됩니다.<br>" +
+                    "요청들어올 postImgs와 remainingFiles에서 없어진 파일이 있다면 삭제됩니다.")
     @ApiResponse(responseCode = "404", description = "게시글 찾을 수 없음",
             content = @Content(mediaType = "application/json",
                     examples = {
@@ -203,10 +205,10 @@ public interface PostControllerDocs {
                                             "}")
                     })
     )
-    @ApiResponse(responseCode = "200",description = "게시물 작성 성공",
+    @ApiResponse(responseCode = "200",description = "게시물 수정 성공",
             content = @Content(mediaType = "application/json",
                     examples = {
-                            @ExampleObject(name = "게시물 작성 성공 예",
+                            @ExampleObject(name = "게시물 수정 성공 예",
                                     description = "⬆️⬆️ 성공!",
                                     value = "{\n" +
                                             "  \"code\": 200,\n" +
@@ -219,13 +221,14 @@ public interface PostControllerDocs {
             CustomUserDetails customUserDetails,
             @Parameter(description = "게시물 고유 번호", example = "60")
             Integer postId,
-            @Parameter(description = "공지 여부 기본값은 false (공지일시 페이지 목록 상단에 고정됨)", examples = {
+            @Parameter(description = "공지 여부 아무값도 안들어올시 원상태 유지", examples = {
                     @ExampleObject(name = "공지", value = "true", description = "공지 (목록 상단 고정)"),
                     @ExampleObject(name = "안공지", value = "false", description = "공지 아님")})
-            boolean isOfficial,
+            Boolean isOfficial,
             @Parameter(description = "게시물 수정시 필요 정보 postImgs 배열에 들어가는 정보는 이미지 업로드 api로 " +
-                    "<br>이미지 업로드 후 반환된 정보를 담아 보내주세요. 삭제된 첨부파일은 삭제 API 요청 이후 원래 써있던 정보에서도 빼주세요. " +
-                    "<br>새로 들어온 값으로 교체된 후 새로 업로드된 파일 정보는 따로 추가됩니다.")
+                    "<br>이미지 업로드 후 반환된 정보를 원래 게시글에 있던 이미지와 함께 담아 보내주세요. <br>" +
+                    "없어진 이미지는 DB와 aws버킷에서 삭제됩니다. aws삭제 api는 따로 호출할 필요 X " +
+                    "<br>첨부파일도 마찬가지로 남길파일은 남기고 삭제할 파일은 지운후 요청 보내주시면 됩니다.")
             PostModifyDto postModifyDto,
             @Parameter(description = "multipart/form-data로 전송되는 파일들")
             List<MultipartFile> multipartFiles,

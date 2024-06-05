@@ -45,7 +45,11 @@ public class GalleryService {
         if(pageable.getPageNumber()+1>galleryPages.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
 
         for(Gallery gallery: galleryPages){
-            GalleryImg firstImg = gallery.getGalleryImgs().get(0);
+
+            List<GalleryImg> galleryImgs = gallery.getGalleryImgs();
+            GalleryImg firstImg = galleryImgs.isEmpty()?
+                    GalleryImg.builder().fileName("갤러리 없는 갤러리 게시물").fileUrl("https://www.irisoele.com/img/noimage.png").build():
+                    gallery.getGalleryImgs().get(0);
 
             GalleryListDto galleryListDto = GalleryMapper.INSTANCE
                     .GalleryToGalleryListDto(gallery, firstImg.getFileName(), firstImg.getFileUrl());
@@ -102,13 +106,16 @@ public class GalleryService {
     }
 
     @Transactional
-    public void modifyGalleryPost(int galleryId, GalleryDetailsDto requestModify, boolean isOfficial){
+    public void modifyGalleryPost(int galleryId, GalleryDetailsDto requestModify, Boolean isOfficial){
         Gallery orginalGallery = galleryJpa.findById(galleryId).orElseThrow(
                 ()-> new NotFoundException("Not Found Gallery", galleryId));
         List<GalleryImg> originalImgs = orginalGallery.getGalleryImgs();
 
         List<GalleryImg> imagesToBeErased = updateAndRemoveNonMatching(originalImgs, requestModify.getFiles());
-        galleryImgJpa.deleteAll(imagesToBeErased);
+        if (!imagesToBeErased.isEmpty()) {
+            orginalGallery.getGalleryImgs().removeAll(imagesToBeErased);
+            galleryImgJpa.deleteAll(imagesToBeErased);
+        }
 
         List<GalleryImg> imageToBeAdded = forMissingFilesClickAdd(requestModify.getFiles(), orginalGallery);
         orginalGallery.notifyAndEditSubjectLineContent(requestModify, isOfficial, imageToBeAdded);
