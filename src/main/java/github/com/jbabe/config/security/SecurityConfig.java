@@ -40,7 +40,7 @@ public class SecurityConfig {
                                 .requestMatchers("/v1/api/sign/logout").authenticated()
 
                                 .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
-                                        "/mail/*", "v1/api/competition/competition").permitAll()
+                                        "/mail/*", "v1/api/competition/competition", "v1/api/gallery").permitAll()
                 )
                 .exceptionHandling(e -> {
                     e.authenticationEntryPoint(new CustomAuthenticationEntryPoint());
