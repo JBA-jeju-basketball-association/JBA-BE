@@ -1,9 +1,9 @@
-name: jba-ci/cd
+gname: jba-ci/cd
 
 
 on:
   push:
-    branches: [ feat-ec2_server ]
+    branches: [ feat-swagger ]
   pull_request:
     branches: [ main ]
     types: [ closed ]
