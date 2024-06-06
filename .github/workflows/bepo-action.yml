@@ -1,4 +1,4 @@
-gname: jba-ci/cd
+name: jba-ci/cd
 
 
 on:
