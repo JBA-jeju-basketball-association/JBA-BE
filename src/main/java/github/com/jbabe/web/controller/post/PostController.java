@@ -79,23 +79,24 @@ public class PostController implements PostControllerDocs{
     public ResponseDto updatePost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Integer postId,
-            @RequestParam(required = false) boolean isOfficial,
+            @RequestParam(required = false) Boolean isOfficial,
             @RequestPart (value = "body") PostModifyDto postModifyDto,
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> multipartFiles,
             @RequestParam(required = false) Optional<SaveFileType> type){
 
-        Integer userId = Optional.ofNullable(customUserDetails)
-                .map(CustomUserDetails::getUserId)
-                .orElse(5);
-
-        if(multipartFiles != null && !multipartFiles.isEmpty()){
-            List<FileDto> files = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
-            boolean response = postService.updatePost(postModifyDto, postId, files, isOfficial, customUserDetails);
-            if(response) return new ResponseDto();
+//        Integer userId = Optional.ofNullable(customUserDetails)
+//                .map(CustomUserDetails::getUserId)
+//                .orElse(5);
+        List<FileDto> files = null;
+        if (multipartFiles != null && !multipartFiles.isEmpty()) {
+            files = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(() -> SaveFileType.small));
         }
-        boolean response = postService.updatePost(postModifyDto, postId, null, isOfficial, customUserDetails);
-        if(response) return new ResponseDto();
-        else throw new BadRequestException("BRE", postModifyDto);
+        boolean response = postService.updatePost(postModifyDto, postId, files, isOfficial, customUserDetails);
+        if (response) {
+            return new ResponseDto();
+        } else {
+            throw new BadRequestException("BRE", postModifyDto);
+        }
     }
 
     @DeleteMapping("/{postId}")

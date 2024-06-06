@@ -1,11 +1,14 @@
 package github.com.jbabe.web.controller.gallery;
 
+import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.gallery.GalleryService;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -52,16 +55,21 @@ public class GalleryController implements GalleryControllerDocs{
                 userId, isOfficial);
         return new ResponseDto();
     }
-
+    @Override
     @DeleteMapping("/{galleryId}")
     public ResponseDto deleteGalleryPost(@PathVariable int galleryId){
         galleryService.deleteGalleryPost(galleryId);
         return new ResponseDto();
     }
+    @Override
     @PutMapping("/{galleryId}")
-    public ResponseDto modifyGalleryPost(@PathVariable int galleryId, @RequestBody GalleryDetailsDto requestModify,
-                                         @RequestParam(name = "official", required = false) boolean isOfficial){
-        galleryService.modifyGalleryPost(galleryId, requestModify, isOfficial);
+    public ResponseDto modifyGalleryPost(@PathVariable int galleryId, @RequestBody @Valid GalleryDetailsDto requestModify,
+                                         @RequestParam(name = "official", required = false) Boolean isOfficial){
+        try {
+            galleryService.modifyGalleryPost(galleryId, requestModify, isOfficial);
+        }catch (DataIntegrityViolationException ex){
+            throw new BadRequestException("SQLError", ex.getMessage());
+        }
         return new ResponseDto();
     }
 

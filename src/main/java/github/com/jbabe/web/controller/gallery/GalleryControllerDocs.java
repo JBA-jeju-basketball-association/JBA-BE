@@ -1,5 +1,6 @@
 package github.com.jbabe.web.controller.gallery;
 
+import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
@@ -9,7 +10,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "Gallery", description = "갤러리 관련 API")
 public interface GalleryControllerDocs {
@@ -143,6 +148,19 @@ public interface GalleryControllerDocs {
                                             "}")
                     })
     )
+    @ApiResponse(responseCode = "403", description = "권한이 없을때",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "해당 요청에 권한이 없음",
+                                    description = "⬆️⬆️ 요청한 유저의 권한이 충족되지 않았을때 (ex : 로그인된 정보의 권한이 일반 유저일때)",
+                                    value = "{\n" +
+                                            "  \"code\": 403,\n" +
+                                            "  \"message\": \"FORBIDDEN\",\n" +
+                                            "  \"detailMessage\": \"Acess_Denie\",\n" +
+                                            "  \"request\": \"user\"\n" +
+                                            "}")
+                    })
+    )
     ResponseDto regGalleryPost(GalleryDetailsDto requestRegister,
                                      CustomUserDetails customUserDetails,
                                       @Parameter(description = "작성될 갤러리가 공식 갤러리 인지 일반사진 갤러리 인지", examples = {
@@ -175,8 +193,88 @@ public interface GalleryControllerDocs {
                                             "}")
                     })
     )
+    @ApiResponse(responseCode = "403", description = "권한이 없을때",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "해당 요청에 권한이 없음",
+                                    description = "⬆️⬆️ 요청한 유저의 권한이 충족되지 않았을때 (ex : 로그인된 정보의 권한이 일반 유저일때)",
+                                    value = "{\n" +
+                                            "  \"code\": 403,\n" +
+                                            "  \"message\": \"FORBIDDEN\",\n" +
+                                            "  \"detailMessage\": \"Acess_Denie\",\n" +
+                                            "  \"request\": \"user\"\n" +
+                                            "}")
+                    })
+    )
     ResponseDto deleteGalleryPost(
             @Parameter(description = "삭제할 갤러리 고유번호", example = "3")
             int galleryId);
+
+
+
+
+
+    @Operation(summary = "갤러리 게시물 수정", description = "갤러리 게시물 수정입니다. 삭제 aws api는 호출하지 않으셔도 됩니다. 내부에서 관련 첨부파일 url찾아서 삭제 합니다.<br>" +
+            "추가할 이미지는 aws업로드 api이용후 \"imgs\"는 원래 있던거에 추가로 새로 넣고 보내주세요.<br>" +
+            "삭제할 이미지는 \"imgs\"에서 지워주세요 \"imgs\"에 없는 이미지는 삭제됩니다.")
+    @ApiResponse(responseCode = "404", description = "갤러리 찾을 수 없음",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "갤러리 찾을 수 없음",
+                                    description = "⬆️⬆️ 게시물아이디가 존재하지 않는 아이디 일때",
+                                    value = "{\n" +
+                                            "  \"code\": 404,\n" +
+                                            "  \"message\": \"NOT_FOUND\",\n" +
+                                            "  \"detailMessage\": \"Gallery Not Found\",\n" +
+                                            "  \"request\": \"125125\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "403", description = "권한이 없을때",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "해당 요청에 권한이 없음",
+                                    description = "⬆️⬆️ 요청한 유저의 권한이 충족되지 않았을때 (ex : 로그인된 정보의 권한이 일반 유저일때)",
+                                    value = "{\n" +
+                                            "  \"code\": 403,\n" +
+                                            "  \"message\": \"FORBIDDEN\",\n" +
+                                            "  \"detailMessage\": \"Acess_Denie\",\n" +
+                                            "  \"request\": \"user\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "400", description = "필수 값 누락",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "필수 값 누락",
+                                    description = "⬆️⬆️ 요청 값 imgs의 값이 비어있습니다. 갤러리 게시물은 적어도 한개 이상의 이미지를 포함해야합니다.",
+                                    value = "{\n" +
+                                            "  \"code\": 400,\n" +
+                                            "  \"message\": \"Invalid_Request\",\n" +
+                                            "  \"detailMessage\": \"적어도 한개의 imgs는 필수입니다.\",\n" +
+                                            "  \"request\": \"imgs\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "200",description = "갤러리 수정 성공",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "갤러리 수정 성공 예",
+                                    description = "⬆️⬆️ 성공!",
+                                    value = "{\n" +
+                                            "  \"code\": 200,\n" +
+                                            "  \"message\": \"OK\"\n" +
+                                            "}")
+                    })
+    )
+    ResponseDto modifyGalleryPost(
+            @Parameter(description = "수정할 갤러리 고유번호", example = "2")
+            int galleryId,
+            @Parameter(description = "수정할 갤러리 정보")
+            GalleryDetailsDto requestModify,
+            @Parameter(description = "작성될 갤러리가 공식 갤러리 인지 일반사진 갤러리 인지 (수정시 이동됩니다. 아무값도 없을시 기본값 유지)", examples = {
+                    @ExampleObject(name = "공식갤러리", value = "true", description = "공식갤러리임"),
+                    @ExampleObject(name = "안공식갤러리", value = "false", description = "일반갤러리임")})
+            Boolean isOfficial);
 
 }

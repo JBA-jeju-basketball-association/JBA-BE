@@ -8,7 +8,6 @@ import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.postImg.PostImgJpa;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.BadRequestException;
-import github.com.jbabe.service.exception.NotAcceptableException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
 import github.com.jbabe.service.storage.StorageService;
@@ -22,15 +21,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +75,8 @@ public class PostService {
         Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(5).orElseThrow(()->
                 new NotFoundException("User Not Found", 5)),isOfficial);
         post.addFiles(files, postReqDto.getPostImgs());
+
+
         try{
             postJpa.save(post);
         }catch (DataIntegrityViolationException sqlException){
@@ -89,21 +87,105 @@ public class PostService {
     }
 
     @Transactional
-    public boolean updatePost(PostModifyDto postModifyDto, Integer postId, List<FileDto> newFiles, boolean isOfficial, CustomUserDetails customUserDetails) {
-        Integer userId = Optional.ofNullable(customUserDetails)
-                .map(CustomUserDetails::getUserId)
-                .orElse(5);
+    public boolean updatePost(PostModifyDto postModifyDto, Integer postId, List<FileDto> newFiles, Boolean isOfficial, CustomUserDetails customUserDetails) {
+//        Integer userId = Optional.ofNullable(customUserDetails)
+//                .map(CustomUserDetails::getUserId)
+//                .orElse(5);
 
         Post originPost = postJpa.findById(postId).orElseThrow(
                 ()-> new NotFoundException("Post Not Found", postId));
 
-        if (!userId.equals(originPost.getUser().getUserId()))
-            throw new NotAcceptableException("로그인한 유저의 정보와 게시글 작성자 정보가 다름", String.valueOf(postId));
+        //이미지
+        List<FileDto> remainingImgs = postModifyDto.getPostImgs();
+        checkAndDeleteImages(originPost, remainingImgs);
+        if(!CollectionUtils.isEmpty(remainingImgs)&&!CollectionUtils.isEmpty(originPost.getPostImgs())){
+            remainingImgs.removeIf(imgs->originPost.getPostImgs().stream()
+                    .anyMatch(existingImage-> existingImage.getImgUrl().equals(imgs.getFileUrl())));
+        }
 
-        originPost.notifyAndEditSubjectLineContent(postModifyDto, newFiles, isOfficial);
+        //첨부파일
+        List<FileDto> remainingFiles = postModifyDto.getRemainingFiles();
+        checkAndDeleteFiles(originPost, remainingFiles);
+        if(!CollectionUtils.isEmpty(remainingFiles)&&!CollectionUtils.isEmpty(originPost.getPostAttachedFiles())){
+            remainingFiles.removeIf(files->originPost.getPostAttachedFiles().stream()
+                    .anyMatch(existingFile-> existingFile.getFilePath().equals(files.getFileUrl())));
+        }
+
+
+        //기존 파일에 새로 추가된 파일들을 추가
+        if (newFiles != null) {
+            if (remainingFiles == null) {
+                remainingFiles = new ArrayList<>();
+            }
+            remainingFiles.addAll(newFiles);
+        }
+
+
+
+//        if (!userId.equals(originPost.getUser().getUserId()))
+//            throw new NotAcceptableException("로그인한 유저의 정보와 게시글 작성자 정보가 다름", String.valueOf(postId));
+
+        originPost.notifyAndEditSubjectLineContent(postModifyDto, isOfficial);
 
         return true;
     }
+
+    private void checkAndDeleteFiles(Post originPost, List<FileDto> remainingFiles) {
+        Set<PostAttachedFile> originPostPostAttachedFiles = originPost.getPostAttachedFiles();
+        //기존 파일들 중 삭제된 파일들을 찾아 삭제
+        if(!CollectionUtils.isEmpty(remainingFiles) && !CollectionUtils.isEmpty(originPostPostAttachedFiles)){
+            Set<PostAttachedFile> filesToBeDeleted = getFilesToBeDeleted(originPostPostAttachedFiles, remainingFiles);
+            originPost.getPostAttachedFiles().removeAll(filesToBeDeleted);
+            postAttachedFileJpa.deleteAll(filesToBeDeleted);
+        }//남긴 파일이 없을경우 기존 파일들을 모두 삭제
+        else if(!CollectionUtils.isEmpty(originPostPostAttachedFiles)){
+            originPost.getPostAttachedFiles().clear();
+            postAttachedFileJpa.deleteAll(originPostPostAttachedFiles);
+            storageService.uploadCancel(originPostPostAttachedFiles.stream()
+                    .map(PostAttachedFile::getFilePath).toList());
+        }
+    }
+
+    private void checkAndDeleteImages(Post originPost, List<FileDto> remainingImgs) {
+        Set<PostImg> originImgs = originPost.getPostImgs();
+        //기존 이미지 중 삭제된 파일들을 찾아 삭제
+        if(!CollectionUtils.isEmpty(remainingImgs) && !CollectionUtils.isEmpty(originImgs)){
+            Set<PostImg> imgsToBeDeleted = getImagesToBeDeleted(originImgs, remainingImgs);
+            originPost.getPostImgs().removeAll(imgsToBeDeleted);
+            postImgJpa.deleteAll(imgsToBeDeleted);
+        }//남긴 이미지가 없을경우 기존 이미지들을 모두 삭제
+        else if(!CollectionUtils.isEmpty(originImgs)){
+            originPost.getPostImgs().clear();
+            postImgJpa.deleteAll(originImgs);
+            storageService.uploadCancel(originImgs.stream()
+                    .map(PostImg::getImgUrl).toList());
+        }
+    }
+
+    private Set<PostImg> getImagesToBeDeleted(Set<PostImg> originImgs, List<FileDto> remainingImgs) {
+        Set<PostImg> imgsToBeDeleted = new HashSet<>();
+        for(PostImg postImg: originImgs){
+            if(remainingImgs.stream().noneMatch(f->f.getFileUrl().equals(postImg.getImgUrl()))){
+                imgsToBeDeleted.add(postImg);
+            }
+        }
+        if(!imgsToBeDeleted.isEmpty()) storageService.uploadCancel(imgsToBeDeleted.stream()
+                .map(PostImg::getImgUrl).toList());
+        return imgsToBeDeleted;
+    }
+
+    private Set<PostAttachedFile> getFilesToBeDeleted(Set<PostAttachedFile> originFiles, List<FileDto> remainingFiles) {
+        Set<PostAttachedFile> filesToBeDeleted = new HashSet<>();
+        for(PostAttachedFile postAttachedFile: originFiles){
+            if(remainingFiles.stream().noneMatch(f->f.getFileUrl().equals(postAttachedFile.getFilePath()))){
+                filesToBeDeleted.add(postAttachedFile);
+            }
+        }
+        if(!filesToBeDeleted.isEmpty()) storageService.uploadCancel(filesToBeDeleted.stream()
+                .map(PostAttachedFile::getFilePath).toList());
+        return filesToBeDeleted;
+    }
+
     @Transactional
     public void deletePost(Integer postId) {
         if (!postJpa.existsById(postId))
