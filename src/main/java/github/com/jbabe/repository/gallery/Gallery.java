@@ -51,9 +51,9 @@ public class Gallery {
     @OneToMany(mappedBy = "gallery", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<GalleryImg> galleryImgs;
 
-    public void notifyAndEditSubjectLineContent(GalleryDetailsDto requestModify, boolean isOfficial, List<GalleryImg> newImgs){
+    public void notifyAndEditSubjectLineContent(GalleryDetailsDto requestModify, Boolean isOfficial, List<GalleryImg> newImgs){
         this.name = requestModify.getTitle();
-        this.isOfficial = isOfficial;
+        if(isOfficial!=null) this.isOfficial = isOfficial;
         this.galleryImgs.addAll(newImgs);
         this.updateAt = LocalDateTime.now();
     }

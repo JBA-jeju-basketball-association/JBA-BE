@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import github.com.jbabe.web.dto.storage.FileDto;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,27 +21,28 @@ public class GalleryDetailsDto {
     @JsonAlias({"data", "imgs"})
     @Schema(name = "imgs",description = "첨부파일들", example = "[\n" +
             "    {\n" +
-            "        \"fileName\": \"3.png\",\n" +
-            "        \"fileUrl\": \"https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/c8db15cc-a145-4aa1-869a-e3e650b3fcf9.png\"\n" +
+            "        \"fileName\": \"1111.png\",\n" +
+            "        \"imgUrl\": \"1111.url\"\n" +
             "    },\n" +
             "    {\n" +
-            "        \"fileName\": \"36.png\",\n" +
-            "        \"imgUrl\": \"https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/930d3711-de9d-4f31-9e73-59a3242477c7.png\"\n" +
+            "        \"fileName\": \"2222.png\",\n" +
+            "        \"imgUrl\": \"2222.url\"\n" +
             "    },\n" +
             "    {\n" +
-            "        \"fileName\": \"35.png\",\n" +
-            "        \"imgUrl\": \"https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/c8db15cc-a145-4aa1-869a-e3e650b3fcf9.png\"\n" +
+            "        \"fileName\": \"3333.png\",\n" +
+            "        \"imgUrl\": \"3333.url\"\n" +
             "    },\n" +
             "    {\n" +
-            "        \"fileName\": \"36.png\",\n" +
-            "        \"imgUrl\": \"https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/930d3711-de9d-4f31-9e73-59a3242477c7.png\"\n" +
+            "        \"fileName\": \"4444.png\",\n" +
+            "        \"imgUrl\": \"4444.url\"\n" +
             "    },\n" +
             "    {\n" +
-            "        \"fileName\": \"35.png\",\n" +
-            "        \"imgUrl\": \"https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/c8db15cc-a145-4aa1-869a-e3e650b3fcf9.png\"\n" +
+            "        \"fileName\": \"5555.png\",\n" +
+            "        \"imgUrl\": \"5555.url\"\n" +
             "    }\n" +
             "]"
     )
+    @NotNull(message = "적어도 한개의 imgs는 필수입니다.")
     private List<FileDto> files;
 
 
