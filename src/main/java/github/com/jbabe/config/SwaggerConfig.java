@@ -25,6 +25,7 @@ public class SwaggerConfig {
     @Value("${aws.server-url}")
     private String serverUrl;
 
+
     @Bean
     public OpenAPI openAPI(@Value("${springdoc.version}") String openApiVersion) {
         Info info = new Info()
