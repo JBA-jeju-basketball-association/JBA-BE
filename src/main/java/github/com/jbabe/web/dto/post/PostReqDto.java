@@ -14,6 +14,27 @@ public class PostReqDto {
     private String content;
     @Schema(description = "머릿말", example = "합격자 발표")
     private String foreword;
-
+    @Schema(description = "원 게시물의 이미지 정보", example = "[\n" +
+            "    {\n" +
+            "        \"fileName\": \"1111.png\",\n" +
+            "        \"imgUrl\": \"1111.url\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "        \"fileName\": \"2222.png\",\n" +
+            "        \"imgUrl\": \"2222.url\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "        \"fileName\": \"3333.png\",\n" +
+            "        \"imgUrl\": \"3333.url\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "        \"fileName\": \"4444.png\",\n" +
+            "        \"imgUrl\": \"4444.url\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "        \"fileName\": \"5555.png\",\n" +
+            "        \"imgUrl\": \"5555.url\"\n" +
+            "    }\n" +
+            "]")
     private List<FileDto> postImgs;
 }
