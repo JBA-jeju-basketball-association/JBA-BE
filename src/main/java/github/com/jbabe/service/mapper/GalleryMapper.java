@@ -14,6 +14,7 @@ public interface GalleryMapper {
 
 
     @Mapping(target = "title", source = "gallery.name")
+    @Mapping(target = "createAt", dateFormat = "yyyy-MM-dd")
     GalleryListDto GalleryToGalleryListDto(Gallery gallery, String fileName, String imgUrl);
 
     @Mapping(target = "title", source = "gallery.name")
