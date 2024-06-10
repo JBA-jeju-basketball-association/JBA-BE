@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
@@ -18,7 +19,9 @@ public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
                     "c.startDate, c.endDate) " +
                     "FROM Competition c " +
                     "LEFT JOIN c.divisions d " +
-                    "WHERE CASE " +
+                    "WHERE " +
+                    "c.competitionStatus = :competitionStatus AND " +
+                    "CASE " +
                     "           WHEN :status = 'ALL' THEN (c.startDate BETWEEN :startDateFilter AND :endDateFilter) " +
                     "           WHEN :status = 'EXPECTED' THEN (c.startDate > CURRENT_DATE AND (c.startDate BETWEEN :startDateFilter AND :endDateFilter)) " +
                     "           WHEN :status = 'PROCEEDING' THEN (c.startDate < CURRENT_DATE AND c.endDate > CURRENT_DATE AND (c.startDate BETWEEN :startDateFilter AND :endDateFilter)) " +
@@ -26,5 +29,9 @@ public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
                     "GROUP BY c.competitionId " +
                     "ORDER BY c.startDate DESC, c.competitionId DESC "
     )
-    Page<CompetitionListResponse> findAllCompetitionPagination(String status, Date startDateFilter, Date endDateFilter, Pageable pageable);
+    Page<CompetitionListResponse> findAllCompetitionPagination(String status, Date startDateFilter, Date endDateFilter, Competition.CompetitionStatus competitionStatus, Pageable pageable);
+
+    Page<Competition> findAllByCompetitionStatus(Competition.CompetitionStatus competitionStatus, Pageable pageable);
+
+    List<Competition> findAllByCompetitionStatus(Competition.CompetitionStatus competitionStatus);
 }

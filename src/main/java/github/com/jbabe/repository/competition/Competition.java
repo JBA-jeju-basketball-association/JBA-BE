@@ -43,6 +43,7 @@ public class Competition {
     private String content;
 
     @Column(name = "competition_status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private CompetitionStatus competitionStatus;
 
     @Column(name = "create_at", nullable = false)
