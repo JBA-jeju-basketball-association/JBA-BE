@@ -10,4 +10,5 @@ public class GalleryListDto {
     private String title;
     private String fileName;
     private String imgUrl;
+    private String createAt;
 }

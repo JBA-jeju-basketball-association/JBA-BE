@@ -1,6 +1,5 @@
 package github.com.jbabe.web.controller.gallery;
 
-import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
@@ -10,11 +9,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "Gallery", description = "갤러리 관련 API")
 public interface GalleryControllerDocs {
@@ -36,7 +30,8 @@ public interface GalleryControllerDocs {
                                             "        \"galleryId\": 1,\n" +
                                             "        \"title\": \"[2024] 제주특별자치도 도민체전\",\n" +
                                             "        \"fileName\": \"1.png\",\n" +
-                                            "        \"imgUrl\": \"https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/c8db15cc-a145-4aa1-869a-e3e650b3fcf9.png\"\n" +
+                                            "        \"imgUrl\": \"https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/c8db15cc-a145-4aa1-869a-e3e650b3fcf9.png\",\n" +
+                                            "        \"createAt\": \"2204-12-10\"\n" +
                                             "      },\n" +
                                             "      \"....~~ 이외 목록 생략 \" \n" +
                                             "    ]\n" +

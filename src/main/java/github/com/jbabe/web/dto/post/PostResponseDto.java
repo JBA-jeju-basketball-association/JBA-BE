@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 public class PostResponseDto {
     private long postId;
+    private String foreword;
     private String title;
     private String writer;
     private String createAt;

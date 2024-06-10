@@ -5,14 +5,16 @@ import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.web.dto.post.PostModifyDto;
-import github.com.jbabe.web.dto.post.PostReqDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "post")
@@ -68,6 +70,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<PostImg> postImgs;
 
+    @Column(name = "foreword")
+    private String foreword;
+
 //    public void defaultValue() {
 //        this.viewCount = 0;
 //        this.createAt = LocalDateTime.now();
@@ -79,7 +84,7 @@ public class Post {
         if(isOfficial!=null) this.isAnnouncement = isOfficial;
         this.name = postModifyDto.getTitle();
         this.content = postModifyDto.getContent();
-
+        this.foreword = postModifyDto.getForeword();
         addFiles(postModifyDto.getRemainingFiles(), postModifyDto.getPostImgs());
         this.updateAt = LocalDateTime.now();
 

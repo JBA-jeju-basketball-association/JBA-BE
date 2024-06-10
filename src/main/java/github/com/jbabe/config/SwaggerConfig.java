@@ -3,12 +3,7 @@ package github.com.jbabe.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.responses.ApiResponses;
-import org.springdoc.core.customizers.OperationCustomizer;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +21,8 @@ public class SwaggerConfig {
 //            return operation;
 //        };
 //    }
+    @Value("${aws.server-url}")
+    private String serverUrl;
 
 
     @Bean
@@ -37,7 +34,9 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .components(new Components())
-                .info(info);
+                .info(info)
+                .addServersItem(new Server().url(serverUrl).description("HTTPS Production Server")) // HTTPS 서버 추가
+                .addServersItem(new Server().url("http://localhost:8080").description("로컬 서버")); // 로컬 서버 추가
     }
 
 
