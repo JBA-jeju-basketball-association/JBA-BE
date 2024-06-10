@@ -116,7 +116,7 @@ public class CompetitionService {
         Date startDateFilter = Competition.getStartTimeThisYear(year);
         Date endDateFilter = Competition.getEndTimeThisYear(year);
 
-        Page<CompetitionListResponse> competitionListResponses = competitionJpa.findAllCompetitionPagination(status, startDateFilter, endDateFilter, pageable);
+        Page<CompetitionListResponse> competitionListResponses = competitionJpa.findAllCompetitionPagination(status, startDateFilter, endDateFilter, Competition.CompetitionStatus.NORMAL, pageable);
         if (competitionListResponses.getTotalElements() == 0) throw new NotFoundException("totalElement is 0", "");
         return competitionListResponses;
     }
@@ -176,7 +176,7 @@ public class CompetitionService {
 
 
     public List<Integer> getCompetitionYearList() {
-        List<Competition> competitions = competitionJpa.findAll();
+        List<Competition> competitions = competitionJpa.findAllByCompetitionStatus(Competition.CompetitionStatus.NORMAL);
         if (competitions.isEmpty()) throw new NotFoundException("대회를 찾을 수 없습니다.", null);
         List<Integer> yearList = new ArrayList<>();
         competitions.forEach((c) -> {
