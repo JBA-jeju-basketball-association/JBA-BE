@@ -8,14 +8,8 @@ import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.post.PostModifyDto;
 import github.com.jbabe.web.dto.post.PostReqDto;
-
 import github.com.jbabe.web.dto.storage.FileDto;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
@@ -58,6 +52,7 @@ public class PostController implements PostControllerDocs{
     @PostMapping(value = "/{category}",
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDto regPost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable String category,
             @RequestParam(required = false) boolean isOfficial,
             @RequestPart (value = "body") PostReqDto postReqDto,
@@ -77,6 +72,7 @@ public class PostController implements PostControllerDocs{
     @PutMapping(value = "/{category}/{postId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDto updatePost(
+//            @PathVariable String category,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Integer postId,
             @RequestParam(required = false) Boolean isOfficial,

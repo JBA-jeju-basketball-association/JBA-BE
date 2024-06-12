@@ -9,15 +9,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -151,6 +145,7 @@ public interface PostControllerDocs {
                     })
     )
     ResponseDto regPost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "카테고리 ex) notice, library, news", examples = {
                     @ExampleObject(name = "공지", value = "notice", description = "공지사항 카테고리"),
                     @ExampleObject(name = "뉴스", value = "news", description = "뉴스 카테고리"),
@@ -217,6 +212,11 @@ public interface PostControllerDocs {
                     })
     )
     ResponseDto updatePost(
+//            @Parameter(description = "카테고리 ex) notice, library, news", examples = {
+//                    @ExampleObject(name = "공지", value = "notice", description = "공지사항 카테고리"),
+//                    @ExampleObject(name = "뉴스", value = "news", description = "뉴스 카테고리"),
+//                    @ExampleObject(name = "라이브러리", value = "library", description = "자료실? 카테고리")})
+//            String category,
             @Parameter(description = "로그인된 유저 정보 (토큰에서 파싱후 db조회해서 가져옴)")
             CustomUserDetails customUserDetails,
             @Parameter(description = "게시물 고유 번호", example = "60")

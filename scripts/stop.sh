@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROJECT_ROOT="/home/ubuntu/sirimp"
-JAR_FILE="/home/ubuntu/sirimp/serverBootJar/jba_ver0328.jar"
+JAR_FILE="/home/ubuntu/sirimp/serverBootJar/jba_ver-0.0.3.jar"
 
 DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
 
