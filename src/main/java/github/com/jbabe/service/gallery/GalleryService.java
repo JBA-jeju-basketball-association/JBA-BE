@@ -1,7 +1,9 @@
 package github.com.jbabe.service.gallery;
 
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import github.com.jbabe.repository.gallery.Gallery;
+import github.com.jbabe.repository.gallery.GalleryDaoQueryDsl;
 import github.com.jbabe.repository.gallery.GalleryJpa;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.galleryImg.GalleryImgJpa;
@@ -16,7 +18,9 @@ import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +36,9 @@ public class GalleryService {
     private final GalleryJpa galleryJpa;
     private final GalleryImgJpa galleryImgJpa;
     private final UserJpa userJpa;
+    private final JPAQueryFactory jpaQueryFactory;
+    private final GalleryDaoQueryDsl galleryDaoQueryDsl;
+
 
     @Transactional(readOnly = true)
     public Object getGalleryList(Pageable pageable, boolean official) {
@@ -152,4 +159,23 @@ public class GalleryService {
         return imagesToBeErased;
     }
 
+//    @Transactional(readOnly = true)
+    public Map<String, Object> searchGallery(int page, int size, boolean official, String keyword) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")));
+        Page<Gallery> galleryPages =  galleryDaoQueryDsl.searchGalleryList(official, keyword,pageable);
+
+        List<GalleryListDto> responseList =  galleryPages.stream()
+                .map(gallery -> GalleryMapper.INSTANCE
+                        .GalleryToGalleryListDto(gallery,
+                                gallery.getGalleryImgs().isEmpty()?"갤러리 없는 갤러리 게시물":
+                                        gallery.getGalleryImgs().get(0).getFileName(),
+                                gallery.getGalleryImgs().isEmpty()?"https://www.irisoele.com/img/noimage.png":
+                                        gallery.getGalleryImgs().get(0).getFileUrl()))
+                .toList();
+        return Map.of(
+                "galleries", responseList,
+                "totalGalleries", galleryPages.getTotalElements(),
+                "totalPages", galleryPages.getTotalPages()
+        );
+    }
 }

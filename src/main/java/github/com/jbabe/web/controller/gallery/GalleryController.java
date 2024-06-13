@@ -2,7 +2,6 @@ package github.com.jbabe.web.controller.gallery;
 
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.gallery.GalleryService;
-import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
@@ -71,6 +70,16 @@ public class GalleryController implements GalleryControllerDocs{
             throw new BadRequestException("SQLError", ex.getMessage());
         }
         return new ResponseDto();
+    }
+
+    @Override
+    @GetMapping("/search")
+    public ResponseDto searchGallery(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam boolean official,
+            @RequestParam String keyword){
+        return new ResponseDto(galleryService.searchGallery(page, size, official, keyword));
     }
 
 

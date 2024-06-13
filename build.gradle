@@ -12,14 +12,15 @@ java {
 }
 
 def queryDslVersion = "5.1.0"
-def queryDslSrcDir = "./src/main/generated/queryDsl"
+def generatedDir = "./src/main/generated"
 def buildDir = "./building"
 
 configurations {
 //    compileOnly {
 //        extendsFrom annotationProcessor
 //    }
-    querydsl.extendsFrom complieClasspath
+// QueryDSL과 관련된 라이브러리들이 컴파일 시점에만 필요하도록 설정합니다. 또한, QueryDSL 설정을 컴파일 클래스패스에 추가합니다.
+    querydsl.extendsFrom compileClasspath
 }
 
 repositories {
@@ -86,7 +87,11 @@ dependencies {
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
 }
-
+// 소스 코드로 인식할 디렉토리에 경로에 Q-Class 파일을 추가
+// 이렇게 하면 Q-Class가 일반 Java 클래스처럼 취급되어 컴파일과 실행 시 클래스패스에 포함됨
+sourceSets {
+    main.java.srcDirs += [generatedDir+"/queryDsl"]
+}
 
 tasks.named('test') {
     useJUnitPlatform()
@@ -99,5 +104,5 @@ tasks.named('bootJar'){
     archiveVersion = "0.0.3"
 }
 clean {
-    delete file(buildDir), file('./src/main/generated/')
+    delete file(buildDir), file(generatedDir)
 }
