@@ -3,9 +3,11 @@ package github.com.jbabe.repository.gallery;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
-import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
@@ -17,7 +19,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @DynamicInsert
 public class Gallery {
     @Id

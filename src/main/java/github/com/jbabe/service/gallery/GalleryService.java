@@ -12,21 +12,18 @@ import github.com.jbabe.service.mapper.GalleryMapper;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
-import github.com.jbabe.web.dto.post.PostsListDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -77,9 +74,9 @@ public class GalleryService {
         Gallery galleryEntity = GalleryMapper.INSTANCE.GalleryDetailsDtoToGallery(requestRegister, userJpa.findById(userId)
                 .orElseThrow(()->new NotFoundException("NotFoundUser", 5)), isOfficial);// 유저아이디 임시삽입
 
-        for(GalleryImg img: galleryEntity.getGalleryImgs()){
-            img.setGallery(galleryEntity);
-        }
+//        for(GalleryImg img: galleryEntity.getGalleryImgs()){
+//            img.setGallery(galleryEntity);
+//        }
 
         try{
             galleryJpa.save(galleryEntity);

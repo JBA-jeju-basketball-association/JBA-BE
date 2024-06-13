@@ -111,12 +111,13 @@ public interface PostControllerDocs {
                     examples = {
                             @ExampleObject(name = "DB 반영 실패",
                                     description = "⬆️⬆️ DB에 반영하는데 실패함, DB 조건에 맞지 않는 정보로 인해 DB 세이브 실패함<br>ex) 중복 불가 정보에 중복된 값이 들어온 경우",
-                                    value = "{\n" +
-                                            "  \"code\": 400,\n" +
-                                            "  \"message\": \"BAD_REQUEST\",\n" +
-                                            "  \"detailMessage\": \"DB에 반영하는데 실패하였습니다. (제목이 중복됐을 가능성이 있습니다.)  could not execute statement [(conn=271638) Duplicate entry '게시물 입니다3.' for key 'name'] [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; SQL [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; constraint [name]\",\n" +
-                                            "  \"request\": \"게시물 입니다3\"\n" +
-                                            "}")
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "message": "BAD_REQUEST",
+                                              "detailMessage": "DB에 반영하는데 실패하였습니다. (제목이 중복됐을 가능성이 있습니다.)  could not execute statement [(conn=271638) Duplicate entry '게시물 입니다3.' for key 'name'] [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; SQL [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; constraint [name]",
+                                              "request": "게시물 입니다3"
+                                            }""")
                     })
     )
 
@@ -125,12 +126,13 @@ public interface PostControllerDocs {
                     examples = {
                             @ExampleObject(name = "해당 요청에 권한이 없음",
                                     description = "⬆️⬆️ 요청한 유저의 권한이 충족되지 않았을때 (ex : 로그인된 정보의 권한이 일반 유저일때)",
-                                    value = "{\n" +
-                                            "  \"code\": 403,\n" +
-                                            "  \"message\": \"FORBIDDEN\",\n" +
-                                            "  \"detailMessage\": \"Acess_Denie\",\n" +
-                                            "  \"request\": \"user\"\n" +
-                                            "}")
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "message": "FORBIDDEN",
+                                              "detailMessage": "Acess_Denie",
+                                              "request": "user"
+                                            }""")
                     })
     )
     @ApiResponse(responseCode = "200",description = "게시물 작성 성공",

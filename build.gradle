@@ -11,6 +11,16 @@ java {
     sourceCompatibility = '17'
 }
 
+def queryDslVersion = "5.1.0"
+def queryDslSrcDir = "./src/main/generated/queryDsl"
+def buildDir = "./building"
+
+configurations {
+//    compileOnly {
+//        extendsFrom annotationProcessor
+//    }
+    querydsl.extendsFrom complieClasspath
+}
 
 repositories {
     mavenCentral()
@@ -70,13 +80,12 @@ dependencies {
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
     //QueryDsl
-//    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
-//    annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta"
-//    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-//    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
 }
-
 
 
 tasks.named('test') {
@@ -85,7 +94,10 @@ tasks.named('test') {
 tasks.named('bootJar'){
     dependsOn(test)
     mainClass = 'github.com.jbabe.JbaBeApplication'
-    destinationDirectory = file("./building")
+    destinationDirectory = file(buildDir)
     archivesBaseName = 'jba_ver'
     archiveVersion = "0.0.3"
+}
+clean {
+    delete file(buildDir), file('./src/main/generated/')
 }

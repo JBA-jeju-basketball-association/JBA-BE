@@ -4,8 +4,10 @@ import github.com.jbabe.repository.gallery.Gallery;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -27,4 +29,10 @@ public interface GalleryMapper {
     @Mapping(target = "isOfficial", source = "isOfficial")
     @Mapping(target = "createAt", ignore = true)
     Gallery GalleryDetailsDtoToGallery(GalleryDetailsDto galleryDetailsDto, User user, boolean isOfficial);
+    @AfterMapping
+    default void replaceGalleryImageWithTargetGallery(@MappingTarget Gallery gallery){
+        gallery.getGalleryImgs().forEach(gI->gI.setGallery(gallery));
+    }
+
+
 }
