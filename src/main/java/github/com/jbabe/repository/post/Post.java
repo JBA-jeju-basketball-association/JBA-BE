@@ -9,6 +9,8 @@ import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
@@ -24,6 +26,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode(of = "postId")
+@EntityListeners(AuditingEntityListener.class)
 @DynamicInsert
 public class Post {
     @Id
@@ -49,6 +52,7 @@ public class Post {
     private Integer viewCount;
 
     @Column(name = "post_status", nullable = false)
+
     @Enumerated(EnumType.STRING)
     private PostStatus postStatus;
 
@@ -58,6 +62,7 @@ public class Post {
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt;
 
+    @LastModifiedDate
     @Column(name = "update_at")
     private LocalDateTime updateAt;
 

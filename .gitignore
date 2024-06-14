@@ -35,3 +35,9 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### generated 매퍼, 쿼리디에스엘###
+/src/main/generated/
+
+#bootJar 파일 제외
+/building/
