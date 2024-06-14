@@ -56,6 +56,8 @@ public interface PostControllerDocs {
     ResponseDto getAllPostsList(
             @Parameter(description = "페이지 쪽수 (기본값 = 0)") int page,
             @Parameter(description = "페이지당 공지를 제외한 일반게시글 갯수 (기본값 = 10)") int size,
+            @Parameter(description = "검색 키워드 null 일시 일반 목록 조회, 공지가 검색중에도 상단고정이라 검색결과가 없을시 공지만 반환됨")
+            String keyword,
             @Parameter(description = "카테고리 ex) notice, library, news", examples = {
                     @ExampleObject(name = "공지", value = "notice", description = "공지사항 카테고리"),
                     @ExampleObject(name = "뉴스", value = "news", description = "뉴스 카테고리"),
