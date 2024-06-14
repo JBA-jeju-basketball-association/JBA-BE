@@ -3,28 +3,27 @@ package github.com.jbabe.web.controller;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
+import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.repository.redis.RedisTokenRepository;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
-import github.com.jbabe.web.advice.errorResponseDto.ErrorResponse;
-import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest.FinishUploadRequest;
+import github.com.jbabe.web.dto.awsTest.PreSignedUploadInitiateRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUrlAbortRequest;
 import github.com.jbabe.web.dto.awsTest.PreSignedUrlCreateRequest;
-import github.com.jbabe.web.dto.awsTest.PreSignedUploadInitiateRequest;
-import github.com.jbabe.web.dto.awsTest2.SaveFileType;
-import jakarta.servlet.http.Cookie;
+import github.com.jbabe.web.dto.myPage.MyPage;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.Duration;
@@ -32,9 +31,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.lettuce.core.LettuceFutures.awaitAll;
-import static org.springframework.web.servlet.function.ServerResponse.async;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,6 +61,14 @@ public class Test {
         }
         return cleanupList;
     }
+    @GetMapping("/testSihu2")
+    public Object test2(){
+        return MyPage.<Post>builder()
+                .type(Post.class)
+                .content(new ArrayList<>())
+                .totalElements(0).totalPages(0).build();
+    }
+
 
     @PostMapping("/logoutTest")
     public String logoutTest(HttpServletRequest httpServletRequest){

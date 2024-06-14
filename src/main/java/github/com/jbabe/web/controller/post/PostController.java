@@ -6,8 +6,10 @@ import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
+import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.post.PostModifyDto;
 import github.com.jbabe.web.dto.post.PostReqDto;
+import github.com.jbabe.web.dto.post.PostsListDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -35,7 +36,7 @@ public class PostController implements PostControllerDocs{
                                        @RequestParam(defaultValue = "10") int size,
                                        @RequestParam(required = false) String keyword,
                                        @PathVariable String category) {
-        Map<String, Object> contents = keyword == null ?
+        MyPage<PostsListDto> contents = keyword == null ?
                 postService.getAllPostsList(
                         PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
                         , category):
