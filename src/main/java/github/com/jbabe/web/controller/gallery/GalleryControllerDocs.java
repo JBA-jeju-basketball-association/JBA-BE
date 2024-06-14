@@ -272,4 +272,55 @@ public interface GalleryControllerDocs {
                     @ExampleObject(name = "안공식갤러리", value = "false", description = "일반갤러리임")})
             Boolean isOfficial);
 
+    @Operation(summary = "갤러리 검색을 통한 목록 조회", description = "갤러리 목록에 보여줄 대표이미지 url과 갤러리 ID 갤러리제목들을 반환")
+    @ApiResponse(responseCode = "200",description = "게시물 목록 검색 성공",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "갤러리 목록 검색 성공 예",
+                                    description = "⬆️⬆️ data 안에 galleries 배열로 목록들을 반환해주고<br> totalPosts는 총 게시물, totalPages는 총 페이지수 입니다. ",
+                                    value = """
+                                            {
+                                              "code": 200,
+                                              "message": "OK",
+                                              "data": {
+                                                "totalPages": 13,
+                                                "totalGalleries": 75,
+                                                "galleries": [
+                                                  {
+                                                    "galleryId": 1,
+                                                    "title": "[2024] 제주특별자치도 도민체전",
+                                                    "fileName": "1.png",
+                                                    "imgUrl": "https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/c8db15cc-a145-4aa1-869a-e3e650b3fcf9.png",
+                                                    "createAt": "2204-12-10"
+                                                  },
+                                                  "....~~ 이외 목록 생략 "\s
+                                                ]
+                                              }
+                                            }""")
+                    })
+    )
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 페이지 (totalPages를 넘어가는 page로 요청한 경우)",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "페이지 조회 실패 예제",
+                                    description = "⬆️⬆️ 총 페이지 수 보다 더 큰 숫자의 페이지를 요청한 경우 발생되는 익셉션 입니다.<br>" +
+                                            "request에는 요청들어온 숫자가 반환됩니다.<br>" +
+                                            "예제에서는 99페이지를 요청했고 99페이지는 존재 하지않아 에러가 발생된 상황.",
+                                    value = "{\n" +
+                                            "  \"code\": 404,\n" +
+                                            "  \"message\": \"NOT_FOUND\",\n" +
+                                            "  \"detailMessage\": \"Page Not Found\",\n" +
+                                            "  \"request\": 99\n" +
+                                            "}")
+                    })
+    )
+    ResponseDto searchGallery(
+            @Parameter(description = "페이지 쪽수 (기본값 = 0)") int page,
+            @Parameter(description = "페이지당 보여질 갤러리게시물 갯수 (기본값 = 6)") int size,
+            @Parameter(description = "공식 갤러리 인지 일반사진 갤러리 인지", examples = {
+                    @ExampleObject(name = "공식갤러리", value = "true", description = "공식갤러리임"),
+                    @ExampleObject(name = "안공식갤러리", value = "false", description = "일반갤러리임")})
+            boolean official,
+            @Parameter(description = "검색어", example = "르브론")
+            String keyword);
 }
