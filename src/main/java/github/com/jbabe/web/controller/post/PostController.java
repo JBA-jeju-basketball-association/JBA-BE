@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -32,11 +33,17 @@ public class PostController implements PostControllerDocs{
     @GetMapping("/{category}")//게시물 목록 전체조회
     public ResponseDto getAllPostsList(@RequestParam(name = "page", defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "10") int size,
+                                       @RequestParam(required = false) String keyword,
                                        @PathVariable String category) {
-        return new ResponseDto(postService.getAllPostsList(
-                PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
-                , category)
-        );
+        Map<String, Object> contents = keyword == null ?
+                postService.getAllPostsList(
+                        PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
+                        , category):
+                postService.searchPostList(
+                        PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
+                        , category, keyword);
+
+        return new ResponseDto(contents);
 
     }
 

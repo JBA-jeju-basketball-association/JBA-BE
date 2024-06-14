@@ -41,7 +41,7 @@ public class GalleryService {
 
 
     @Transactional(readOnly = true)
-    public Object getGalleryList(Pageable pageable, boolean official) {
+    public Map<String, Object> getGalleryList(Pageable pageable, boolean official) {
         Page<Gallery> galleryPages = galleryJpa
                 .findByIsOfficialAndGalleryStatus(official, Gallery.GalleryStatus.NORMAL, pageable);
 
