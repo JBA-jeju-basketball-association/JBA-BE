@@ -203,6 +203,9 @@ public class PostService {
     }
 
     public Map<String, Object> searchPostList(Pageable pageable, String category, String keyword) {
+
+        if(keyword.length() < 2) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
+
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
         List<Post> announcementPosts = postDaoQueryDsl.getAnnouncementPosts(categoryEnum, pageable.getSort());
         Page<Post> generalPosts = postDaoQueryDsl.searchPostList(keyword, categoryEnum, pageable);

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -27,11 +28,15 @@ public class GalleryController implements GalleryControllerDocs{
     public ResponseDto getGalleryList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
+            @RequestParam (required = false) String keyword,
             @RequestParam boolean official) {
-        return new ResponseDto(galleryService.getGalleryList(
-                PageRequest.of(page, size,Sort.by(Sort.Order.desc("createAt"))),
-                official)
-        );
+        Map<String, Object> responseData = keyword == null ?
+                galleryService.getGalleryList(
+                        PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt"))),
+                        official):
+                galleryService.searchGallery(page, size, official, keyword);
+
+        return new ResponseDto(responseData);
     }
 
     @Override
@@ -72,15 +77,6 @@ public class GalleryController implements GalleryControllerDocs{
         return new ResponseDto();
     }
 
-    @Override
-    @GetMapping("/search")
-    public ResponseDto searchGallery(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size,
-            @RequestParam boolean official,
-            @RequestParam String keyword){
-        return new ResponseDto(galleryService.searchGallery(page, size, official, keyword));
-    }
 
 
 }

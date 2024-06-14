@@ -38,6 +38,20 @@ public interface PostControllerDocs {
                                             "}")
                     })
     )
+    @ApiResponse(responseCode = "400", description = "검색어 최소 글자수 미 충족",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "최소 2글자 이상이어야 합니다.",
+                                    description = "⬆️⬆️ 검색어는 최소 2글자 이상이어야함.",
+                                    value = """
+                                             {
+                                              "code": 400,
+                                              "message": "BAD_REQUEST",
+                                              "detailMessage": "검색어는 2글자 이상이어야 합니다.",
+                                              "request": "이"
+                                            }""")
+                    })
+    )
     @ApiResponse(responseCode = "404", description = "존재하지 않는 페이지 (totalPages를 넘어가는 page로 요청한 경우)",
             content = @Content(mediaType = "application/json",
                     examples = {
