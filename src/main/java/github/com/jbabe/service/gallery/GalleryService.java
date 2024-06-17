@@ -1,7 +1,6 @@
 package github.com.jbabe.service.gallery;
 
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import github.com.jbabe.repository.gallery.Gallery;
 import github.com.jbabe.repository.gallery.GalleryDaoQueryDsl;
 import github.com.jbabe.repository.gallery.GalleryJpa;
@@ -36,29 +35,29 @@ public class GalleryService {
     private final GalleryJpa galleryJpa;
     private final GalleryImgJpa galleryImgJpa;
     private final UserJpa userJpa;
-    private final JPAQueryFactory jpaQueryFactory;
     private final GalleryDaoQueryDsl galleryDaoQueryDsl;
 
 
-    @Transactional(readOnly = true)
     public MyPage<GalleryListDto> getGalleryList(Pageable pageable, boolean official) {
-        Page<Gallery> galleryPages = galleryJpa
-                .findByIsOfficialAndGalleryStatus(official, Gallery.GalleryStatus.NORMAL, pageable);
+//        Page<Gallery> galleryPages = galleryJpa
+//                .findByIsOfficialAndGalleryStatus(official, Gallery.GalleryStatus.NORMAL, pageable);
+        Page<Gallery> galleryPages = galleryDaoQueryDsl.getGalleryList(pageable, official);
 
-        List<GalleryListDto> responseList = new ArrayList<>();
-        if(pageable.getPageNumber()+1>galleryPages.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        return makeResponseListAndToMyPage(galleryPages, pageable);
+    }
 
-        for(Gallery gallery: galleryPages){
+    private MyPage<GalleryListDto> makeResponseListAndToMyPage(Page<Gallery> galleryPages, Pageable pageable) {
+        if(pageable.getPageNumber()+1>galleryPages.getTotalPages()&&pageable.getPageNumber()!=0)
+            throw new NotFoundException("Page Not Found", pageable.getPageNumber());
 
-            List<GalleryImg> galleryImgs = gallery.getGalleryImgs();
-            GalleryImg firstImg = galleryImgs.isEmpty()?
-                    GalleryImg.builder().fileName("갤러리 없는 갤러리 게시물").fileUrl("https://www.irisoele.com/img/noimage.png").build():
-                    gallery.getGalleryImgs().get(0);
-
-            GalleryListDto galleryListDto = GalleryMapper.INSTANCE
-                    .GalleryToGalleryListDto(gallery, firstImg.getFileName(), firstImg.getFileUrl());
-            responseList.add(galleryListDto);
-        }
+        List<GalleryListDto> responseList =  galleryPages.stream()
+                .map(gallery -> GalleryMapper.INSTANCE
+                        .GalleryToGalleryListDto(gallery,
+                                gallery.getGalleryImgs().isEmpty()?"갤러리 없는 갤러리 게시물":
+                                        gallery.getGalleryImgs().get(0).getFileName(),
+                                gallery.getGalleryImgs().isEmpty()?"https://www.irisoele.com/img/noimage.png":
+                                        gallery.getGalleryImgs().get(0).getFileUrl()))
+                .toList();
         return MyPage.<GalleryListDto>builder()
                 .type(GalleryListDto.class)
                 .content(responseList)
@@ -165,19 +164,6 @@ public class GalleryService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")));
         Page<Gallery> galleryPages =  galleryDaoQueryDsl.searchGalleryList(official, keyword,pageable);
 
-        List<GalleryListDto> responseList =  galleryPages.stream()
-                .map(gallery -> GalleryMapper.INSTANCE
-                        .GalleryToGalleryListDto(gallery,
-                                gallery.getGalleryImgs().isEmpty()?"갤러리 없는 갤러리 게시물":
-                                        gallery.getGalleryImgs().get(0).getFileName(),
-                                gallery.getGalleryImgs().isEmpty()?"https://www.irisoele.com/img/noimage.png":
-                                        gallery.getGalleryImgs().get(0).getFileUrl()))
-                .toList();
-        return MyPage.<GalleryListDto>builder()
-                .type(GalleryListDto.class)
-                .content(responseList)
-                .totalElements(galleryPages.getTotalElements())
-                .totalPages(galleryPages.getTotalPages())
-                .build();
+        return makeResponseListAndToMyPage(galleryPages, pageable);
     }
 }
