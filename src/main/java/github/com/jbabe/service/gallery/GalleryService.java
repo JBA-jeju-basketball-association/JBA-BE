@@ -14,6 +14,7 @@ import github.com.jbabe.service.mapper.GalleryMapper;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
+import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 @Service
@@ -41,7 +41,7 @@ public class GalleryService {
 
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getGalleryList(Pageable pageable, boolean official) {
+    public MyPage<GalleryListDto> getGalleryList(Pageable pageable, boolean official) {
         Page<Gallery> galleryPages = galleryJpa
                 .findByIsOfficialAndGalleryStatus(official, Gallery.GalleryStatus.NORMAL, pageable);
 
@@ -59,11 +59,12 @@ public class GalleryService {
                     .GalleryToGalleryListDto(gallery, firstImg.getFileName(), firstImg.getFileUrl());
             responseList.add(galleryListDto);
         }
-        return Map.of(
-                "galleries", responseList,
-                "totalGalleries", galleryPages.getTotalElements(),
-                "totalPages", galleryPages.getTotalPages()
-        );
+        return MyPage.<GalleryListDto>builder()
+                .type(GalleryListDto.class)
+                .content(responseList)
+                .totalElements(galleryPages.getTotalElements())
+                .totalPages(galleryPages.getTotalPages())
+                .build();
     }
 
 
@@ -160,7 +161,7 @@ public class GalleryService {
     }
 
 //    @Transactional(readOnly = true)
-    public Map<String, Object> searchGallery(int page, int size, boolean official, String keyword) {
+    public MyPage<GalleryListDto> searchGallery(int page, int size, boolean official, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")));
         Page<Gallery> galleryPages =  galleryDaoQueryDsl.searchGalleryList(official, keyword,pageable);
 
@@ -172,10 +173,11 @@ public class GalleryService {
                                 gallery.getGalleryImgs().isEmpty()?"https://www.irisoele.com/img/noimage.png":
                                         gallery.getGalleryImgs().get(0).getFileUrl()))
                 .toList();
-        return Map.of(
-                "galleries", responseList,
-                "totalGalleries", galleryPages.getTotalElements(),
-                "totalPages", galleryPages.getTotalPages()
-        );
+        return MyPage.<GalleryListDto>builder()
+                .type(GalleryListDto.class)
+                .content(responseList)
+                .totalElements(galleryPages.getTotalElements())
+                .totalPages(galleryPages.getTotalPages())
+                .build();
     }
 }

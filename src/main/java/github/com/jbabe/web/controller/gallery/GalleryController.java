@@ -5,6 +5,8 @@ import github.com.jbabe.service.gallery.GalleryService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
+import github.com.jbabe.web.dto.gallery.GalleryListDto;
+import github.com.jbabe.web.dto.myPage.MyPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -30,7 +31,7 @@ public class GalleryController implements GalleryControllerDocs{
             @RequestParam(defaultValue = "6") int size,
             @RequestParam (required = false) String keyword,
             @RequestParam boolean official) {
-        Map<String, Object> responseData = keyword == null ?
+        MyPage<GalleryListDto> responseData = keyword == null ?
                 galleryService.getGalleryList(
                         PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt"))),
                         official):

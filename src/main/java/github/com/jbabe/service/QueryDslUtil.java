@@ -1,51 +1,35 @@
-//package github.com.jbabe.service;
-//
-//import com.querydsl.core.types.Order;
-//import com.querydsl.core.types.OrderSpecifier;
-//import com.querydsl.core.types.Path;
-//import com.querydsl.core.types.dsl.DateTimePath;
-//import com.querydsl.core.types.dsl.Expressions;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.data.domain.Sort;
-//
-//import java.time.LocalDateTime;
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//import static org.springframework.util.ObjectUtils.isEmpty;
-//
-//public class QueryDslUtil {
-//    public static OrderSpecifier<?> getSortedColumn(Order order, Path<?> parent, String fieldName) {
-//        Path<Object> fieldPath = Expressions.path(Object.class, parent, fieldName);
-//
-//        return new OrderSpecifier<>(order, fieldPath);
-//    }
-//
-//    public static List<OrderSpecifier<?>> getAllOrderSpecifiers(Pageable pageable, String entityType) {
-//
-//        List<OrderSpecifier<?>> orders = new ArrayList<>();
-//
-//        if (!isEmpty(pageable.getSort())) {
-//            for (Sort.Order order : pageable.getSort()) {
-//                if ("createdAt".equals(order.getProperty())) {
-//                    Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
-//                    DateTimePath<LocalDateTime> path;
-//                    switch (entityType) {
-//                        case "recruitment":
-//                            path = QRecruitment.recruitment.createdAt;
-//                            break;
-//                        case "project":
-//                            path = QProject.project.createdAt;
-//                            break;
-//                        default:
-//                            throw new IllegalArgumentException("Entity의 타입이 아닙니다.");
-//                    }
-//                    OrderSpecifier<?> orderSpecifier = QueryDslUtil.getSortedColumn(direction, path, "createdAt");
-//                    orders.add(orderSpecifier);
-//                }
-//            }
-//        }
-//
-//        return orders;
-//    }
-//}
+package github.com.jbabe.service;
+
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.PathBuilder;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Pageable;
+
+public class  QueryDslUtil<T> {
+
+    public static OrderSpecifier<?> getSortedColumn(Order order, Path<?> parent, String fieldName) {
+        Path<Object> fieldPath = Expressions.path(Object.class, parent, fieldName);
+        //  메서드 내부에서는 Expressions.path() 메서드를 사용하여 Path<Object> 객체를 생성합니다. 이 객체는 부모 경로와 필드 이름을 조합하여 특정 필드를 가리키는 경로를 나타냅니다.
+        return new OrderSpecifier(order, fieldPath);
+    }
+
+
+    public static OrderSpecifier[] getOrderSpecifiers(@NotNull Pageable pageable, @NotNull Class klass) {
+
+        // orderVariable must match the variable of FROM
+        String className = klass.getSimpleName();
+        final String orderVariable = String.valueOf(Character.toLowerCase(className.charAt(0))).concat(className.substring(1));
+
+        return pageable.getSort().stream()
+                .map(order -> new OrderSpecifier(
+                        Order.valueOf(order.getDirection().toString()),
+                        new PathBuilder(klass, orderVariable).get(order.getProperty()))
+                )
+                .toArray(OrderSpecifier[]::new);
+    }
+}
+
+
