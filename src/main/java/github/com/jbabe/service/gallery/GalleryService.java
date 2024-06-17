@@ -37,7 +37,7 @@ public class GalleryService {
     private final UserJpa userJpa;
     private final GalleryDaoQueryDsl galleryDaoQueryDsl;
 
-    
+
     @Transactional(readOnly = true)
     public MyPage<GalleryListDto> getGalleryList(Pageable pageable, boolean official) {
         Page<Gallery> galleryPages = galleryDaoQueryDsl.getGalleryList(pageable, official);
