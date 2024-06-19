@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
@@ -62,10 +63,9 @@ public class JwtTokenConfig {
 
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", user.getRole());
-
         return Jwts.builder()
                 .setClaims(claims)
-                .setAudience(user.getName())
+                .setAudience(new String(user.getName().getBytes(), StandardCharsets.UTF_8))
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(SignatureAlgorithm.HS256, key)
