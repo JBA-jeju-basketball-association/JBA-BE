@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +32,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class LoginService {
+    private final UserJpa userJpa;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenConfig jwtTokenConfig;
     private final RedisUtil redisUtil;
@@ -71,6 +73,9 @@ public class LoginService {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String userEmail = authentication.getName();
+            User user = userJpa.findByEmail(userEmail).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", userEmail));
+            user.setLoginAt(LocalDateTime.now());
+            userJpa.save(user);
 
             String accessToken = jwtTokenConfig.createAccessToken(userEmail);
             String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);
