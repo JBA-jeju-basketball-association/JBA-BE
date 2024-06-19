@@ -68,6 +68,7 @@ public class LoginService {
 
 
 
+    @Transactional
     public AccessAndRefreshToken login(String email, String password) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
