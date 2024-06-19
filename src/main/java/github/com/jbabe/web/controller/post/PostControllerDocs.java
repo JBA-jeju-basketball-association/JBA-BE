@@ -38,6 +38,20 @@ public interface PostControllerDocs {
                                             "}")
                     })
     )
+    @ApiResponse(responseCode = "400", description = "검색어 최소 글자수 미 충족",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "최소 2글자 이상이어야 합니다.",
+                                    description = "⬆️⬆️ 검색어는 최소 2글자 이상이어야함.",
+                                    value = """
+                                             {
+                                              "code": 400,
+                                              "message": "BAD_REQUEST",
+                                              "detailMessage": "검색어는 2글자 이상이어야 합니다.",
+                                              "request": "이"
+                                            }""")
+                    })
+    )
     @ApiResponse(responseCode = "404", description = "존재하지 않는 페이지 (totalPages를 넘어가는 page로 요청한 경우)",
             content = @Content(mediaType = "application/json",
                     examples = {
@@ -56,6 +70,8 @@ public interface PostControllerDocs {
     ResponseDto getAllPostsList(
             @Parameter(description = "페이지 쪽수 (기본값 = 0)") int page,
             @Parameter(description = "페이지당 공지를 제외한 일반게시글 갯수 (기본값 = 10)") int size,
+            @Parameter(description = "검색 키워드 null 일시 일반 목록 조회, 공지가 검색중에도 상단고정이라 검색결과가 없을시 공지만 반환됨")
+            String keyword,
             @Parameter(description = "카테고리 ex) notice, library, news", examples = {
                     @ExampleObject(name = "공지", value = "notice", description = "공지사항 카테고리"),
                     @ExampleObject(name = "뉴스", value = "news", description = "뉴스 카테고리"),
@@ -111,12 +127,13 @@ public interface PostControllerDocs {
                     examples = {
                             @ExampleObject(name = "DB 반영 실패",
                                     description = "⬆️⬆️ DB에 반영하는데 실패함, DB 조건에 맞지 않는 정보로 인해 DB 세이브 실패함<br>ex) 중복 불가 정보에 중복된 값이 들어온 경우",
-                                    value = "{\n" +
-                                            "  \"code\": 400,\n" +
-                                            "  \"message\": \"BAD_REQUEST\",\n" +
-                                            "  \"detailMessage\": \"DB에 반영하는데 실패하였습니다. (제목이 중복됐을 가능성이 있습니다.)  could not execute statement [(conn=271638) Duplicate entry '게시물 입니다3.' for key 'name'] [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; SQL [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; constraint [name]\",\n" +
-                                            "  \"request\": \"게시물 입니다3\"\n" +
-                                            "}")
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "message": "BAD_REQUEST",
+                                              "detailMessage": "DB에 반영하는데 실패하였습니다. (제목이 중복됐을 가능성이 있습니다.)  could not execute statement [(conn=271638) Duplicate entry '게시물 입니다3.' for key 'name'] [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; SQL [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; constraint [name]",
+                                              "request": "게시물 입니다3"
+                                            }""")
                     })
     )
 
@@ -125,12 +142,13 @@ public interface PostControllerDocs {
                     examples = {
                             @ExampleObject(name = "해당 요청에 권한이 없음",
                                     description = "⬆️⬆️ 요청한 유저의 권한이 충족되지 않았을때 (ex : 로그인된 정보의 권한이 일반 유저일때)",
-                                    value = "{\n" +
-                                            "  \"code\": 403,\n" +
-                                            "  \"message\": \"FORBIDDEN\",\n" +
-                                            "  \"detailMessage\": \"Acess_Denie\",\n" +
-                                            "  \"request\": \"user\"\n" +
-                                            "}")
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "message": "FORBIDDEN",
+                                              "detailMessage": "Acess_Denie",
+                                              "request": "user"
+                                            }""")
                     })
     )
     @ApiResponse(responseCode = "200",description = "게시물 작성 성공",
@@ -261,7 +279,7 @@ public interface PostControllerDocs {
                                     value = "{\n" +
                                             "  \"code\": 404,\n" +
                                             "  \"message\": \"NOT_FOUND\",\n" +
-                                            "  \"detailMessage\": \"Gallery Not Found\",\n" +
+                                            "  \"detailMessage\": \"Post Not Found\",\n" +
                                             "  \"request\": \"3\"\n" +
                                             "}")
                     })
@@ -280,6 +298,35 @@ public interface PostControllerDocs {
                     })
     )
     ResponseDto deletePost(
+            @Parameter(description = "게시물 고유 번호", example = "5")
+            int postId);
+
+    @Operation(summary = "게시물 공지 여부수정", description = "관리자 페이지에서 사용될 공지여부 수정 API 입니다.<br>공지일경우 공지가 아니게되고 공지가 아닐경우 공지로 변경됩니다.")
+    @ApiResponse(responseCode = "204",description = "요청 성공 NO_CONTENT 로 응답됩니다. ",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "공지여부 성공 예",
+                                    description = "⬆️⬆️ 성공!",
+                                    value = "{\n" +
+                                            "  \"code\": 204,\n" +
+                                            "  \"message\": \"NO_CONTENT\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "404", description = "해당 게시물 찾을 수 없음",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = " 게시물 찾을 수 없음",
+                                    description = "⬆️⬆️ 요청들어온 게시물 아이디가 DB상에 존재 하지 않을때",
+                                    value = "{\n" +
+                                            "  \"code\": 404,\n" +
+                                            "  \"message\": \"NOT_FOUND\",\n" +
+                                            "  \"detailMessage\": \"Post Not Found\",\n" +
+                                            "  \"request\": \"3\"\n" +
+                                            "}")
+                    })
+    )
+    ResponseDto updateIsAnnouncement(
             @Parameter(description = "게시물 고유 번호", example = "5")
             int postId);
 

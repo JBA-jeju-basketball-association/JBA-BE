@@ -2,10 +2,11 @@ package github.com.jbabe.web.controller.gallery;
 
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.gallery.GalleryService;
-import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
+import github.com.jbabe.web.dto.gallery.GalleryListDto;
+import github.com.jbabe.web.dto.myPage.MyPage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,11 +29,15 @@ public class GalleryController implements GalleryControllerDocs{
     public ResponseDto getGalleryList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
+            @RequestParam (required = false) String keyword,
             @RequestParam boolean official) {
-        return new ResponseDto(galleryService.getGalleryList(
-                PageRequest.of(page, size,Sort.by(Sort.Order.desc("createAt"))),
-                official)
-        );
+        MyPage<GalleryListDto> responseData = keyword == null ?
+                galleryService.getGalleryList(
+                        PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt"))),
+                        official):
+                galleryService.searchGallery(page, size, official, keyword);
+
+        return new ResponseDto(responseData);
     }
 
     @Override
@@ -72,6 +77,7 @@ public class GalleryController implements GalleryControllerDocs{
         }
         return new ResponseDto();
     }
+
 
 
 }

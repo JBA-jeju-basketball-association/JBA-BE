@@ -6,12 +6,15 @@ import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
+import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.post.PostModifyDto;
 import github.com.jbabe.web.dto.post.PostReqDto;
+import github.com.jbabe.web.dto.post.PostsListDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,11 +35,17 @@ public class PostController implements PostControllerDocs{
     @GetMapping("/{category}")//게시물 목록 전체조회
     public ResponseDto getAllPostsList(@RequestParam(name = "page", defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "10") int size,
+                                       @RequestParam(required = false) String keyword,
                                        @PathVariable String category) {
-        return new ResponseDto(postService.getAllPostsList(
-                PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
-                , category)
-        );
+        MyPage<PostsListDto> contents = keyword == null ?
+                postService.getAllPostsList(
+                        PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
+                        , category):
+                postService.searchPostList(
+                        PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
+                        , category, keyword);
+
+        return new ResponseDto(contents);
 
     }
 
@@ -99,6 +108,12 @@ public class PostController implements PostControllerDocs{
     public ResponseDto deletePost(@PathVariable int postId){
         postService.deletePost(postId);
         return new ResponseDto();
+    }
+
+    @PutMapping("/{postId}/is-announcement")
+    public ResponseDto updateIsAnnouncement(@PathVariable int postId){
+        postService.updateIsAnnouncement(postId);
+        return new ResponseDto(HttpStatus.NO_CONTENT);
     }
 
 }

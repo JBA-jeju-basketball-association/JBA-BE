@@ -2,10 +2,9 @@ package github.com.jbabe.service.authAccount;
 
 import github.com.jbabe.config.security.JwtTokenConfig;
 import github.com.jbabe.repository.redis.RedisTokenRepository;
-import github.com.jbabe.service.exception.BadRequestException;
-import github.com.jbabe.service.exception.CustomBadCredentialsException;
-import github.com.jbabe.service.exception.ExpiredJwtException;
-import github.com.jbabe.service.exception.NotAcceptableException;
+import github.com.jbabe.repository.user.User;
+import github.com.jbabe.repository.user.UserJpa;
+import github.com.jbabe.service.exception.*;
 import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +33,7 @@ public class LoginCookieService {
     private final JwtTokenConfig jwtTokenConfig;
     private final RedisUtil redisUtil;
     private final RedisTokenRepository redisTokenRepository;
+    private final UserJpa userJpa;
 
     @Transactional
     public AccessAndRefreshToken refreshTokenCookie(String requestAccessToken, String requestRefreshToken) {
@@ -77,6 +78,9 @@ public class LoginCookieService {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String userEmail = authentication.getName();
+            User user = userJpa.findByEmail(userEmail).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", userEmail));
+            user.setLoginAt(LocalDateTime.now());
+            userJpa.save(user);
 
             String accessToken = jwtTokenConfig.createAccessToken(userEmail);
             String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);

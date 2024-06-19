@@ -39,6 +39,20 @@ public interface GalleryControllerDocs {
                                             "}")
                     })
     )
+    @ApiResponse(responseCode = "400", description = "검색어 최소 글자수 미 충족",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "최소 2글자 이상이어야 합니다.",
+                                    description = "⬆️⬆️ 검색어는 최소 2글자 이상이어야함.",
+                                    value = """
+                                             {
+                                              "code": 400,
+                                              "message": "BAD_REQUEST",
+                                              "detailMessage": "검색어는 2글자 이상이어야 합니다.",
+                                              "request": "이"
+                                            }""")
+                    })
+    )
     @ApiResponse(responseCode = "404", description = "존재하지 않는 페이지 (totalPages를 넘어가는 page로 요청한 경우)",
             content = @Content(mediaType = "application/json",
                     examples = {
@@ -57,6 +71,7 @@ public interface GalleryControllerDocs {
     ResponseDto getGalleryList(
             @Parameter(description = "페이지 쪽수 (기본값 = 0)") int page,
             @Parameter(description = "페이지당 보여질 갤러리게시물 갯수 (기본값 = 6)") int size,
+            @Parameter(description = "검색 키워드 null 일시 일반 목록 조회") String keyword,
             @Parameter(description = "공식 갤러리 인지 일반사진 갤러리 인지", examples = {
                     @ExampleObject(name = "공식갤러리", value = "true", description = "공식갤러리임"),
                     @ExampleObject(name = "안공식갤러리", value = "false", description = "일반갤러리임")})

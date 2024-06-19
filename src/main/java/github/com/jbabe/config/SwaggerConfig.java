@@ -41,10 +41,13 @@ public class SwaggerConfig {
                                 new SecurityScheme().type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER).name("AccessToken"))
                         .addSecuritySchemes("refresh",
                                 new SecurityScheme().type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER).name("RefreshToken"))
+                        .addSecuritySchemes("cookie",
+                                new SecurityScheme().type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.COOKIE).name("RefreshToken"))
                 )
                 .info(info)
                 .addSecurityItem(new SecurityRequirement().addList("access"))
                 .addSecurityItem(new SecurityRequirement().addList("refresh"))
+                .addSecurityItem(new SecurityRequirement().addList("cookie"))
                 .addServersItem(new Server().url(serverUrl).description("HTTPS Production Server")) // HTTPS 서버 추가
                 .addServersItem(new Server().url("http://localhost:8080").description("로컬 서버")); // 로컬 서버 추가
     }

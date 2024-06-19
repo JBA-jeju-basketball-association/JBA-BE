@@ -2,6 +2,7 @@ package github.com.jbabe.service.gallery;
 
 
 import github.com.jbabe.repository.gallery.Gallery;
+import github.com.jbabe.repository.gallery.GalleryDaoQueryDsl;
 import github.com.jbabe.repository.gallery.GalleryJpa;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.galleryImg.GalleryImgJpa;
@@ -12,21 +13,20 @@ import github.com.jbabe.service.mapper.GalleryMapper;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
-import github.com.jbabe.web.dto.post.PostsListDto;
+import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -35,31 +35,34 @@ public class GalleryService {
     private final GalleryJpa galleryJpa;
     private final GalleryImgJpa galleryImgJpa;
     private final UserJpa userJpa;
+    private final GalleryDaoQueryDsl galleryDaoQueryDsl;
+
 
     @Transactional(readOnly = true)
-    public Object getGalleryList(Pageable pageable, boolean official) {
-        Page<Gallery> galleryPages = galleryJpa
-                .findByIsOfficialAndGalleryStatus(official, Gallery.GalleryStatus.NORMAL, pageable);
+    public MyPage<GalleryListDto> getGalleryList(Pageable pageable, boolean official) {
+        Page<Gallery> galleryPages = galleryDaoQueryDsl.getGalleryList(pageable, official);
 
-        List<GalleryListDto> responseList = new ArrayList<>();
-        if(pageable.getPageNumber()+1>galleryPages.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        return makeResponseListAndToMyPage(galleryPages, pageable);
+    }
 
-        for(Gallery gallery: galleryPages){
+    private MyPage<GalleryListDto> makeResponseListAndToMyPage(Page<Gallery> galleryPages, Pageable pageable) {
+        if(pageable.getPageNumber()+1>galleryPages.getTotalPages()&&pageable.getPageNumber()!=0)
+            throw new NotFoundException("Page Not Found", pageable.getPageNumber());
 
-            List<GalleryImg> galleryImgs = gallery.getGalleryImgs();
-            GalleryImg firstImg = galleryImgs.isEmpty()?
-                    GalleryImg.builder().fileName("갤러리 없는 갤러리 게시물").fileUrl("https://www.irisoele.com/img/noimage.png").build():
-                    gallery.getGalleryImgs().get(0);
-
-            GalleryListDto galleryListDto = GalleryMapper.INSTANCE
-                    .GalleryToGalleryListDto(gallery, firstImg.getFileName(), firstImg.getFileUrl());
-            responseList.add(galleryListDto);
-        }
-        return Map.of(
-                "galleries", responseList,
-                "totalGalleries", galleryPages.getTotalElements(),
-                "totalPages", galleryPages.getTotalPages()
-        );
+        List<GalleryListDto> responseList =  galleryPages.stream()
+                .map(gallery -> GalleryMapper.INSTANCE
+                        .GalleryToGalleryListDto(gallery,
+                                gallery.getGalleryImgs().isEmpty()?"갤러리 없는 갤러리 게시물":
+                                        gallery.getGalleryImgs().get(0).getFileName(),
+                                gallery.getGalleryImgs().isEmpty()?"https://www.irisoele.com/img/noimage.png":
+                                        gallery.getGalleryImgs().get(0).getFileUrl()))
+                .toList();
+        return MyPage.<GalleryListDto>builder()
+                .type(GalleryListDto.class)
+                .content(responseList)
+                .totalElements(galleryPages.getTotalElements())
+                .totalPages(galleryPages.getTotalPages())
+                .build();
     }
 
 
@@ -77,9 +80,9 @@ public class GalleryService {
         Gallery galleryEntity = GalleryMapper.INSTANCE.GalleryDetailsDtoToGallery(requestRegister, userJpa.findById(userId)
                 .orElseThrow(()->new NotFoundException("NotFoundUser", 5)), isOfficial);// 유저아이디 임시삽입
 
-        for(GalleryImg img: galleryEntity.getGalleryImgs()){
-            img.setGallery(galleryEntity);
-        }
+//        for(GalleryImg img: galleryEntity.getGalleryImgs()){
+//            img.setGallery(galleryEntity);
+//        }
 
         try{
             galleryJpa.save(galleryEntity);
@@ -155,4 +158,11 @@ public class GalleryService {
         return imagesToBeErased;
     }
 
+//    @Transactional(readOnly = true)
+    public MyPage<GalleryListDto> searchGallery(int page, int size, boolean official, String keyword) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")));
+        Page<Gallery> galleryPages =  galleryDaoQueryDsl.searchGalleryList(official, keyword,pageable);
+
+        return makeResponseListAndToMyPage(galleryPages, pageable);
+    }
 }

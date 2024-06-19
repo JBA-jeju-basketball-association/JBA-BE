@@ -1,6 +1,7 @@
 package github.com.jbabe.service.post;
 
 import github.com.jbabe.repository.post.Post;
+import github.com.jbabe.repository.post.PostDaoQueryDsl;
 import github.com.jbabe.repository.post.PostJpa;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
@@ -12,6 +13,7 @@ import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
+import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.post.PostModifyDto;
 import github.com.jbabe.web.dto.post.PostReqDto;
 import github.com.jbabe.web.dto.post.PostResponseDto;
@@ -25,37 +27,37 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostJpa postJpa;
+    private final PostDaoQueryDsl postDaoQueryDsl;
     private final UserJpa userJpa;
     private final PostImgJpa postImgJpa;
     private final PostAttachedFileJpa postAttachedFileJpa;
     private final StorageService storageService;
 
 
-    public Map<String, Object> getAllPostsList(Pageable pageable, String category) {
+    public MyPage<PostsListDto> getAllPostsList(Pageable pageable, String category) {
+
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
 
         List<Post> announcementPosts = postJpa
                 .findByIsAnnouncementTrueAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum, pageable.getSort());
         Page<Post> generalPosts = postJpa
                 .findByIsAnnouncementFalseAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum, pageable);
-        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>generalPosts.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
-        List<PostsListDto> postsListDto = new ArrayList<>();
-        for(Post post: announcementPosts) postsListDto.add(PostMapper.INSTANCE.PostToPostsListDto(post));
-        for(Post post: generalPosts) postsListDto.add(PostMapper.INSTANCE.PostToPostsListDto(post));
 
-        return Map.of(
-                "posts", postsListDto,
-                "totalPosts", generalPosts.getTotalElements()+announcementPosts.size(),
-                "totalPages", generalPosts.getTotalPages()
-        );
+        return getReturnContents(pageable, announcementPosts, generalPosts);
+
     }
+
+
 
     @Transactional
     public PostResponseDto getPostByPostId(String category, Integer postId) {
@@ -202,5 +204,39 @@ public class PostService {
                 .map(PostImg::getImgUrl).toList());
         if(!filesToDelete.isEmpty()) storageService.uploadCancel(filesToDelete.stream()
                 .map(PostAttachedFile::getFilePath).toList());
+    }
+
+    public MyPage<PostsListDto> searchPostList(Pageable pageable, String category, String keyword) {
+
+        if(keyword.length() < 2) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
+
+        Post.Category categoryEnum = Post.Category.pathToEnum(category);
+        List<Post> announcementPosts = postDaoQueryDsl.getAnnouncementPosts(categoryEnum, pageable.getSort());
+        Page<Post> generalPosts = postDaoQueryDsl.searchPostList(keyword, categoryEnum, pageable);
+        return getReturnContents(pageable, announcementPosts, generalPosts);
+    }
+
+    private MyPage<PostsListDto> getReturnContents(Pageable pageable, List<Post> announcementPosts, Page<Post> generalPosts) {
+        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>generalPosts.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        List<PostsListDto> postsListDto = Stream.concat(
+                        announcementPosts.stream(),
+                        generalPosts.stream()
+                )
+                .map(PostMapper.INSTANCE::PostToPostsListDto)
+                .toList();
+
+        return MyPage.<PostsListDto>builder()
+                .type(PostsListDto.class)
+                .content(postsListDto)
+                .totalElements(generalPosts.getTotalElements()+announcementPosts.size())
+                .totalPages( generalPosts.getTotalPages())
+                .build();
+    }
+
+    @Transactional
+    public void updateIsAnnouncement(int postId) {
+        Post post = postJpa.findById(postId).orElseThrow(
+                ()-> new NotFoundException("Post Not Found", postId));
+        post.updateIsAnnouncement();
     }
 }
