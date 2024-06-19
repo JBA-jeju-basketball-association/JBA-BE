@@ -35,13 +35,13 @@ public class CompetitionRecord {
     @Column(name = "home_name", nullable = false)
     private String homeName;
 
-    @Column(name = "home_score", nullable = false)
+    @Column(name = "home_score")
     private Integer homeScore;
 
     @Column(name = "away_name", nullable = false)
     private String awayName;
 
-    @Column(name = "away_score", nullable = false)
+    @Column(name = "away_score")
     private Integer awayScore;
 
     @Column(name = "crew_chief_id")
