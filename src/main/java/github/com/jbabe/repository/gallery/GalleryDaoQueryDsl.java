@@ -21,9 +21,28 @@ import java.util.Objects;
 public class GalleryDaoQueryDsl {
     private final JPAQueryFactory jpaQueryFactory;
 
-    public Page<Gallery> searchGalleryList(boolean official, String keyword, Pageable pageable){
+    private Page<Gallery> checkElementCountAndReturnPage(QGallery qGallery, BooleanExpression predicate,  List<Gallery> galleryList, Pageable pageable) {
+        Long total = jpaQueryFactory.select(qGallery.galleryId.count())
+                .from(qGallery)
+                .where(predicate)
+                .fetchOne();
+        return new PageImpl<>(galleryList, pageable, total != null ? total : 0);
+
+    }
+
+    public Page<Gallery> getGalleryList(Pageable pageable, boolean official) {
         QGallery qGallery = QGallery.gallery;
 
+        BooleanExpression predicate = qGallery.isOfficial.eq(official)
+                .and(qGallery.galleryStatus.eq(Gallery.GalleryStatus.NORMAL));
+
+            List<Gallery> galleryList = getGalleryListWithThumbnailQuery(qGallery, predicate, pageable);
+
+            return checkElementCountAndReturnPage(qGallery, predicate, galleryList, pageable);
+        }
+
+    public Page<Gallery> searchGalleryList(boolean official, String keyword, Pageable pageable){
+        QGallery qGallery = QGallery.gallery;
 
         BooleanExpression predicate = qGallery.isOfficial.eq(official)
                 .and(qGallery.name.containsIgnoreCase(keyword))
@@ -39,12 +58,7 @@ public class GalleryDaoQueryDsl {
 //            gallery.setGalleryImgs(List.of(galleryImg));
 //        });
 
-        Long total = jpaQueryFactory.select(qGallery.galleryId.count())
-                .from(qGallery)
-                .where(predicate)
-                .fetchOne();
-
-        return new PageImpl<>(galleryList, pageable, total != null ? total : 0);
+        return checkElementCountAndReturnPage(qGallery, predicate, galleryList, pageable);
     }
 
     private List<Gallery> getGalleryListWithThumbnailQuery(QGallery qGallery, BooleanExpression predicate, Pageable pageable) {
