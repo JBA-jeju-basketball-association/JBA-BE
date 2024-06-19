@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.crossstore.ChangeSetPersister;
 
 @Configuration
 public class SwaggerConfig {
@@ -33,7 +34,11 @@ public class SwaggerConfig {
                 .title("JBA Project")
                 .version(openApiVersion)
                 .description("제주특별자치도농구협회 홈페이지 프로젝트");
-
+        try {
+            throw new ChangeSetPersister.NotFoundException();
+        } catch (ChangeSetPersister.NotFoundException e) {
+            e.printStackTrace();
+}
         return new OpenAPI()
                 .components(new Components()
                         .addSecuritySchemes("access",
