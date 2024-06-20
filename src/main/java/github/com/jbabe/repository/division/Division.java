@@ -29,4 +29,9 @@ public class Division {
 
     @OneToMany(mappedBy = "division", fetch = FetchType.LAZY)
     private List<CompetitionRecord> competitionRecords;
+
+    @ManyToOne
+    @JoinColumn(name = "division_enum_id", nullable = false)
+    private DivisionEnum divisionEnum;
+
 }
