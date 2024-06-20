@@ -279,7 +279,7 @@ public interface PostControllerDocs {
                                     value = "{\n" +
                                             "  \"code\": 404,\n" +
                                             "  \"message\": \"NOT_FOUND\",\n" +
-                                            "  \"detailMessage\": \"Gallery Not Found\",\n" +
+                                            "  \"detailMessage\": \"Post Not Found\",\n" +
                                             "  \"request\": \"3\"\n" +
                                             "}")
                     })
@@ -298,6 +298,35 @@ public interface PostControllerDocs {
                     })
     )
     ResponseDto deletePost(
+            @Parameter(description = "게시물 고유 번호", example = "5")
+            int postId);
+
+    @Operation(summary = "게시물 공지 여부수정", description = "관리자 페이지에서 사용될 공지여부 수정 API 입니다.<br>공지일경우 공지가 아니게되고 공지가 아닐경우 공지로 변경됩니다.")
+    @ApiResponse(responseCode = "204",description = "요청 성공 NO_CONTENT 로 응답됩니다. ",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "공지여부 성공 예",
+                                    description = "⬆️⬆️ 성공!",
+                                    value = "{\n" +
+                                            "  \"code\": 204,\n" +
+                                            "  \"message\": \"NO_CONTENT\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "404", description = "해당 게시물 찾을 수 없음",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = " 게시물 찾을 수 없음",
+                                    description = "⬆️⬆️ 요청들어온 게시물 아이디가 DB상에 존재 하지 않을때",
+                                    value = "{\n" +
+                                            "  \"code\": 404,\n" +
+                                            "  \"message\": \"NOT_FOUND\",\n" +
+                                            "  \"detailMessage\": \"Post Not Found\",\n" +
+                                            "  \"request\": \"3\"\n" +
+                                            "}")
+                    })
+    )
+    ResponseDto updateIsAnnouncement(
             @Parameter(description = "게시물 고유 번호", example = "5")
             int postId);
 

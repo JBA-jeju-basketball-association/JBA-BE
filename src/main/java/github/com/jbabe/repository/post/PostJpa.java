@@ -15,6 +15,7 @@ public interface PostJpa extends JpaRepository<Post, Integer> {
     Page<Post> findByIsAnnouncementFalseAndPostStatusAndCategory(Post.PostStatus postStatus, Post.Category category, Pageable pageable);
     List<Post> findByIsAnnouncementTrueAndPostStatusAndCategory(Post.PostStatus postStatus, Post.Category category, Sort sort);
 
+
     @Query(
             "SELECT p " +
                     "FROM Post p " +

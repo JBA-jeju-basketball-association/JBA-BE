@@ -232,4 +232,11 @@ public class PostService {
                 .totalPages( generalPosts.getTotalPages())
                 .build();
     }
+
+    @Transactional
+    public void updateIsAnnouncement(int postId) {
+        Post post = postJpa.findById(postId).orElseThrow(
+                ()-> new NotFoundException("Post Not Found", postId));
+        post.updateIsAnnouncement();
+    }
 }

@@ -95,6 +95,10 @@ public class Post {
 
     }
 
+    public void updateIsAnnouncement() {
+        this.isAnnouncement = !this.isAnnouncement;
+    }
+
 
     @Getter
     public enum PostStatus{

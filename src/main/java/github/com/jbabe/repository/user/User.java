@@ -71,6 +71,9 @@ public class User {
     @Column(name = "lock_at")
     private LocalDateTime lockAt;
 
+    @Column(name = "login_at")
+    private LocalDateTime loginAt;
+
 
     @Getter
     public enum Gender{

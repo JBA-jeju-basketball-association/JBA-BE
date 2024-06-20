@@ -25,9 +25,16 @@ public class ResponseDto {
         this.message = HttpStatus.OK.name();
     }
 
+
+    public ResponseDto(HttpStatus httpStatus) {
+        this.code = httpStatus.value();
+        this.message = httpStatus.name();
+    }
+
     public ResponseDto(Object data) {
         this.code = HttpStatus.OK.value();
         this.message = HttpStatus.OK.name();
         this.data = data;
     }
+
 }

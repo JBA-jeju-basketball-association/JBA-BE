@@ -27,7 +27,7 @@ public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
                     "           WHEN :status = 'PROCEEDING' THEN (c.startDate < CURRENT_DATE AND c.endDate > CURRENT_DATE AND (c.startDate BETWEEN :startDateFilter AND :endDateFilter)) " +
                     "           WHEN :status = 'COMPLETE' THEN (c.endDate < CURRENT_DATE AND (c.startDate BETWEEN :startDateFilter AND :endDateFilter)) END " +
                     "GROUP BY c.competitionId " +
-                    "ORDER BY c.startDate DESC, c.competitionId DESC "
+                    "ORDER BY c.startDate DESC, c.endDate DESC, c.competitionId DESC "
     )
     Page<CompetitionListResponse> findAllCompetitionPagination(String status, Date startDateFilter, Date endDateFilter, Competition.CompetitionStatus competitionStatus, Pageable pageable);
 
