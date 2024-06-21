@@ -60,7 +60,10 @@ public class CompetitionDetailController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "404", description = "NOT_FOUND",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "대회를 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"해당 아이디와 일치하는 대회를 찾을 수 없습니다.\",\n \"request\": \"1\"\n}")
+                            examples = {
+                                    @ExampleObject(name = "대회를 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"해당 아이디와 일치하는 대회를 찾을 수 없습니다.\",\n \"request\": \"1\"\n}"),
+                                    @ExampleObject(name = "삭제되거나 숨겨진 대회", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"대회 조회가 불가능합니다.\",\n \"request\": \"DELETE OR HIDE\"\n}")
+                            }
                     ))
     })
     @GetMapping("/detail/{id}")

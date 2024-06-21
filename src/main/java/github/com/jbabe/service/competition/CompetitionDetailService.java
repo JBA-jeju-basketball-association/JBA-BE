@@ -61,6 +61,7 @@ public class CompetitionDetailService {
                 .endDate(addCompetitionRequest.getEndDate())
                 .relatedUrl(addCompetitionRequest.getRelatedURL())
                 .content(addCompetitionRequest.getCkData())
+                .phase(Competition.Phase.INFO)
                 .competitionStatus(Competition.CompetitionStatus.NORMAL)
                 .createAt(LocalDateTime.now())
                 .build();
@@ -115,6 +116,7 @@ public class CompetitionDetailService {
     public CompetitionDetailResponse getCompetitionDetail(Integer id) {
         Competition competition = competitionJpa.findById(id)
                 .orElseThrow(()-> new NotFoundException("해당 아이디와 일치하는 대회를 찾을 수 없습니다.", id));
+        if (!competition.getCompetitionStatus().equals(Competition.CompetitionStatus.NORMAL)) throw new NotFoundException("대회 조회가 불가능합니다.", competition.getCompetitionStatus());
         List<CompetitionPlace> competitionPlaces = competitionPlaceJpa.findAllByCompetition(competition);
         List<CompetitionAttachedFile> competitionAttachedFiles = competitionAttachedFileJpa.findAllByCompetition(competition);
         List<Division> divisions = divisionJpa.findAllByCompetition(competition);
