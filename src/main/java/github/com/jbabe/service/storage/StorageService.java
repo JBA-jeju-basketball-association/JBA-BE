@@ -2,12 +2,9 @@ package github.com.jbabe.service.storage;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
-import github.com.jbabe.repository.competitionAttachedFile.CompetitionAttachedFile;
 import github.com.jbabe.repository.competitionAttachedFile.CompetitionAttachedFileJpa;
 import github.com.jbabe.repository.competitionImg.CompetitionImgJpa;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecordJpa;
-import github.com.jbabe.repository.gallery.Gallery;
-import github.com.jbabe.repository.gallery.GalleryJpa;
 import github.com.jbabe.repository.galleryImg.GalleryImgJpa;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
 import github.com.jbabe.repository.postImg.PostImgJpa;
@@ -65,7 +62,7 @@ public class StorageService {
         String url = amazonS3Client.getUrl(bucketName, putObjectRequest.getKey()).toString();
         response.put("uploaded", true);
         response.put("url", url);
-
+        response.put("fileName", file.getOriginalFilename());
         return response;
     }
 

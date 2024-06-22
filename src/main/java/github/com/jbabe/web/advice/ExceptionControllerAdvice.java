@@ -3,7 +3,6 @@ package github.com.jbabe.web.advice;
 import github.com.jbabe.service.exception.*;
 import github.com.jbabe.web.advice.errorResponseDto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @Slf4j
 @RestControllerAdvice
@@ -132,5 +132,11 @@ public class ExceptionControllerAdvice {
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "RedisConnectionFail", ex.getDetailMessage(), ex.getRequest());
     }
 
+    @Hidden
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public ErrorResponse MultipartMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+        return new ErrorResponse(HttpStatus.PAYLOAD_TOO_LARGE.value(), ex.getMessage(), ex.getDetailMessageCode(), ex.getMaxUploadSize()+" 보다 큰사이즈임");
+    }
 
 }

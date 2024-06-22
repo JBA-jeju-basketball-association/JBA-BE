@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class NotAcceptableException extends RuntimeException{
     private String detailMessage;
-    private String request;
+    private Object request;
 
-    public NotAcceptableException(String detailMessage, String request) {
+    public NotAcceptableException(String detailMessage, Object request) {
         this.detailMessage = detailMessage;
         this.request = request;
     }
