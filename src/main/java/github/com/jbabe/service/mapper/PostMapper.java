@@ -4,6 +4,7 @@ import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.web.dto.post.ManagePostsDto;
 import github.com.jbabe.web.dto.post.PostReqDto;
 import github.com.jbabe.web.dto.post.PostResponseDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
@@ -41,6 +42,17 @@ public interface PostMapper {
     @Mapping(target = "createAt", ignore = true)
     @Mapping(target = "postImgs", ignore = true)
     Post PostRequestToPostEntity(PostReqDto postReqDto, Post.Category category, User user, boolean isOfficial);
+
+    // TODO: 관리자페이지 작업중 썸네일가져오는 로직필요
+    @Mapping(target = "title", source = "name")
+    @Mapping(target = "email", source = "user.email")
+    @Mapping(target = "files", source = "postAttachedFiles", qualifiedByName = "getPostAttachedFiles")
+    ManagePostsDto PostToManagePostsDto(Post post);
+
+//    @Named("getThumbnail")
+//    default String getThumbnail(Set<PostImg> postImg){
+//        return postImg..getImgUrl();
+//    }
 
     @Named("getImgUrl")
     default List<FileDto> imgUrl(Set<PostImg> postImgs){

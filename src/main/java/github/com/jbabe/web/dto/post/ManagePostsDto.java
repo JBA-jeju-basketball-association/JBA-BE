@@ -45,8 +45,8 @@ public class ManagePostsDto {
                 }
             ]""")
     private List<FileDto> files;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
+    private String createAt;
+    private String updateAt;
+    private String deleteAt;
     private Post.PostStatus postStatus;
 }
