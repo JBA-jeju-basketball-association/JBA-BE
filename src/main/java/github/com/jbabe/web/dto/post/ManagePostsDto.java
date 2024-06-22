@@ -12,12 +12,13 @@ import java.util.List;
 @Getter
 @Setter
 public class ManagePostsDto {
-    private int id;
+    private int postId;
     private String email;
-    private Post.Category category;
+    private String category;
     private String thumbnail;
     @Schema(description = "제목", example = "게시물 입니다.")
     private String title;
+    private String foreword;
     @Schema(description = "내용", example = "<p>POST 페이지 더미데이터입니다.</p>")
     private String content;
 
@@ -45,8 +46,9 @@ public class ManagePostsDto {
                 }
             ]""")
     private List<FileDto> files;
+    private String postStatus;
+    private Boolean isAnnouncement;
     private String createAt;
     private String updateAt;
     private String deleteAt;
-    private Post.PostStatus postStatus;
 }

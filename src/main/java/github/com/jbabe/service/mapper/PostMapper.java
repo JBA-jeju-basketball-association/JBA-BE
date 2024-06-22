@@ -47,6 +47,12 @@ public interface PostMapper {
     @Mapping(target = "title", source = "name")
     @Mapping(target = "email", source = "user.email")
     @Mapping(target = "files", source = "postAttachedFiles", qualifiedByName = "getPostAttachedFiles")
+    @Mapping(target = "thumbnail", source = "postImgs", qualifiedByName = "getThumbnail")
+    @Mapping(target = "postStatus", expression = "java(post.getPostStatus().getPath())")
+    @Mapping(target = "category", expression = "java(post.getCategory().getPath())")
+    @Mapping(target = "createAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "updateAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "deleteAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
     ManagePostsDto PostToManagePostsDto(Post post);
 
 //    @Named("getThumbnail")
@@ -58,6 +64,10 @@ public interface PostMapper {
     default List<FileDto> imgUrl(Set<PostImg> postImgs){
         //fileName과 imgUrl을 각각 변수에 삽입하여 FileDto 객체를 생성하여 반환
         return postImgs.stream().map(pI->new FileDto(pI.getFileName(),pI.getImgUrl())).toList();
+    }
+    @Named("getThumbnail")
+    default String getThumbnail(Set<PostImg> postImgs){
+        return postImgs.stream().findFirst().map(PostImg::getImgUrl).orElse(null);
     }
     @Named("getPostAttachedFiles")
     default List<FileDto> postAttachedFile(Set<PostAttachedFile> postAttachedFiles){

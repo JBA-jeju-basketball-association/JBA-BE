@@ -35,7 +35,7 @@ public class Post {
     private Integer postId;
 
     @JoinColumn(name = "user_id", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(name = "category", nullable = false)
@@ -102,7 +102,11 @@ public class Post {
 
     @Getter
     public enum PostStatus{
-        NORMAL, HIDE, DELETE
+        NORMAL("normal"), HIDE("hide"), DELETE("delete");
+        private final String path;
+        PostStatus(String path){
+            this.path=path;
+        }
     }
     @Getter
     public enum Category{
