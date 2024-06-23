@@ -2,8 +2,14 @@ package github.com.jbabe.repository.post;
 
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.group.Group;
+import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postAttachedFile.QPostAttachedFile;
 import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.postImg.QPostImg;
@@ -17,6 +23,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -91,43 +99,79 @@ public class PostDaoQueryDsl {
                 .toList();
     }
 
-    private List<Post> tuplesToPostEntityForManage(QPost qPost, QPostImg qPostImg, QUser qUser, List<Tuple> tuples) {
-//        Set<PostAttachedFile> postAttachedFiles = qPost.postAttachedFiles;
-
-        return tuples.stream().map(tuple-> {
-                    Post post = tuple.get(qPost);
-                    Objects.requireNonNull(post).setPostImgs(Collections.singleton(
-                            PostImg.builder()
-                                    .imgUrl(tuple.get(qPostImg.imgUrl))
-                                    .build()
-                    ));
-                    return post;
-                }).toList();
-    }
 
     public Page<Post> getPostsListFileFetch(Pageable pageable) {
         QPost qPost = QPost.post;
         QPostImg qPostImg = QPostImg.postImg;
-        QUser qUser = QUser.user;
         QPostAttachedFile qPostAttachedFile = QPostAttachedFile.postAttachedFile;
-        List<Post> tuples =  jpaQueryFactory
-                .select(qPost)
+
+        // 서브쿼리방식
+        List<Integer> postIds = jpaQueryFactory.select(qPost.postId)
                 .from(qPost)
-                .leftJoin(qPost.postAttachedFiles).fetchJoin()
-                .leftJoin(qPost.postImgs).fetchJoin()
-                .leftJoin(qPost.user).fetchJoin()
                 .orderBy(qPost.createAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-//        List<Post> posts = tuplesToPostEntityForManage(qPost, qPostImg, qUser, tuples);
 
+        List<PostAttachedFile> postAttachedFiles = jpaQueryFactory
+                .select(Projections.constructor(PostAttachedFile.class, qPostAttachedFile.post.postId, qPostAttachedFile.fileName, qPostAttachedFile.filePath))
+                .from(qPostAttachedFile)
+                .where(qPostAttachedFile.post.postId.in(postIds))
+                .fetch();
+
+        List<Post> postList =  jpaQueryFactory
+                .select(Projections.constructor(Post.class, qPost, qPost.user.email, qPostImg.imgUrl))
+                .from(qPost)
+                .leftJoin(qPost.postImgs, qPostImg)
+                .where(qPost.postId.in(postIds))
+                .groupBy(qPost.postId)
+                .orderBy(qPost.createAt.desc())
+                .fetch();
+        postList.forEach(post -> {
+            post.setPostAttachedFiles(postAttachedFiles.stream()
+                    .filter(postAttachedFile -> post.getPostId().equals(postAttachedFile.getPost().getPostId()))
+                    .collect(Collectors.toSet()));
+        });
+
+
+      /*  //패치조인 방식
+        List<Post> postList = jpaQueryFactory
+                .selectFrom(qPost)
+                .leftJoin(qPost.postAttachedFiles).fetchJoin()
+                .orderBy(qPost.createAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        List<Integer> postId = postList.stream().map(Post::getPostId).toList();
+        List<Tuple> emailAndImgUrl = jpaQueryFactory
+                .select(qPost.postId, qPost.user.email, qPostImg.imgUrl)
+                .from(qPost)
+                .leftJoin(qPost.postImgs, qPostImg)
+                .where(qPost.postId.in(postId))
+                .groupBy(qPost.postId)
+                .fetch();
+
+        Map<Integer, Tuple> emailAndImgUrlMap = emailAndImgUrl.stream()
+                .collect(Collectors.toMap(tuple -> tuple.get(qPost.postId), Function.identity()));
+
+        postList.forEach(post -> {
+            Tuple tuple = emailAndImgUrlMap.get(post.getPostId());
+            if(tuple.get(qPost.user.email) != null){
+                post.setUser(User.builder().email(tuple.get(qPost.user.email)).build());
+            }
+            if(tuple.get(qPostImg.imgUrl) != null){
+                post.setPostImgs(Collections.singleton(
+                        PostImg.builder().imgUrl(tuple.get(qPostImg.imgUrl)).build()
+                ));
+            }else post.setPostImgs(null);
+        });
+*/
 
 
         Long total = getPostTotalCount(qPost, null);
 
 
-        return new PageImpl<>(tuples, pageable, total != null ? total : 0);
+        return new PageImpl<>(postList, pageable, total != null ? total : 0);
 
     }
 }

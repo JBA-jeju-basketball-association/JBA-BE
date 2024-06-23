@@ -67,7 +67,7 @@ public interface PostMapper {
     }
     @Named("getThumbnail")
     default String getThumbnail(Set<PostImg> postImgs){
-        return postImgs.stream().findFirst().map(PostImg::getImgUrl).orElse(null);
+        return postImgs!=null?postImgs.stream().findFirst().map(PostImg::getImgUrl).orElse(null):null;
     }
     @Named("getPostAttachedFiles")
     default List<FileDto> postAttachedFile(Set<PostAttachedFile> postAttachedFiles){
