@@ -29,6 +29,9 @@ public class CompetitionRecord {
     @Column(name = "place", nullable = false)
     private String place;
 
+    @Column(name = "game_number", nullable = false)
+    private Integer gameNumber;
+
     @Column(name = "time", nullable = false)
     private LocalDateTime time;
 
