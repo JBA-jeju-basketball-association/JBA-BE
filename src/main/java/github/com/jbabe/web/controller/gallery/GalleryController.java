@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -76,6 +77,15 @@ public class GalleryController implements GalleryControllerDocs{
             throw new BadRequestException("SQLError", ex.getMessage());
         }
         return new ResponseDto();
+    }
+
+    @GetMapping("/manage")
+    public ResponseDto getManageGalleryList(@RequestParam(name = "page", defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "20") int size,
+                                            @RequestParam(required = false) String keyword) {
+        Pageable pageable = PageRequest.of(page, size);
+        if(keyword == null) return new ResponseDto(galleryService.getManageGalleryList(pageable));
+       else return new ResponseDto();
     }
 
 

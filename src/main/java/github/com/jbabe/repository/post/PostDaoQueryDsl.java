@@ -105,7 +105,7 @@ public class PostDaoQueryDsl {
         QPostImg qPostImg = QPostImg.postImg;
         QPostAttachedFile qPostAttachedFile = QPostAttachedFile.postAttachedFile;
 
-        // ¼­ºêÄõ¸®¹æ½Ä
+        // ì„œë¸Œì¿¼ë¦¬ë°©ì‹
         List<Integer> postIds = jpaQueryFactory.select(qPost.postId)
                 .from(qPost)
                 .orderBy(qPost.createAt.desc())
@@ -134,7 +134,7 @@ public class PostDaoQueryDsl {
         });
 
 
-      /*  //ÆĞÄ¡Á¶ÀÎ ¹æ½Ä
+      /*  //íŒ¨ì¹˜ì¡°ì¸ë°©ì‹
         List<Post> postList = jpaQueryFactory
                 .selectFrom(qPost)
                 .leftJoin(qPost.postAttachedFiles).fetchJoin()

@@ -6,6 +6,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.galleryImg.QGalleryImg;
+import github.com.jbabe.repository.user.QUser;
+import github.com.jbabe.repository.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,6 +42,11 @@ public class GalleryDaoQueryDsl {
 
             return checkElementCountAndReturnPage(qGallery, predicate, galleryList, pageable);
         }
+    public Page<Gallery> getGalleryManageList(Pageable pageable) {
+        QGallery qGallery = QGallery.gallery;
+        List<Gallery> galleries = getGalleryListWithUserEmailAndAllImages(qGallery, pageable);
+        return checkElementCountAndReturnPage(qGallery, null, galleries, pageable);
+    }
 
     public Page<Gallery> searchGalleryList(boolean official, String keyword, Pageable pageable){
         QGallery qGallery = QGallery.gallery;
@@ -59,6 +66,34 @@ public class GalleryDaoQueryDsl {
 //        });
 
         return checkElementCountAndReturnPage(qGallery, predicate, galleryList, pageable);
+    }
+    private List<Gallery> getGalleryListWithUserEmailAndAllImages(QGallery qGallery, Pageable pageable){
+        List<Tuple> results = jpaQueryFactory.select(qGallery, qGallery.user.email)
+                .from(qGallery)
+                .orderBy(qGallery.createAt.desc())
+                .groupBy(qGallery.galleryId)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        List<Integer> galleryIds = results.stream().map(tuple -> Objects.requireNonNull(tuple.get(qGallery)).getGalleryId()).toList();
+        QGalleryImg qGalleryImg = QGalleryImg.galleryImg;
+        List<GalleryImg> galleryImgs = jpaQueryFactory.select(qGalleryImg)
+                .from(qGalleryImg)
+                .where(qGalleryImg.gallery.galleryId.in(galleryIds))
+                .fetch();
+
+
+        return results.stream().map(tuple -> {
+            Gallery gallery = tuple.get(qGallery);
+            Objects.requireNonNull(gallery)
+                    .setUserEmail(tuple.get(qGallery.user.email));
+            gallery.setGalleryImgs(galleryImgs.stream()
+                    .filter(galleryImg -> galleryImg.getGallery().getGalleryId().equals(gallery.getGalleryId()))
+                    .toList());
+
+            return gallery;
+        }).toList();
     }
 
     private List<Gallery> getGalleryListWithThumbnailQuery(QGallery qGallery, BooleanExpression predicate, Pageable pageable) {

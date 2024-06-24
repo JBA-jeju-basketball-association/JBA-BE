@@ -81,9 +81,13 @@ public class Post {
 //        if (this.isAnnouncement == null) this.isAnnouncement = false;
 //        this.postStatus = PostStatus.NORMAL;
 //    }
+public void setUserEmail(String email){
+    this.user = new User();
+    this.user.setEmail(email);
+}
     public Post(Post post, String userEmail, String thumbnail){
         this.postId = post.getPostId();
-        this.user = User.builder().email(userEmail).build();
+        setUserEmail(userEmail);
         this.category = post.getCategory();
         this.name = post.getName();
         this.content = post.getContent();

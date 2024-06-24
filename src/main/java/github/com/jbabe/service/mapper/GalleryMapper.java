@@ -1,14 +1,19 @@
 package github.com.jbabe.service.mapper;
 
 import github.com.jbabe.repository.gallery.Gallery;
+import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
+import github.com.jbabe.web.dto.gallery.ManageGalleryDto;
+import github.com.jbabe.web.dto.storage.FileDto;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 @Mapper
 public interface GalleryMapper {
@@ -34,5 +39,12 @@ public interface GalleryMapper {
         gallery.getGalleryImgs().forEach(gI->gI.setGallery(gallery));
     }
 
+    @Mapping(target = "files", source = "gallery.galleryImgs")
+    @Mapping(target = "email", source = "gallery.user.email")
+    @Mapping(target = "title", source = "gallery.name")
+    ManageGalleryDto GalleryToManageGalleryDto(Gallery gallery, String thumbnail);
 
-}
+    @Mapping(target = "fileId", source = "galleryImgId")
+    FileDto galleryImgToFileDto(GalleryImg galleryImg);
+
+    List<FileDto> galleryImgsToFileDtos(List<GalleryImg> galleryImgs);}

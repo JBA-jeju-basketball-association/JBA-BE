@@ -13,6 +13,7 @@ import github.com.jbabe.service.mapper.GalleryMapper;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
+import github.com.jbabe.web.dto.gallery.ManageGalleryDto;
 import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
@@ -164,5 +165,28 @@ public class GalleryService {
         Page<Gallery> galleryPages =  galleryDaoQueryDsl.searchGalleryList(official, keyword,pageable);
 
         return makeResponseListAndToMyPage(galleryPages, pageable);
+    }
+
+    public MyPage<ManageGalleryDto> getManageGalleryList(Pageable pageable){
+        Page<Gallery> galleries = galleryDaoQueryDsl.getGalleryManageList(pageable);
+        return makeResponseListAndToMyPageForManage(galleries, pageable);
+    }
+
+    private MyPage<ManageGalleryDto> makeResponseListAndToMyPageForManage(Page<Gallery> galleries, Pageable pageable) {
+        if(pageable.getPageNumber()+1>galleries.getTotalPages()&&pageable.getPageNumber()!=0)
+            throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        List<ManageGalleryDto> responseList =  galleries.stream()
+                .map(gallery -> GalleryMapper.INSTANCE
+                        .GalleryToManageGalleryDto(gallery,
+                                gallery.getGalleryImgs().isEmpty()?"https://www.irisoele.com/img/noimage.png":
+                                        gallery.getGalleryImgs().get(0).getFileUrl()))
+                .toList();
+
+        return MyPage.<ManageGalleryDto>builder()
+                .type(ManageGalleryDto.class)
+                .content(responseList)
+                .totalElements(galleries.getTotalElements())
+                .totalPages(galleries.getTotalPages())
+                .build();
     }
 }

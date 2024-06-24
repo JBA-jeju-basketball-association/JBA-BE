@@ -64,5 +64,10 @@ public class Gallery {
         NORMAL, HIDE, DELETE
     }
 
+    public void setUserEmail(String email){
+        this.user = new User();
+        this.user.setEmail(email);
+    }
+
 
 }

@@ -14,10 +14,7 @@ import github.com.jbabe.service.mapper.PostMapper;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.myPage.MyPage;
-import github.com.jbabe.web.dto.post.PostModifyDto;
-import github.com.jbabe.web.dto.post.PostReqDto;
-import github.com.jbabe.web.dto.post.PostResponseDto;
-import github.com.jbabe.web.dto.post.PostsListDto;
+import github.com.jbabe.web.dto.post.*;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -244,8 +241,16 @@ public class PostService {
 //    @Transactional(readOnly = true)
     public Object getManagePostsList(Pageable pageable) {
         Page<Post> postList = postDaoQueryDsl.getPostsListFileFetch(pageable);
-        return postList.stream()
-                .map(PostMapper.INSTANCE::PostToManagePostsDto)
-                .toList();
+        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>postList.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        return MyPage.<ManagePostsDto>builder()
+                .type(ManagePostsDto.class)
+                .content(postList.stream()
+                        .map(PostMapper.INSTANCE::PostToManagePostsDto)
+                        .toList())
+                .totalElements(postList.getTotalElements())
+                .totalPages( postList.getTotalPages())
+                .build();
+
+
     }
 }
