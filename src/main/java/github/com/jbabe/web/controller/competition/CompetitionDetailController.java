@@ -45,7 +45,7 @@ public class CompetitionDetailController {
                             examples = @ExampleObject(name = "유저를 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"user을 찾을 수 없습니다.\",\n \"request\": 10\n}")
                     ))
     })
-    @PostMapping("/add-competition-info")
+    @PostMapping("/post/competition-info")
     public ResponseDto addCompetition(@RequestPart("requestData") @Valid AddCompetitionRequest addCompetitionRequest,
                                       @RequestPart(value = "requestFiles",required = false) List<MultipartFile> files,
                                       @RequestParam(required = false) Optional<SaveFileType> type,
@@ -94,7 +94,7 @@ public class CompetitionDetailController {
                             examples = @ExampleObject(name = "이미 결과에 입력된 종별이라 삭제 불가", value = "{\n  \"code\": 409,\n  \"message\": \"CONFLICT\",\n \"detailMessage\": \"해당 종별은 결과가 이미 입력되어 있어 삭제가 불가능합니다.\",\n \"request\": \"element\"\n}")
                     ))
     })
-    @PostMapping("/update-competition-info/{id}")
+    @PostMapping("/update/competition-info/{id}")
     public ResponseDto updateCompetition(@PathVariable Integer id,
                                          @RequestPart("requestData") @Valid UpdateCompetitionRequest updateCompetitionRequest,
                                          @RequestPart(value = "requestFiles",required = false)List<MultipartFile> files,
