@@ -13,7 +13,9 @@ import github.com.jbabe.web.dto.post.PostsListDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -107,6 +109,21 @@ public class PostController implements PostControllerDocs{
     public ResponseDto deletePost(@PathVariable int postId){
         postService.deletePost(postId);
         return new ResponseDto();
+    }
+
+    @PutMapping("/{postId}/is-announcement")
+    public ResponseDto updateIsAnnouncement(@PathVariable int postId){
+        postService.updateIsAnnouncement(postId);
+        return new ResponseDto(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/manage")
+    public ResponseDto getManagePostsList(@RequestParam(name = "page", defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "20") int size,
+                                          @RequestParam(required = false) String keyword){
+        Pageable pageable = PageRequest.of(page, size);
+        if(keyword == null) return new ResponseDto(postService.getManagePostsList(pageable));
+        else return new ResponseDto();
     }
 
 }

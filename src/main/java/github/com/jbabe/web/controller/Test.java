@@ -63,10 +63,7 @@ public class Test {
     }
     @GetMapping("/testSihu2")
     public Object test2(){
-        return MyPage.<Post>builder()
-                .type(Post.class)
-                .content(new ArrayList<>())
-                .totalElements(0).totalPages(0).build();
+        return LocalDateTime.now();
     }
 
 

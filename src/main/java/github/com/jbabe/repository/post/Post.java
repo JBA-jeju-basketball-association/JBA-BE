@@ -13,10 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "post")
@@ -35,7 +32,7 @@ public class Post {
     private Integer postId;
 
     @JoinColumn(name = "user_id", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(name = "category", nullable = false)
@@ -84,6 +81,23 @@ public class Post {
 //        if (this.isAnnouncement == null) this.isAnnouncement = false;
 //        this.postStatus = PostStatus.NORMAL;
 //    }
+    public Post(Post post, String userEmail, String thumbnail){
+        this.postId = post.getPostId();
+        this.user = User.builder().email(userEmail).build();
+        this.category = post.getCategory();
+        this.name = post.getName();
+        this.content = post.getContent();
+        this.viewCount = post.getViewCount();
+        this.postStatus = post.getPostStatus();
+        this.isAnnouncement = post.getIsAnnouncement();
+        this.createAt = post.getCreateAt();
+        this.updateAt = post.getUpdateAt();
+        this.deleteAt = post.getDeleteAt();
+        if(thumbnail!=null) this.postImgs = new HashSet<>(Collections.singletonList(
+                PostImg.builder().imgUrl(thumbnail).build())
+        );
+        this.foreword = post.getForeword();
+    }
 
     public void notifyAndEditSubjectLineContent(PostModifyDto postModifyDto, Boolean isOfficial) {
         if(isOfficial!=null) this.isAnnouncement = isOfficial;
@@ -95,10 +109,18 @@ public class Post {
 
     }
 
+    public void updateIsAnnouncement() {
+        this.isAnnouncement = !this.isAnnouncement;
+    }
+
 
     @Getter
     public enum PostStatus{
-        NORMAL, HIDE, DELETE
+        NORMAL("normal"), HIDE("hide"), DELETE("delete");
+        private final String path;
+        PostStatus(String path){
+            this.path=path;
+        }
     }
     @Getter
     public enum Category{

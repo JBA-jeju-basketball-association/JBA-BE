@@ -25,4 +25,10 @@ public class PostAttachedFile {
     private String filePath;
     @Column(name = "file_name", nullable = false)
     private String fileName;
+
+    public PostAttachedFile(Integer postId, String filePath, String fileName) {
+        this.post = Post.builder().postId(postId).build();
+        this.filePath = filePath;
+        this.fileName = fileName;
+    }
 }

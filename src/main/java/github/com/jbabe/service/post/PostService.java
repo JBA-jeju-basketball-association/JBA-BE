@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -231,5 +232,20 @@ public class PostService {
                 .totalElements(generalPosts.getTotalElements()+announcementPosts.size())
                 .totalPages( generalPosts.getTotalPages())
                 .build();
+    }
+
+    @Transactional
+    public void updateIsAnnouncement(int postId) {
+        Post post = postJpa.findById(postId).orElseThrow(
+                ()-> new NotFoundException("Post Not Found", postId));
+        post.updateIsAnnouncement();
+    }
+
+//    @Transactional(readOnly = true)
+    public Object getManagePostsList(Pageable pageable) {
+        Page<Post> postList = postDaoQueryDsl.getPostsListFileFetch(pageable);
+        return postList.stream()
+                .map(PostMapper.INSTANCE::PostToManagePostsDto)
+                .toList();
     }
 }
