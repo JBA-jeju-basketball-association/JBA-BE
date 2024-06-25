@@ -38,11 +38,7 @@ public class PostController implements PostControllerDocs{
                                        @RequestParam(defaultValue = "10") int size,
                                        @RequestParam(required = false) String keyword,
                                        @PathVariable String category) {
-        MyPage<PostsListDto> contents = keyword == null ?
-                postService.getAllPostsList(
-                        PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
-                        , category):
-                postService.searchPostList(
+        MyPage<PostsListDto> contents = postService.searchPostList(
                         PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
                         , category, keyword);
 

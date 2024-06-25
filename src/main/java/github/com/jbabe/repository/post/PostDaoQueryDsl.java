@@ -31,13 +31,16 @@ import java.util.stream.Collectors;
 public class PostDaoQueryDsl {
     private final JPAQueryFactory jpaQueryFactory;
 
+    private final QPost qPost = QPost.post;
+    private final QPostImg qPostImg = QPostImg.postImg;
+    private final QPostAttachedFile qPostAttachedFile = QPostAttachedFile.postAttachedFile;
+
     public Page<Post> searchPostList(String keyword, Post.Category category, Pageable pageable){
-        QPost qPost = QPost.post;
+//        QPost qPost = QPost.post;
         BooleanExpression predicate = qPost.category.eq(category)
-                .and(qPost.name.containsIgnoreCase(keyword))
                 .and(qPost.isAnnouncement.eq(false))
                 .and(qPost.postStatus.eq(Post.PostStatus.NORMAL));
-
+        if(keyword!=null) predicate = predicate.and(qPost.name.containsIgnoreCase(keyword));
         List<Post> postList = getPostListQuery(qPost, predicate, pageable);
 
 
@@ -71,7 +74,6 @@ public class PostDaoQueryDsl {
 
 
     public List<Post> getAnnouncementPosts(Post.Category categoryEnum, Sort sort) {
-        QPost qPost = QPost.post;
         List<Tuple> tuples = jpaQueryFactory
                 .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount, qPost.foreword)
                 .from(qPost)
@@ -101,10 +103,6 @@ public class PostDaoQueryDsl {
 
 
     public Page<Post> getPostsListFileFetch(Pageable pageable) {
-        QPost qPost = QPost.post;
-        QPostImg qPostImg = QPostImg.postImg;
-        QPostAttachedFile qPostAttachedFile = QPostAttachedFile.postAttachedFile;
-
         // 서브쿼리방식
         List<Integer> postIds = jpaQueryFactory.select(qPost.postId)
                 .from(qPost)
@@ -114,7 +112,7 @@ public class PostDaoQueryDsl {
                 .fetch();
 
         List<PostAttachedFile> postAttachedFiles = jpaQueryFactory
-                .select(Projections.constructor(PostAttachedFile.class, qPostAttachedFile.post.postId, qPostAttachedFile.fileName, qPostAttachedFile.filePath))
+                .select(qPostAttachedFile)
                 .from(qPostAttachedFile)
                 .where(qPostAttachedFile.post.postId.in(postIds))
                 .fetch();
@@ -130,7 +128,7 @@ public class PostDaoQueryDsl {
         postList.forEach(post -> {
             post.setPostAttachedFiles(postAttachedFiles.stream()
                     .filter(postAttachedFile -> post.getPostId().equals(postAttachedFile.getPost().getPostId()))
-                    .collect(Collectors.toSet()));
+                    .toList());
         });
 
 
@@ -173,5 +171,29 @@ public class PostDaoQueryDsl {
 
         return new PageImpl<>(postList, pageable, total != null ? total : 0);
 
+    }
+
+    public Optional<Post> getPostJoinFiles(Integer postId) {
+        Tuple postTuple = jpaQueryFactory
+                .select(qPost, qPost.user.name)
+                .from(qPost)
+                .leftJoin(qPost.user, QUser.user)
+                .where(qPost.postId.eq(postId))
+                .fetchOne();
+        List<PostAttachedFile> postAttachedFiles = jpaQueryFactory
+                .selectFrom(qPostAttachedFile)
+                .where(qPostAttachedFile.post.postId.eq(postId))
+                .fetch();
+        List<PostImg> postImgs = jpaQueryFactory
+                .selectFrom(qPostImg)
+                .where(qPostImg.post.postId.eq(postId))
+                .fetch();
+        Optional<Post> post = Optional.ofNullable(postTuple).map(tuple -> tuple.get(qPost));
+        post.ifPresent(p -> {
+            p.setTempWriterName(postTuple.get(qPost.user.name));
+            p.setPostAttachedFiles(postAttachedFiles);
+            p.setPostImgs(postImgs);
+        });
+        return post;
     }
 }

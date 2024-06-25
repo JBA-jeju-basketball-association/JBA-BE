@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Service
@@ -41,26 +38,29 @@ public class PostService {
     private final PostAttachedFileJpa postAttachedFileJpa;
     private final StorageService storageService;
 
-
+/* 키워드검색이랑 통합
     public MyPage<PostsListDto> getAllPostsList(Pageable pageable, String category) {
 
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
 
-        List<Post> announcementPosts = postJpa
-                .findByIsAnnouncementTrueAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum, pageable.getSort());
+
+
+        List<Post> announcementPosts = postDaoQueryDsl.getAnnouncementPosts(categoryEnum, pageable.getSort());
         Page<Post> generalPosts = postJpa
                 .findByIsAnnouncementFalseAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum, pageable);
 
         return getReturnContents(pageable, announcementPosts, generalPosts);
 
-    }
+    }*/
 
 
 
     @Transactional
     public PostResponseDto getPostByPostId(String category, Integer postId) {
 
-        Post post = postJpa.findByIdUrlsJoin(Post.Category.pathToEnum(category), postId).orElseThrow(
+//        Post post = postJpa.findByIdUrlsJoin(Post.Category.pathToEnum(category), postId).orElseThrow(
+//                ()-> new NotFoundException("Post Not Found", postId));
+        Post post = postDaoQueryDsl.getPostJoinFiles(postId).orElseThrow(
                 ()-> new NotFoundException("Post Not Found", postId));
 
         post.increaseViewCount();
@@ -131,10 +131,10 @@ public class PostService {
     }
 
     private void checkAndDeleteFiles(Post originPost, List<FileDto> remainingFiles) {
-        Set<PostAttachedFile> originPostPostAttachedFiles = originPost.getPostAttachedFiles();
+        List<PostAttachedFile> originPostPostAttachedFiles = originPost.getPostAttachedFiles();
         //기존 파일들 중 삭제된 파일들을 찾아 삭제
         if(!CollectionUtils.isEmpty(remainingFiles) && !CollectionUtils.isEmpty(originPostPostAttachedFiles)){
-            Set<PostAttachedFile> filesToBeDeleted = getFilesToBeDeleted(originPostPostAttachedFiles, remainingFiles);
+            List<PostAttachedFile> filesToBeDeleted = getFilesToBeDeleted(originPostPostAttachedFiles, remainingFiles);
             originPost.getPostAttachedFiles().removeAll(filesToBeDeleted);
             postAttachedFileJpa.deleteAll(filesToBeDeleted);
         }//남긴 파일이 없을경우 기존 파일들을 모두 삭제
@@ -147,10 +147,10 @@ public class PostService {
     }
 
     private void checkAndDeleteImages(Post originPost, List<FileDto> remainingImgs) {
-        Set<PostImg> originImgs = originPost.getPostImgs();
+        List<PostImg> originImgs = originPost.getPostImgs();
         //기존 이미지 중 삭제된 파일들을 찾아 삭제
         if(!CollectionUtils.isEmpty(remainingImgs) && !CollectionUtils.isEmpty(originImgs)){
-            Set<PostImg> imgsToBeDeleted = getImagesToBeDeleted(originImgs, remainingImgs);
+            List<PostImg> imgsToBeDeleted = getImagesToBeDeleted(originImgs, remainingImgs);
             originPost.getPostImgs().removeAll(imgsToBeDeleted);
             postImgJpa.deleteAll(imgsToBeDeleted);
         }//남긴 이미지가 없을경우 기존 이미지들을 모두 삭제
@@ -162,8 +162,8 @@ public class PostService {
         }
     }
 
-    private Set<PostImg> getImagesToBeDeleted(Set<PostImg> originImgs, List<FileDto> remainingImgs) {
-        Set<PostImg> imgsToBeDeleted = new HashSet<>();
+    private List<PostImg> getImagesToBeDeleted(List<PostImg> originImgs, List<FileDto> remainingImgs) {
+        List<PostImg> imgsToBeDeleted = new ArrayList<>();
         for(PostImg postImg: originImgs){
             if(remainingImgs.stream().noneMatch(f->f.getFileUrl().equals(postImg.getImgUrl()))){
                 imgsToBeDeleted.add(postImg);
@@ -174,8 +174,8 @@ public class PostService {
         return imgsToBeDeleted;
     }
 
-    private Set<PostAttachedFile> getFilesToBeDeleted(Set<PostAttachedFile> originFiles, List<FileDto> remainingFiles) {
-        Set<PostAttachedFile> filesToBeDeleted = new HashSet<>();
+    private List<PostAttachedFile> getFilesToBeDeleted(List<PostAttachedFile> originFiles, List<FileDto> remainingFiles) {
+        List<PostAttachedFile> filesToBeDeleted = new ArrayList<>();
         for(PostAttachedFile postAttachedFile: originFiles){
             if(remainingFiles.stream().noneMatch(f->f.getFileUrl().equals(postAttachedFile.getFilePath()))){
                 filesToBeDeleted.add(postAttachedFile);
@@ -206,8 +206,7 @@ public class PostService {
 
     public MyPage<PostsListDto> searchPostList(Pageable pageable, String category, String keyword) {
 
-        if(keyword.length() < 2) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
-
+        if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
         List<Post> announcementPosts = postDaoQueryDsl.getAnnouncementPosts(categoryEnum, pageable.getSort());
         Page<Post> generalPosts = postDaoQueryDsl.searchPostList(keyword, categoryEnum, pageable);

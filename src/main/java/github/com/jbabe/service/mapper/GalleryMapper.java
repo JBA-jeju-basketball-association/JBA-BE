@@ -42,6 +42,10 @@ public interface GalleryMapper {
     @Mapping(target = "files", source = "gallery.galleryImgs")
     @Mapping(target = "email", source = "gallery.user.email")
     @Mapping(target = "title", source = "gallery.name")
+    @Mapping(target = "createAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "updateAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "deleteAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "galleryStatus", expression = "java(gallery.getGalleryStatus().getPath())")
     ManageGalleryDto GalleryToManageGalleryDto(Gallery gallery, String thumbnail);
 
     @Mapping(target = "fileId", source = "galleryImgId")
