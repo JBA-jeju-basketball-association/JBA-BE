@@ -18,7 +18,7 @@ public class PostAttachedFile {
     private Integer postAttachedFileId;
 
     @JoinColumn(name = "post_id", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
     @Column(name = "file_path", nullable = false)
@@ -26,9 +26,4 @@ public class PostAttachedFile {
     @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    public PostAttachedFile(Integer postId, String filePath, String fileName) {
-        this.post = Post.builder().postId(postId).build();
-        this.filePath = filePath;
-        this.fileName = fileName;
-    }
 }

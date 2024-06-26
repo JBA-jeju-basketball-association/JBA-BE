@@ -60,8 +60,15 @@ public class Gallery {
     }
 
     @Getter
+    @AllArgsConstructor
     public enum GalleryStatus {
-        NORMAL, HIDE, DELETE
+        NORMAL("normal"), HIDE("hide"), DELETE("delete");
+        private final String path;
+    }
+
+    public void setUserEmail(String email){
+        this.user = new User();
+        this.user.setEmail(email);
     }
 
 

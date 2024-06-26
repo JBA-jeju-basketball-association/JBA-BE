@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
+import github.com.jbabe.web.dto.gallery.ManageGalleryDto;
+import github.com.jbabe.web.dto.post.ManagePostsDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
 
 import java.io.IOException;
@@ -17,10 +19,10 @@ public class MyPageSerializer extends JsonSerializer<MyPage<?>> {
 
         gen.writeNumberField("totalPages", response.getTotalPages());
 
-        if (response.getType() == PostsListDto.class) {
+        if (response.getType() == PostsListDto.class|| response.getType() == ManagePostsDto.class ){
             gen.writeNumberField("totalPosts", response.getTotalElements());
             gen.writeObjectField("posts", response.getContent());
-        } else if (response.getType() == GalleryListDto.class) {
+        } else if (response.getType() == GalleryListDto.class || response.getType() == ManageGalleryDto.class){
             gen.writeNumberField("totalGalleries", response.getTotalElements());
             gen.writeObjectField("galleries", response.getContent());
         } else {

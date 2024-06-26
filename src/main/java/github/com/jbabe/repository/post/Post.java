@@ -67,13 +67,16 @@ public class Post {
     private LocalDateTime deleteAt;
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Set<PostAttachedFile> postAttachedFiles;
+    private List<PostAttachedFile> postAttachedFiles;
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Set<PostImg> postImgs;
+    private List<PostImg> postImgs;
 
     @Column(name = "foreword")
     private String foreword;
+
+    @Transient
+    private String tempWriterName;
 
 //    public void defaultValue() {
 //        this.viewCount = 0;
@@ -81,9 +84,13 @@ public class Post {
 //        if (this.isAnnouncement == null) this.isAnnouncement = false;
 //        this.postStatus = PostStatus.NORMAL;
 //    }
+public void setUserEmail(String email){
+    this.user = new User();
+    this.user.setEmail(email);
+}
     public Post(Post post, String userEmail, String thumbnail){
         this.postId = post.getPostId();
-        this.user = User.builder().email(userEmail).build();
+        setUserEmail(userEmail);
         this.category = post.getCategory();
         this.name = post.getName();
         this.content = post.getContent();
@@ -93,7 +100,7 @@ public class Post {
         this.createAt = post.getCreateAt();
         this.updateAt = post.getUpdateAt();
         this.deleteAt = post.getDeleteAt();
-        if(thumbnail!=null) this.postImgs = new HashSet<>(Collections.singletonList(
+        if(thumbnail!=null) this.postImgs = new ArrayList<>(Collections.singletonList(
                 PostImg.builder().imgUrl(thumbnail).build())
         );
         this.foreword = post.getForeword();
@@ -115,20 +122,16 @@ public class Post {
 
 
     @Getter
+    @AllArgsConstructor
     public enum PostStatus{
         NORMAL("normal"), HIDE("hide"), DELETE("delete");
         private final String path;
-        PostStatus(String path){
-            this.path=path;
-        }
     }
     @Getter
+    @AllArgsConstructor
     public enum Category{
         NOTICE("notice"), NEWS("news"), LIBRARY("library");
         private final String path;
-        Category(String path){
-            this.path=path;
-        }
         public static Category pathToEnum(String path){
             for(Category c: EnumSet.allOf(Category.class)) if(c.path.equals(path)) return c;
             throw new BadRequestException("Category Incorrectly Entered", path);
@@ -141,10 +144,10 @@ public class Post {
 
     public void addFiles(List<FileDto> files, List<FileDto> imgs){
         if(this.postImgs == null) {
-            this.postImgs = new HashSet<>();
+            this.postImgs = new ArrayList<>();
         }
         if(this.postAttachedFiles == null) {
-            this.postAttachedFiles = new HashSet<>();
+            this.postAttachedFiles = new ArrayList<>();
         }
         if(files!=null && !files.isEmpty() ){
             for(FileDto f: files) {

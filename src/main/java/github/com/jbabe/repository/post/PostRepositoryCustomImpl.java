@@ -2,12 +2,8 @@ package github.com.jbabe.repository.post;
 
 
 import com.querydsl.core.Tuple;
-import com.querydsl.core.group.Group;
-import com.querydsl.core.group.GroupBy;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postAttachedFile.QPostAttachedFile;
@@ -15,29 +11,32 @@ import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.postImg.QPostImg;
 import github.com.jbabe.repository.user.QUser;
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
-@Repository
+
 @RequiredArgsConstructor
-public class PostDaoQueryDsl {
+public class PostRepositoryCustomImpl implements PostRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
 
+    private final QPost qPost = QPost.post;
+    private final QPostImg qPostImg = QPostImg.postImg;
+    private final QPostAttachedFile qPostAttachedFile = QPostAttachedFile.postAttachedFile;
+
+    @Override
     public Page<Post> searchPostList(String keyword, Post.Category category, Pageable pageable){
-        QPost qPost = QPost.post;
+//        QPost qPost = QPost.post;
         BooleanExpression predicate = qPost.category.eq(category)
-                .and(qPost.name.containsIgnoreCase(keyword))
                 .and(qPost.isAnnouncement.eq(false))
                 .and(qPost.postStatus.eq(Post.PostStatus.NORMAL));
-
+        if(keyword!=null) predicate = predicate.and(qPost.name.containsIgnoreCase(keyword));
         List<Post> postList = getPostListQuery(qPost, predicate, pageable);
 
 
@@ -70,8 +69,8 @@ public class PostDaoQueryDsl {
     }
 
 
+    @Override
     public List<Post> getAnnouncementPosts(Post.Category categoryEnum, Sort sort) {
-        QPost qPost = QPost.post;
         List<Tuple> tuples = jpaQueryFactory
                 .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount, qPost.foreword)
                 .from(qPost)
@@ -100,21 +99,34 @@ public class PostDaoQueryDsl {
     }
 
 
-    public Page<Post> getPostsListFileFetch(Pageable pageable) {
-        QPost qPost = QPost.post;
-        QPostImg qPostImg = QPostImg.postImg;
-        QPostAttachedFile qPostAttachedFile = QPostAttachedFile.postAttachedFile;
+    @Override
+    public Page<Post> getPostsListFileFetch(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum) {
+        BooleanExpression predicate = null;
+        if (categoryEnum != null) predicate = qPost.category.eq(categoryEnum);
+        if (keyword != null) {
+            predicate = switch (searchCriteria) {
+                case TITLE ->
+                        predicate != null ? predicate.and(qPost.name.containsIgnoreCase(keyword)) : qPost.name.containsIgnoreCase(keyword);
+                case EMAIL ->
+                        predicate != null ? predicate.and(qPost.user.email.containsIgnoreCase(keyword)) : qPost.user.email.containsIgnoreCase(keyword);
+                case CONTENT ->
+                        predicate != null ? predicate.and(qPost.content.containsIgnoreCase(keyword)) : qPost.content.containsIgnoreCase(keyword);
+                case ID ->
+                        predicate != null ? predicate.and(qPost.postId.eq(Integer.valueOf(keyword))) : qPost.postId.eq(Integer.valueOf(keyword));
+            };
+        }
 
-        // º≠∫Íƒı∏ÆπÊΩƒ
+        // ÏÑúÎ∏åÏøºÎ¶¨Î∞©Ïãù
         List<Integer> postIds = jpaQueryFactory.select(qPost.postId)
                 .from(qPost)
+                .where(predicate)
                 .orderBy(qPost.createAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         List<PostAttachedFile> postAttachedFiles = jpaQueryFactory
-                .select(Projections.constructor(PostAttachedFile.class, qPostAttachedFile.post.postId, qPostAttachedFile.fileName, qPostAttachedFile.filePath))
+                .select(qPostAttachedFile)
                 .from(qPostAttachedFile)
                 .where(qPostAttachedFile.post.postId.in(postIds))
                 .fetch();
@@ -130,11 +142,11 @@ public class PostDaoQueryDsl {
         postList.forEach(post -> {
             post.setPostAttachedFiles(postAttachedFiles.stream()
                     .filter(postAttachedFile -> post.getPostId().equals(postAttachedFile.getPost().getPostId()))
-                    .collect(Collectors.toSet()));
+                    .toList());
         });
 
 
-      /*  //∆–ƒ°¡∂¿Œ πÊΩƒ
+      /*  //Ìå®ÏπòÏ°∞Ïù∏Î∞©Ïãù
         List<Post> postList = jpaQueryFactory
                 .selectFrom(qPost)
                 .leftJoin(qPost.postAttachedFiles).fetchJoin()
@@ -168,10 +180,35 @@ public class PostDaoQueryDsl {
 */
 
 
-        Long total = getPostTotalCount(qPost, null);
+        Long total = getPostTotalCount(qPost, predicate);
 
 
         return new PageImpl<>(postList, pageable, total != null ? total : 0);
 
+    }
+
+    @Override
+    public Optional<Post> getPostJoinFiles(Integer postId) {
+        Tuple postTuple = jpaQueryFactory
+                .select(qPost, qPost.user.name)
+                .from(qPost)
+                .leftJoin(qPost.user, QUser.user)
+                .where(qPost.postId.eq(postId))
+                .fetchOne();
+        List<PostAttachedFile> postAttachedFiles = jpaQueryFactory
+                .selectFrom(qPostAttachedFile)
+                .where(qPostAttachedFile.post.postId.eq(postId))
+                .fetch();
+        List<PostImg> postImgs = jpaQueryFactory
+                .selectFrom(qPostImg)
+                .where(qPostImg.post.postId.eq(postId))
+                .fetch();
+        Optional<Post> post = Optional.ofNullable(postTuple).map(tuple -> tuple.get(qPost));
+        post.ifPresent(p -> {
+            p.setTempWriterName(postTuple.get(qPost.user.name));
+            p.setPostAttachedFiles(postAttachedFiles);
+            p.setPostImgs(postImgs);
+        });
+        return post;
     }
 }
