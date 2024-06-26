@@ -2,12 +2,8 @@ package github.com.jbabe.repository.post;
 
 
 import com.querydsl.core.Tuple;
-import com.querydsl.core.group.Group;
-import com.querydsl.core.group.GroupBy;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postAttachedFile.QPostAttachedFile;
@@ -15,26 +11,26 @@ import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.postImg.QPostImg;
 import github.com.jbabe.repository.user.QUser;
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
-@Repository
+
 @RequiredArgsConstructor
-public class PostDaoQueryDsl {
+public class PostRepositoryCustomImpl implements PostRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
 
     private final QPost qPost = QPost.post;
     private final QPostImg qPostImg = QPostImg.postImg;
     private final QPostAttachedFile qPostAttachedFile = QPostAttachedFile.postAttachedFile;
 
+    @Override
     public Page<Post> searchPostList(String keyword, Post.Category category, Pageable pageable){
 //        QPost qPost = QPost.post;
         BooleanExpression predicate = qPost.category.eq(category)
@@ -73,6 +69,7 @@ public class PostDaoQueryDsl {
     }
 
 
+    @Override
     public List<Post> getAnnouncementPosts(Post.Category categoryEnum, Sort sort) {
         List<Tuple> tuples = jpaQueryFactory
                 .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount, qPost.foreword)
@@ -102,10 +99,27 @@ public class PostDaoQueryDsl {
     }
 
 
-    public Page<Post> getPostsListFileFetch(Pageable pageable) {
+    @Override
+    public Page<Post> getPostsListFileFetch(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum) {
+        BooleanExpression predicate = null;
+        if (categoryEnum != null) predicate = qPost.category.eq(categoryEnum);
+        if (keyword != null) {
+            predicate = switch (searchCriteria) {
+                case TITLE ->
+                        predicate != null ? predicate.and(qPost.name.containsIgnoreCase(keyword)) : qPost.name.containsIgnoreCase(keyword);
+                case EMAIL ->
+                        predicate != null ? predicate.and(qPost.user.email.containsIgnoreCase(keyword)) : qPost.user.email.containsIgnoreCase(keyword);
+                case CONTENT ->
+                        predicate != null ? predicate.and(qPost.content.containsIgnoreCase(keyword)) : qPost.content.containsIgnoreCase(keyword);
+                case ID ->
+                        predicate != null ? predicate.and(qPost.postId.eq(Integer.valueOf(keyword))) : qPost.postId.eq(Integer.valueOf(keyword));
+            };
+        }
+
         // 서브쿼리방식
         List<Integer> postIds = jpaQueryFactory.select(qPost.postId)
                 .from(qPost)
+                .where(predicate)
                 .orderBy(qPost.createAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -166,13 +180,14 @@ public class PostDaoQueryDsl {
 */
 
 
-        Long total = getPostTotalCount(qPost, null);
+        Long total = getPostTotalCount(qPost, predicate);
 
 
         return new PageImpl<>(postList, pageable, total != null ? total : 0);
 
     }
 
+    @Override
     public Optional<Post> getPostJoinFiles(Integer postId) {
         Tuple postTuple = jpaQueryFactory
                 .select(qPost, qPost.user.name)

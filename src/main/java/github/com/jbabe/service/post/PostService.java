@@ -1,7 +1,6 @@
 package github.com.jbabe.service.post;
 
 import github.com.jbabe.repository.post.Post;
-import github.com.jbabe.repository.post.PostDaoQueryDsl;
 import github.com.jbabe.repository.post.PostJpa;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
@@ -13,6 +12,7 @@ import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
+import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.post.*;
 import github.com.jbabe.web.dto.storage.FileDto;
@@ -20,19 +20,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostJpa postJpa;
-    private final PostDaoQueryDsl postDaoQueryDsl;
     private final UserJpa userJpa;
     private final PostImgJpa postImgJpa;
     private final PostAttachedFileJpa postAttachedFileJpa;
@@ -60,7 +59,7 @@ public class PostService {
 
 //        Post post = postJpa.findByIdUrlsJoin(Post.Category.pathToEnum(category), postId).orElseThrow(
 //                ()-> new NotFoundException("Post Not Found", postId));
-        Post post = postDaoQueryDsl.getPostJoinFiles(postId).orElseThrow(
+        Post post = postJpa.getPostJoinFiles(postId).orElseThrow(
                 ()-> new NotFoundException("Post Not Found", postId));
 
         post.increaseViewCount();
@@ -208,8 +207,8 @@ public class PostService {
 
         if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
-        List<Post> announcementPosts = postDaoQueryDsl.getAnnouncementPosts(categoryEnum, pageable.getSort());
-        Page<Post> generalPosts = postDaoQueryDsl.searchPostList(keyword, categoryEnum, pageable);
+        List<Post> announcementPosts = postJpa.getAnnouncementPosts(categoryEnum, pageable.getSort());
+        Page<Post> generalPosts = postJpa.searchPostList(keyword, categoryEnum, pageable);
         return getReturnContents(pageable, announcementPosts, generalPosts);
     }
 
@@ -238,8 +237,13 @@ public class PostService {
     }
 
 //    @Transactional(readOnly = true)
-    public Object getManagePostsList(Pageable pageable) {
-        Page<Post> postList = postDaoQueryDsl.getPostsListFileFetch(pageable);
+    public MyPage<ManagePostsDto> getManagePostsList(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum) {
+        if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
+        if (keyword!=null&&searchCriteria.equals(SearchCriteriaEnum.ID) && !keyword.matches("^[0-9]*$")) {
+            throw new BadRequestException("아이디 검색은 검색어가 숫자여야 합니다.", keyword);
+        }
+
+        Page<Post> postList = postJpa.getPostsListFileFetch(pageable, keyword, searchCriteria, categoryEnum);
         if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>postList.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
         return MyPage.<ManagePostsDto>builder()
                 .type(ManagePostsDto.class)

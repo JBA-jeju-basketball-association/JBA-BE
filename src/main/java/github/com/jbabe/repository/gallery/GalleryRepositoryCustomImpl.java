@@ -6,24 +6,22 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.galleryImg.QGalleryImg;
-import github.com.jbabe.repository.user.QUser;
-import github.com.jbabe.repository.user.User;
+import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-@Repository
 @RequiredArgsConstructor
-public class GalleryDaoQueryDsl {
+public class GalleryRepositoryCustomImpl implements GalleryRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
+    private final QGallery qGallery = QGallery.gallery;
 
-    private Page<Gallery> checkElementCountAndReturnPage(QGallery qGallery, BooleanExpression predicate,  List<Gallery> galleryList, Pageable pageable) {
+    private Page<Gallery> checkElementCountAndReturnPage(QGallery qGallery, BooleanExpression predicate, List<Gallery> galleryList, Pageable pageable) {
         Long total = jpaQueryFactory.select(qGallery.galleryId.count())
                 .from(qGallery)
                 .where(predicate)
@@ -32,23 +30,41 @@ public class GalleryDaoQueryDsl {
 
     }
 
+    @Override
     public Page<Gallery> getGalleryList(Pageable pageable, boolean official) {
-        QGallery qGallery = QGallery.gallery;
+
 
         BooleanExpression predicate = qGallery.isOfficial.eq(official)
                 .and(qGallery.galleryStatus.eq(Gallery.GalleryStatus.NORMAL));
 
-            List<Gallery> galleryList = getGalleryListWithThumbnailQuery(qGallery, predicate, pageable);
+        List<Gallery> galleryList = getGalleryListWithThumbnailQuery(qGallery, predicate, pageable);
 
-            return checkElementCountAndReturnPage(qGallery, predicate, galleryList, pageable);
-        }
-    public Page<Gallery> getGalleryManageList(Pageable pageable) {
-        QGallery qGallery = QGallery.gallery;
-        List<Gallery> galleries = getGalleryListWithUserEmailAndAllImages(qGallery, pageable);
-        return checkElementCountAndReturnPage(qGallery, null, galleries, pageable);
+        return checkElementCountAndReturnPage(qGallery, predicate, galleryList, pageable);
     }
 
-    public Page<Gallery> searchGalleryList(boolean official, String keyword, Pageable pageable){
+    @Override
+    public Page<Gallery> getGalleryManageList(Pageable pageable, Boolean official, String keyword, SearchCriteriaEnum searchCriteria) {
+
+        BooleanExpression predicate = null;
+        if (official != null) predicate = qGallery.isOfficial.eq(official);
+        if (keyword != null) {
+            predicate = switch (searchCriteria) {
+                case EMAIL ->
+                        predicate != null ? predicate.and(qGallery.user.email.containsIgnoreCase(keyword)) : qGallery.user.email.containsIgnoreCase(keyword);
+                case TITLE ->
+                        predicate != null ? predicate.and(qGallery.name.containsIgnoreCase(keyword)) : qGallery.name.containsIgnoreCase(keyword);
+                case ID ->
+                        predicate != null ? predicate.and(qGallery.galleryId.eq(Integer.valueOf(keyword))) : qGallery.galleryId.eq(Integer.valueOf(keyword));
+                default -> predicate;
+            };
+        }
+        List<Gallery> galleries = getGalleryListWithUserEmailAndAllImages(qGallery, predicate, pageable);
+
+        return checkElementCountAndReturnPage(qGallery, predicate, galleries, pageable);
+    }
+
+    @Override
+    public Page<Gallery> searchGalleryList(boolean official, String keyword, Pageable pageable) {
         QGallery qGallery = QGallery.gallery;
 
         BooleanExpression predicate = qGallery.isOfficial.eq(official)
@@ -67,9 +83,11 @@ public class GalleryDaoQueryDsl {
 
         return checkElementCountAndReturnPage(qGallery, predicate, galleryList, pageable);
     }
-    private List<Gallery> getGalleryListWithUserEmailAndAllImages(QGallery qGallery, Pageable pageable){
+
+    private List<Gallery> getGalleryListWithUserEmailAndAllImages(QGallery qGallery, BooleanExpression predicate, Pageable pageable) {
         List<Tuple> results = jpaQueryFactory.select(qGallery, qGallery.user.email)
                 .from(qGallery)
+                .where(predicate)
                 .orderBy(qGallery.createAt.desc())
                 .groupBy(qGallery.galleryId)
                 .offset(pageable.getOffset())
@@ -101,7 +119,6 @@ public class GalleryDaoQueryDsl {
 //        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(pageable.getSort(), qGallery);
 
 
-
         List<Tuple> results = jpaQueryFactory.select(qGallery, qGalleryImg.fileName, qGalleryImg.fileUrl)
                 .from(qGallery)
                 .leftJoin(qGallery.galleryImgs, qGalleryImg)
@@ -114,7 +131,7 @@ public class GalleryDaoQueryDsl {
 
         return results.stream().map(tuple -> {
             Gallery gallery = tuple.get(qGallery);
-            GalleryImg galleryImg = tuple.get(qGalleryImg.fileUrl) != null?
+            GalleryImg galleryImg = tuple.get(qGalleryImg.fileUrl) != null ?
                     GalleryImg.builder()
                             .fileUrl(tuple.get(qGalleryImg.fileUrl))
                             .fileName(tuple.get(qGalleryImg.fileName))
@@ -123,7 +140,7 @@ public class GalleryDaoQueryDsl {
             if (galleryImg != null) {
                 Objects.requireNonNull(gallery)
                         .setGalleryImgs(Collections.singletonList(galleryImg));
-            }else{
+            } else {
                 Objects.requireNonNull(gallery)
                         .setGalleryImgs(Collections.emptyList());
             }

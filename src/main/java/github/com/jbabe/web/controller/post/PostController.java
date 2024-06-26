@@ -1,10 +1,12 @@
 package github.com.jbabe.web.controller.post;
 
+import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.post.PostService;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
+import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.post.PostModifyDto;
@@ -116,10 +118,14 @@ public class PostController implements PostControllerDocs{
     @GetMapping("/manage")
     public ResponseDto getManagePostsList(@RequestParam(name = "page", defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "20") int size,
-                                          @RequestParam(required = false) String keyword){
+                                          @RequestParam(required = false) String keyword,
+                                          @RequestParam(required = false)String searchCriteriaString,
+                                          @RequestParam(required = false) String category){
+
         Pageable pageable = PageRequest.of(page, size);
-        if(keyword == null) return new ResponseDto(postService.getManagePostsList(pageable));
-        else return new ResponseDto();
+        SearchCriteriaEnum searchCriteria = keyword != null ? SearchCriteriaEnum.fromValue(searchCriteriaString) : null;
+        Post.Category categoryEnum = category != null ? Post.Category.pathToEnum(category) : null;
+        return new ResponseDto(postService.getManagePostsList(pageable, keyword, searchCriteria, categoryEnum));
     }
 
 }

@@ -1,6 +1,5 @@
 package github.com.jbabe.service.mapper;
 
-import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postImg.PostImg;
@@ -16,7 +15,6 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
-import java.util.Set;
 
 @Mapper
 public interface PostMapper {
@@ -53,6 +51,7 @@ public interface PostMapper {
     @Mapping(target = "createAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(target = "updateAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(target = "deleteAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "content", qualifiedByName = "getMinusTagValues")
     ManagePostsDto PostToManagePostsDto(Post post);
 
 //    @Named("getImgUrl")
@@ -63,6 +62,12 @@ public interface PostMapper {
     @Named("getThumbnail")
     default String getThumbnail(List<PostImg> postImgs){
         return postImgs!=null?postImgs.stream().findFirst().map(PostImg::getImgUrl).orElse(null):null;
+    }
+    @Named("getMinusTagValues")
+    default String getMinusTagValues (String content){
+        String textContent = content.replaceAll("<[^>]*>", "").replaceAll("&nbsp;", " ").trim();
+
+        return textContent.length() > 50 ? textContent.substring(0, 50) + "..." : textContent;
     }
 //    @Named("getPostAttachedFiles")
 //    default List<FileDto> postAttachedFile(Set<PostAttachedFile> postAttachedFiles){
