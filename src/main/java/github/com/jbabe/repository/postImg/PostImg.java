@@ -18,7 +18,7 @@ public class PostImg {
     private Integer postImgId;
 
     @JoinColumn(name = "post_id", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
     @Column(name = "img_url", nullable = false)

@@ -18,11 +18,12 @@ public class PostAttachedFile {
     private Integer postAttachedFileId;
 
     @JoinColumn(name = "post_id", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
     @Column(name = "file_path", nullable = false)
     private String filePath;
     @Column(name = "file_name", nullable = false)
     private String fileName;
+
 }
