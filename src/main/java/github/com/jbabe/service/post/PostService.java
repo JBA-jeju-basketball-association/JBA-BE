@@ -77,15 +77,12 @@ public class PostService {
         Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(5).orElseThrow(()->
                 new NotFoundException("User Not Found", 5)),isOfficial);
         post.addFiles(files, postReqDto.getPostImgs());
-
-
         try{
             postJpa.save(post);
         }catch (DataIntegrityViolationException sqlException){
             throw new BadRequestException("DB에 반영하는데 실패하였습니다. (제목이 중복됐을 가능성이 있습니다.)  "+sqlException.getMessage(),postReqDto.getTitle());
         }
         return true;
-
     }
 
     @Transactional
