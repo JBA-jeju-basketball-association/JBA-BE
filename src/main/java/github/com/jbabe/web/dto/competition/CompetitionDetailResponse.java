@@ -1,5 +1,6 @@
 package github.com.jbabe.web.dto.competition;
 
+import github.com.jbabe.repository.competition.Competition;
 import lombok.*;
 
 import java.util.Date;
@@ -17,9 +18,9 @@ public class CompetitionDetailResponse {
     private Date endDate;
     private String relatedUrl;
     private String content;
+    private Competition.Phase phase;
     private List<CompetitionDetailPlace> places;
     private List<CompetitionDetailAttachedFile> competitionDetailAttachedFiles;
     private List<String> divisions;
-    private Boolean existResult;
     private List<String> ckImgUrls;
 }

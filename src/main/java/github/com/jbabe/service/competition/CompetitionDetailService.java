@@ -142,13 +142,6 @@ public class CompetitionDetailService {
         List<String> divisionList = new ArrayList<>();
         divisions.forEach((d)-> divisionList.add(d.getDivisionName()));
 
-        AtomicBoolean existResult = new AtomicBoolean(false);
-        divisions.forEach((division -> {
-            if (!competitionRecordJpa.findAllByDivision(division).isEmpty()) {
-                existResult.set(true);
-            }
-        }));
-
         List<CompetitionImg> competitionImgs = competitionImgJpa.findAllByCompetition(competition);
 
 
@@ -159,10 +152,10 @@ public class CompetitionDetailService {
                 .endDate(competition.getEndDate())
                 .relatedUrl(competition.getRelatedUrl())
                 .content(competition.getContent())
+                .phase(competition.getPhase())
                 .places(competitionDetailPlaces)
                 .competitionDetailAttachedFiles(competitionDetailAttachedFiles)
                 .divisions(divisionList)
-                .existResult(existResult.get())
                 .ckImgUrls(competitionImgs.stream().map(CompetitionImg::getImgUrl).collect(Collectors.toList()))
                 .build();
     }

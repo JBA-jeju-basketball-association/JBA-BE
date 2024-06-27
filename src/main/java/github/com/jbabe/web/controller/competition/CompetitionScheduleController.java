@@ -2,6 +2,7 @@ package github.com.jbabe.web.controller.competition;
 
 import github.com.jbabe.service.competition.CompetitionScheduleService;
 import github.com.jbabe.web.dto.ResponseDto;
+import github.com.jbabe.web.dto.competition.GetScheduleResponse;
 import github.com.jbabe.web.dto.competition.PostCompetitionScheduleRequest;
 import github.com.jbabe.web.dto.competition.PostCompetitionScheduleRequestBox;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,5 +47,22 @@ public class CompetitionScheduleController {
                                                 @PathVariable Integer id) {
         String response = competitionScheduleService.postCompetitionSchedule(request.getRequest(), id);
         return new ResponseDto(response);
+    }
+
+
+    @Operation(summary = "대회일정 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "NOT_FOUND",
+                    content = @Content(mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(name = "대회를 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"대회를 찾을 수 없습니다.\",\n \"request\": \"1\"\n}"),
+                                    @ExampleObject(name = "대회일정을 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"대회일정을 찾을 수 없습니다.\",\n \"request\": \"1\"\n}")
+                            }
+                    ))
+    })
+    @GetMapping("/schedule/{id}")
+    public ResponseDto getCompetitionSchedule (@PathVariable Integer id) {
+        List<GetScheduleResponse> res = competitionScheduleService.getCompetitionSchedule(id);
+        return new ResponseDto(res);
     }
 }

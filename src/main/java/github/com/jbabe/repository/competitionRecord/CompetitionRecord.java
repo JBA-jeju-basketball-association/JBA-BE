@@ -54,6 +54,6 @@ public class CompetitionRecord {
     private String fileName;
 
     @Column(name = "is_5x5")
-    private boolean is5x5;
+    private boolean state5x5;
 
 }
