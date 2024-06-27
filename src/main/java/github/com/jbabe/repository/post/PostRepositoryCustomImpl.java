@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +37,10 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
         BooleanExpression predicate = qPost.category.eq(category)
                 .and(qPost.isAnnouncement.eq(false))
                 .and(qPost.postStatus.eq(Post.PostStatus.NORMAL));
-        if(keyword!=null) predicate = predicate.and(qPost.name.containsIgnoreCase(keyword));
+        if(keyword!=null) {
+            predicate = predicate.and(qPost.name.containsIgnoreCase(keyword));
+//                    .or(qPost.content.containsIgnoreCase(keyword)));
+        }
         List<Post> postList = getPostListQuery(qPost, predicate, pageable);
 
 
@@ -100,7 +104,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
 
 
     @Override
-    public Page<Post> getPostsListFileFetch(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum) {
+    public Page<Post> getPostsListFileFetch(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum, LocalDate startDate, LocalDate endDate) {
         BooleanExpression predicate = null;
         if (categoryEnum != null) predicate = qPost.category.eq(categoryEnum);
         if (keyword != null) {
@@ -115,7 +119,10 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                         predicate != null ? predicate.and(qPost.postId.eq(Integer.valueOf(keyword))) : qPost.postId.eq(Integer.valueOf(keyword));
             };
         }
-
+        if(startDate != null) {
+            predicate = predicate != null ? predicate.and(qPost.createAt.between(startDate.atStartOfDay(), endDate.atStartOfDay()))
+                    : qPost.createAt.between(startDate.atStartOfDay(), endDate.atStartOfDay());
+        }
         // 서브쿼리방식
         List<Integer> postIds = jpaQueryFactory.select(qPost.postId)
                 .from(qPost)

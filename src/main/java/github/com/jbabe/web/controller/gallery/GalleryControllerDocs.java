@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.time.LocalDate;
+
 @Tag(name = "Gallery", description = "갤러리 관련 API")
 public interface GalleryControllerDocs {
 
@@ -333,7 +335,17 @@ public interface GalleryControllerDocs {
                                              @ExampleObject(name = "공식갤러리", value = "true", description = "공식갤러리임"),
                                              @ExampleObject(name = "안공식갤러리", value = "false", description = "일반갤러리임"),
                                      @ExampleObject(name = "전체", value = "null", description = "전체 조회")})
-                                     Boolean official);
+                                     Boolean official,
+                                     @Parameter(description = "검색 시작 날짜 ex) yyyy-MM-dd<br>" +
+                                             "종료날짜 값이 있는데 시작날짜가 null인 경우 2024-01-01 로 지정되고<br> " +
+                                             "현재 시간 또는 종료일 보다 늦을 경우 400 에러 발생 합니다.<br>" +
+                                             "시작, 종료 둘다 값이 없을경우 전체 기간 조회"
+                                             , example = "2022-07-01")
+                                     LocalDate startDate,
+                                     @Parameter(description = "검색 마지막 날짜 ex) yyyy-MM-dd<br>" +
+                                             "시작날짜 값이 있는데 마지막날짜가 null인 경우 현재 날짜로 지정되고<br>" +
+                                             "현재 시간 보다 늦은 날짜로 검색 시도시 400 에러 발생 합니다.", example = "2022-07-31")
+                                     LocalDate endDate);
 
 }
 

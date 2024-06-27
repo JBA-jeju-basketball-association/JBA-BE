@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +44,7 @@ public class GalleryRepositoryCustomImpl implements GalleryRepositoryCustom {
     }
 
     @Override
-    public Page<Gallery> getGalleryManageList(Pageable pageable, Boolean official, String keyword, SearchCriteriaEnum searchCriteria) {
+    public Page<Gallery> getGalleryManageList(Pageable pageable, Boolean official, String keyword, SearchCriteriaEnum searchCriteria, LocalDate startDate, LocalDate endDate) {
 
         BooleanExpression predicate = null;
         if (official != null) predicate = qGallery.isOfficial.eq(official);
@@ -57,6 +58,10 @@ public class GalleryRepositoryCustomImpl implements GalleryRepositoryCustom {
                         predicate != null ? predicate.and(qGallery.galleryId.eq(Integer.valueOf(keyword))) : qGallery.galleryId.eq(Integer.valueOf(keyword));
                 default -> predicate;
             };
+        }
+        if(startDate != null) {
+            predicate = predicate != null ? predicate.and(qGallery.createAt.between(startDate.atStartOfDay(), endDate.atStartOfDay()))
+                    : qGallery.createAt.between(startDate.atStartOfDay(), endDate.atStartOfDay());
         }
         List<Gallery> galleries = getGalleryListWithUserEmailAndAllImages(qGallery, predicate, pageable);
 
