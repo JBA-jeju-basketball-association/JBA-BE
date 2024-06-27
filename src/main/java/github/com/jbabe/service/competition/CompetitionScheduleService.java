@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -90,5 +91,31 @@ public class CompetitionScheduleService {
 
         return getScheduleResponses;
 
+    }
+
+    @Transactional
+    public String deleteCompetitionSchedule(Integer id) {
+        Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("대회를 찾을 수 없습니다.", id));
+        List<Division> divisions = divisionJpa.findAllByCompetition(competition);
+        Competition fixPhaseCompetition = Competition.builder()
+                .competitionId(competition.getCompetitionId())
+                .user(competition.getUser())
+                .competitionName(competition.getCompetitionName())
+                .startDate(competition.getStartDate())
+                .endDate(competition.getEndDate())
+                .relatedUrl(competition.getRelatedUrl())
+                .content(competition.getContent())
+                .phase(Competition.Phase.INFO)
+                .competitionStatus(competition.getCompetitionStatus())
+                .createAt(competition.getCreateAt())
+                .updateAt(competition.getUpdateAt())
+                .deleteAt(competition.getDeleteAt())
+                .build();
+        competitionJpa.save(fixPhaseCompetition);
+
+        divisions.forEach((division ->
+                    competitionRecordJpa.deleteAll(competitionRecordJpa.findAllByDivision(division))
+                ));
+        return "OK";
     }
 }
