@@ -29,6 +29,11 @@ public class DivisionEnum {
 
     public DivisionEnum(String divisionName) {
         this.divisionName = divisionName;
+    }final
+
+    @PrePersist
+    public void prePersist() {
+        if(this.createdAt == null) this.createdAt = ZonedDateTime.now();
     }
 
 }
