@@ -36,8 +36,7 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfig()))
                 .authorizeRequests(a ->
                         a
-                                .requestMatchers("/test","v1/api/competition/post/**", "v1/api/competition/delete/**", "v1/api/competition/update/**").hasRole("MASTER")
-                                .requestMatchers("/test","v1/api/competition/post/**", "v1/api/competition/delete/**", "v1/api/competition/update/**").hasRole("ADMIN")
+                                .requestMatchers("/test","v1/api/competition/post/**", "v1/api/competition/delete/**", "v1/api/competition/update/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers("/v1/api/sign/logout").authenticated()
 
                                 .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
