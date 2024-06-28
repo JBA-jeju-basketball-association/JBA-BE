@@ -8,4 +8,5 @@ import lombok.Setter;
 public class DivisionEnumDto {
     private String divisionName;
     private long divisionEnumId;
+    private String createdAt;
 }

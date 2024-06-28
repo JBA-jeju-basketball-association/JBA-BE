@@ -7,6 +7,7 @@ import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
 import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.postImg.PostImgJpa;
 import github.com.jbabe.repository.user.UserJpa;
+import github.com.jbabe.service.SearchQueryParamUtil;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -74,15 +76,12 @@ public class PostService {
         Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(5).orElseThrow(()->
                 new NotFoundException("User Not Found", 5)),isOfficial);
         post.addFiles(files, postReqDto.getPostImgs());
-
-
         try{
             postJpa.save(post);
         }catch (DataIntegrityViolationException sqlException){
             throw new BadRequestException("DB에 반영하는데 실패하였습니다. (제목이 중복됐을 가능성이 있습니다.)  "+sqlException.getMessage(),postReqDto.getTitle());
         }
         return true;
-
     }
 
     @Transactional
@@ -237,13 +236,13 @@ public class PostService {
     }
 
 //    @Transactional(readOnly = true)
-    public MyPage<ManagePostsDto> getManagePostsList(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum) {
-        if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
-        if (keyword!=null&&searchCriteria.equals(SearchCriteriaEnum.ID) && !keyword.matches("^[0-9]*$")) {
-            throw new BadRequestException("아이디 검색은 검색어가 숫자여야 합니다.", keyword);
-        }
+    public MyPage<ManagePostsDto> getManagePostsList(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum, LocalDate startDate, LocalDate endDate) {
+        SearchQueryParamUtil.validateAndAdjustDates(keyword, searchCriteria, startDate, endDate);
+        startDate = startDate == null ? LocalDate.of(2024,1,1) : startDate;
+        endDate = endDate == null ? LocalDate.now().plusDays(1) : endDate.plusDays(1);
 
-        Page<Post> postList = postJpa.getPostsListFileFetch(pageable, keyword, searchCriteria, categoryEnum);
+
+        Page<Post> postList = postJpa.getPostsListFileFetch(pageable, keyword, searchCriteria, categoryEnum, startDate, endDate);
         if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>postList.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
         return MyPage.<ManagePostsDto>builder()
                 .type(ManagePostsDto.class)

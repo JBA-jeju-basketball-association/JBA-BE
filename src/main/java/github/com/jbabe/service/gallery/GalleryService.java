@@ -6,6 +6,7 @@ import github.com.jbabe.repository.gallery.GalleryJpa;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.galleryImg.GalleryImgJpa;
 import github.com.jbabe.repository.user.UserJpa;
+import github.com.jbabe.service.SearchQueryParamUtil;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.GalleryMapper;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -167,14 +169,12 @@ public class GalleryService {
         return makeResponseListAndToMyPage(galleryPages, pageable);
     }
 
-    public MyPage<ManageGalleryDto> getManageGalleryList(Pageable pageable, Boolean official, String keyword, SearchCriteriaEnum searchCriteria){
-        if (keyword!=null&&keyword.length()==1) {
-            throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
-        }
-        if (keyword!=null&&searchCriteria.equals(SearchCriteriaEnum.ID) && !keyword.matches("^[0-9]*$")) {
-            throw new BadRequestException("아이디 검색은 검색어가 숫자여야 합니다.", keyword);
-        }
-        Page<Gallery> galleries = galleryJpa.getGalleryManageList(pageable, official, keyword, searchCriteria);
+    public MyPage<ManageGalleryDto> getManageGalleryList(Pageable pageable, Boolean official, String keyword, SearchCriteriaEnum searchCriteria, LocalDate startDate, LocalDate endDate){
+        SearchQueryParamUtil.validateAndAdjustDates(keyword, searchCriteria, startDate, endDate);
+        startDate = startDate == null ? LocalDate.of(2024,1,1) : startDate;
+        endDate = endDate == null ? LocalDate.now().plusDays(1) : endDate.plusDays(1);
+
+        Page<Gallery> galleries = galleryJpa.getGalleryManageList(pageable, official, keyword, searchCriteria, startDate, endDate);
         return makeResponseListAndToMyPageForManage(galleries, pageable);
     }
 

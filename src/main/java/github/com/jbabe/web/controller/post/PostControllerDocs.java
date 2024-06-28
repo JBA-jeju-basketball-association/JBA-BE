@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -367,6 +368,16 @@ public interface PostControllerDocs {
                                                   @ExampleObject(name = "공지", value = "notice", description = "공지사항 카테고리"),
                                                   @ExampleObject(name = "뉴스", value = "news", description = "뉴스 카테고리"),
                                                   @ExampleObject(name = "라이브러리", value = "library", description = "자료실? 카테고리")})
-                                              String category);
+                                              String category,
+                                          @Parameter(description = "검색 시작 날짜 ex) yyyy-MM-dd<br>" +
+                                                  "종료날짜 값이 있는데 시작날짜가 null인 경우 2024-01-01 로 지정되고<br> " +
+                                                  "현재 시간 또는 종료일 보다 늦을 경우 400 에러 발생 합니다.<br>" +
+                                                  "시작, 종료 둘다 값이 없을경우 전체 기간 조회"
+                                                  , example = "2022-07-01")
+                                              LocalDate startDate,
+                                          @Parameter(description = "검색 마지막 날짜 ex) yyyy-MM-dd<br>" +
+                                                  "시작날짜 값이 있는데 마지막날짜가 null인 경우 현재 날짜로 지정되고<br>" +
+                                                  "현재 시간 보다 늦은 날짜로 검색 시도시 400 에러 발생 합니다.", example = "2022-07-31")
+                                              LocalDate endDate);
 
     }
