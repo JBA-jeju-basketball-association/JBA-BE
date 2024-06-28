@@ -120,4 +120,32 @@ public class CompetitionScheduleService {
                 ));
         return "OK";
     }
+
+    @Transactional
+    public String updateCompetitionSchedule(Integer id, List<PostCompetitionScheduleRequest> requests) {
+        Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("대회를 찾을 수 없습니다.", id));
+        List<Division> divisions = divisionJpa.findAllByCompetition(competition);
+        if (!competition.getPhase().equals(Competition.Phase.SCHEDULE)) throw new BadRequestException("일정등록 단계가 아닙니다.", id);
+
+        divisions.forEach((division ->
+                competitionRecordJpa.deleteAll(competitionRecordJpa.findAllByDivision(division))
+        ));
+
+        requests.forEach((r) ->{
+            Division division = divisions.stream().filter((d) -> Objects.equals(r.getDivision(), d.getDivisionName())).toList().get(0);
+            List<CompetitionRecord> competitionRecords =  r.getPostCompetitionScheduleRow().stream().map((row) ->
+                    CompetitionRecord.builder()
+                            .division(division)
+                            .floor(row.getFloor())
+                            .place(row.getPlace())
+                            .gameNumber(row.getGameNumber())
+                            .time(row.getStartDate())
+                            .homeName(row.getHomeName())
+                            .awayName(row.getAwayName())
+                            .state5x5(row.isState5x5())
+                            .build()).toList();
+            competitionRecordJpa.saveAll(competitionRecords);
+        });
+        return "OK";
+    }
 }
