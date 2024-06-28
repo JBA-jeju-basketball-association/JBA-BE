@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -279,7 +280,7 @@ public interface PostControllerDocs {
                                     value = "{\n" +
                                             "  \"code\": 404,\n" +
                                             "  \"message\": \"NOT_FOUND\",\n" +
-                                            "  \"detailMessage\": \"Gallery Not Found\",\n" +
+                                            "  \"detailMessage\": \"Post Not Found\",\n" +
                                             "  \"request\": \"3\"\n" +
                                             "}")
                     })
@@ -301,4 +302,71 @@ public interface PostControllerDocs {
             @Parameter(description = "게시물 고유 번호", example = "5")
             int postId);
 
-}
+    @Operation(summary = "게시물 공지 여부수정", description = "관리자 페이지에서 사용될 공지여부 수정 API 입니다.<br>공지일경우 공지가 아니게되고 공지가 아닐경우 공지로 변경됩니다.")
+    @ApiResponse(responseCode = "204",description = "요청 성공 NO_CONTENT 로 응답됩니다. ",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "공지여부 성공 예",
+                                    description = "⬆️⬆️ 성공!",
+                                    value = "{\n" +
+                                            "  \"code\": 204,\n" +
+                                            "  \"message\": \"NO_CONTENT\"\n" +
+                                            "}")
+                    })
+    )
+    @ApiResponse(responseCode = "404", description = "해당 게시물 찾을 수 없음",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = " 게시물 찾을 수 없음",
+                                    description = "⬆️⬆️ 요청들어온 게시물 아이디가 DB상에 존재 하지 않을때",
+                                    value = "{\n" +
+                                            "  \"code\": 404,\n" +
+                                            "  \"message\": \"NOT_FOUND\",\n" +
+                                            "  \"detailMessage\": \"Post Not Found\",\n" +
+                                            "  \"request\": \"3\"\n" +
+                                            "}")
+                    })
+    )
+    ResponseDto updateIsAnnouncement(
+            @Parameter(description = "게시물 고유 번호", example = "5")
+            int postId);
+
+
+    @Operation(summary = "게시물 관리자용 목록 조회", description = "게시물 목록에 보여줄 썸네일url과 게시물 제목, 내용, 첨부파일목록 반환<br>" +
+            "관리자용으로 삭제된 게시물도 조회됩니다. keyword 값이 있을시 검색된 데이터들을 반환하고 없을시 전체 목록 반환해줍니다.<br> " +
+            "⬇️ex⬇️ 검색어나 검색기준이 null일시 쿼리파라미터에 명시적으로 표시하지 않아도 null로 처리됩니다<br>" +
+            "/v1/api/gallery/manage?page=0&size=20&searchCriteriaString=null <br>" +
+            "이렇게 요청 보내지 않고 /v1/api/gallery/manage?page=0&size=20 이렇게만 해도 됩니다.")
+
+    @ApiResponse(responseCode = "400", description = "갤러리 아이디 검색 요청에 숫자가 아닌 값이 들어옴",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "갤러리 아이디 검색 요청 실패",
+                                    description = "갤러리 아이디 검색 요청에 숫자가 아닌 값이 들어옴",
+                                    value = """
+                                            {
+                                               "code": 400,
+                                               "message": "BAD_REQUEST",
+                                               "detailMessage": "아이디 검색은 검색어가 숫자여야 합니다.",
+                                               "request": "asdf"
+                                             }""")
+                    })
+    )
+    @GetMapping("/manage")
+    public ResponseDto getManagePostsList(@Parameter(description = "페이지 쪽수 (기본값 = 0)") int page,
+                                          @Parameter(description = "페이지당 보여질 갤러리게시물 갯수 (기본값 = 6)") int size,
+                                          @Parameter(description = "검색 키워드 null 일시 일반 목록 조회.") String keyword,
+                                          @Parameter(description = "검색 기준 (기본값 = null) 검색어가 있을시 검색 기준은 필수 입니다.", examples = {
+                                                  @ExampleObject(name = "전체", value = "null", description = "전체 조회"),
+                                                  @ExampleObject(name = "이메일", value = "email", description = "이메일로 검색"),
+                                                  @ExampleObject(name = "제목", value = "title", description = "제목으로 검색"),
+                                                  @ExampleObject(name = "게시물아이디", value = "id", description = "게시물 고유번호로 검색"),
+                                                  @ExampleObject(name = "내용", value = "content", description = " 내용으로 검색")}) String searchCriteriaString,
+                                          @Parameter(description = "카테고리 ex) notice, library, news", examples = {
+                                                  @ExampleObject(name = "전체", value = "null", description = "전체 조회 (null 값)"),
+                                                  @ExampleObject(name = "공지", value = "notice", description = "공지사항 카테고리"),
+                                                  @ExampleObject(name = "뉴스", value = "news", description = "뉴스 카테고리"),
+                                                  @ExampleObject(name = "라이브러리", value = "library", description = "자료실? 카테고리")})
+                                              String category);
+
+    }

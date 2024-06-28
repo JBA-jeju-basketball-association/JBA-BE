@@ -13,10 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "post")
@@ -35,7 +32,7 @@ public class Post {
     private Integer postId;
 
     @JoinColumn(name = "user_id", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(name = "category", nullable = false)
@@ -70,13 +67,16 @@ public class Post {
     private LocalDateTime deleteAt;
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Set<PostAttachedFile> postAttachedFiles;
+    private List<PostAttachedFile> postAttachedFiles;
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Set<PostImg> postImgs;
+    private List<PostImg> postImgs;
 
     @Column(name = "foreword")
     private String foreword;
+
+    @Transient
+    private String tempWriterName;
 
 //    public void defaultValue() {
 //        this.viewCount = 0;
@@ -84,6 +84,27 @@ public class Post {
 //        if (this.isAnnouncement == null) this.isAnnouncement = false;
 //        this.postStatus = PostStatus.NORMAL;
 //    }
+public void setUserEmail(String email){
+    this.user = new User();
+    this.user.setEmail(email);
+}
+    public Post(Post post, String userEmail, String thumbnail){
+        this.postId = post.getPostId();
+        setUserEmail(userEmail);
+        this.category = post.getCategory();
+        this.name = post.getName();
+        this.content = post.getContent();
+        this.viewCount = post.getViewCount();
+        this.postStatus = post.getPostStatus();
+        this.isAnnouncement = post.getIsAnnouncement();
+        this.createAt = post.getCreateAt();
+        this.updateAt = post.getUpdateAt();
+        this.deleteAt = post.getDeleteAt();
+        if(thumbnail!=null) this.postImgs = new ArrayList<>(Collections.singletonList(
+                PostImg.builder().imgUrl(thumbnail).build())
+        );
+        this.foreword = post.getForeword();
+    }
 
     public void notifyAndEditSubjectLineContent(PostModifyDto postModifyDto, Boolean isOfficial) {
         if(isOfficial!=null) this.isAnnouncement = isOfficial;
@@ -95,18 +116,22 @@ public class Post {
 
     }
 
+    public void updateIsAnnouncement() {
+        this.isAnnouncement = !this.isAnnouncement;
+    }
+
 
     @Getter
+    @AllArgsConstructor
     public enum PostStatus{
-        NORMAL, HIDE, DELETE
+        NORMAL("normal"), HIDE("hide"), DELETE("delete");
+        private final String path;
     }
     @Getter
+    @AllArgsConstructor
     public enum Category{
         NOTICE("notice"), NEWS("news"), LIBRARY("library");
         private final String path;
-        Category(String path){
-            this.path=path;
-        }
         public static Category pathToEnum(String path){
             for(Category c: EnumSet.allOf(Category.class)) if(c.path.equals(path)) return c;
             throw new BadRequestException("Category Incorrectly Entered", path);
@@ -119,10 +144,10 @@ public class Post {
 
     public void addFiles(List<FileDto> files, List<FileDto> imgs){
         if(this.postImgs == null) {
-            this.postImgs = new HashSet<>();
+            this.postImgs = new ArrayList<>();
         }
         if(this.postAttachedFiles == null) {
-            this.postAttachedFiles = new HashSet<>();
+            this.postAttachedFiles = new ArrayList<>();
         }
         if(files!=null && !files.isEmpty() ){
             for(FileDto f: files) {

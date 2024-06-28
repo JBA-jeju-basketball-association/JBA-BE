@@ -1,7 +1,6 @@
 package github.com.jbabe.service.post;
 
 import github.com.jbabe.repository.post.Post;
-import github.com.jbabe.repository.post.PostDaoQueryDsl;
 import github.com.jbabe.repository.post.PostJpa;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
@@ -13,11 +12,9 @@ import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
+import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import github.com.jbabe.web.dto.myPage.MyPage;
-import github.com.jbabe.web.dto.post.PostModifyDto;
-import github.com.jbabe.web.dto.post.PostReqDto;
-import github.com.jbabe.web.dto.post.PostResponseDto;
-import github.com.jbabe.web.dto.post.PostsListDto;
+import github.com.jbabe.web.dto.post.*;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,41 +25,41 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostJpa postJpa;
-    private final PostDaoQueryDsl postDaoQueryDsl;
     private final UserJpa userJpa;
     private final PostImgJpa postImgJpa;
     private final PostAttachedFileJpa postAttachedFileJpa;
     private final StorageService storageService;
 
-
+/* 키워드검색이랑 통합
     public MyPage<PostsListDto> getAllPostsList(Pageable pageable, String category) {
 
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
 
-        List<Post> announcementPosts = postJpa
-                .findByIsAnnouncementTrueAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum, pageable.getSort());
+
+
+        List<Post> announcementPosts = postDaoQueryDsl.getAnnouncementPosts(categoryEnum, pageable.getSort());
         Page<Post> generalPosts = postJpa
                 .findByIsAnnouncementFalseAndPostStatusAndCategory(Post.PostStatus.NORMAL, categoryEnum, pageable);
 
         return getReturnContents(pageable, announcementPosts, generalPosts);
 
-    }
+    }*/
 
 
 
     @Transactional
     public PostResponseDto getPostByPostId(String category, Integer postId) {
 
-        Post post = postJpa.findByIdUrlsJoin(Post.Category.pathToEnum(category), postId).orElseThrow(
+//        Post post = postJpa.findByIdUrlsJoin(Post.Category.pathToEnum(category), postId).orElseThrow(
+//                ()-> new NotFoundException("Post Not Found", postId));
+        Post post = postJpa.getPostJoinFiles(postId).orElseThrow(
                 ()-> new NotFoundException("Post Not Found", postId));
 
         post.increaseViewCount();
@@ -133,10 +130,10 @@ public class PostService {
     }
 
     private void checkAndDeleteFiles(Post originPost, List<FileDto> remainingFiles) {
-        Set<PostAttachedFile> originPostPostAttachedFiles = originPost.getPostAttachedFiles();
+        List<PostAttachedFile> originPostPostAttachedFiles = originPost.getPostAttachedFiles();
         //기존 파일들 중 삭제된 파일들을 찾아 삭제
         if(!CollectionUtils.isEmpty(remainingFiles) && !CollectionUtils.isEmpty(originPostPostAttachedFiles)){
-            Set<PostAttachedFile> filesToBeDeleted = getFilesToBeDeleted(originPostPostAttachedFiles, remainingFiles);
+            List<PostAttachedFile> filesToBeDeleted = getFilesToBeDeleted(originPostPostAttachedFiles, remainingFiles);
             originPost.getPostAttachedFiles().removeAll(filesToBeDeleted);
             postAttachedFileJpa.deleteAll(filesToBeDeleted);
         }//남긴 파일이 없을경우 기존 파일들을 모두 삭제
@@ -149,10 +146,10 @@ public class PostService {
     }
 
     private void checkAndDeleteImages(Post originPost, List<FileDto> remainingImgs) {
-        Set<PostImg> originImgs = originPost.getPostImgs();
+        List<PostImg> originImgs = originPost.getPostImgs();
         //기존 이미지 중 삭제된 파일들을 찾아 삭제
         if(!CollectionUtils.isEmpty(remainingImgs) && !CollectionUtils.isEmpty(originImgs)){
-            Set<PostImg> imgsToBeDeleted = getImagesToBeDeleted(originImgs, remainingImgs);
+            List<PostImg> imgsToBeDeleted = getImagesToBeDeleted(originImgs, remainingImgs);
             originPost.getPostImgs().removeAll(imgsToBeDeleted);
             postImgJpa.deleteAll(imgsToBeDeleted);
         }//남긴 이미지가 없을경우 기존 이미지들을 모두 삭제
@@ -164,8 +161,8 @@ public class PostService {
         }
     }
 
-    private Set<PostImg> getImagesToBeDeleted(Set<PostImg> originImgs, List<FileDto> remainingImgs) {
-        Set<PostImg> imgsToBeDeleted = new HashSet<>();
+    private List<PostImg> getImagesToBeDeleted(List<PostImg> originImgs, List<FileDto> remainingImgs) {
+        List<PostImg> imgsToBeDeleted = new ArrayList<>();
         for(PostImg postImg: originImgs){
             if(remainingImgs.stream().noneMatch(f->f.getFileUrl().equals(postImg.getImgUrl()))){
                 imgsToBeDeleted.add(postImg);
@@ -176,8 +173,8 @@ public class PostService {
         return imgsToBeDeleted;
     }
 
-    private Set<PostAttachedFile> getFilesToBeDeleted(Set<PostAttachedFile> originFiles, List<FileDto> remainingFiles) {
-        Set<PostAttachedFile> filesToBeDeleted = new HashSet<>();
+    private List<PostAttachedFile> getFilesToBeDeleted(List<PostAttachedFile> originFiles, List<FileDto> remainingFiles) {
+        List<PostAttachedFile> filesToBeDeleted = new ArrayList<>();
         for(PostAttachedFile postAttachedFile: originFiles){
             if(remainingFiles.stream().noneMatch(f->f.getFileUrl().equals(postAttachedFile.getFilePath()))){
                 filesToBeDeleted.add(postAttachedFile);
@@ -208,11 +205,10 @@ public class PostService {
 
     public MyPage<PostsListDto> searchPostList(Pageable pageable, String category, String keyword) {
 
-        if(keyword.length() < 2) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
-
+        if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
-        List<Post> announcementPosts = postDaoQueryDsl.getAnnouncementPosts(categoryEnum, pageable.getSort());
-        Page<Post> generalPosts = postDaoQueryDsl.searchPostList(keyword, categoryEnum, pageable);
+        List<Post> announcementPosts = postJpa.getAnnouncementPosts(categoryEnum, pageable.getSort());
+        Page<Post> generalPosts = postJpa.searchPostList(keyword, categoryEnum, pageable);
         return getReturnContents(pageable, announcementPosts, generalPosts);
     }
 
@@ -231,5 +227,33 @@ public class PostService {
                 .totalElements(generalPosts.getTotalElements()+announcementPosts.size())
                 .totalPages( generalPosts.getTotalPages())
                 .build();
+    }
+
+    @Transactional
+    public void updateIsAnnouncement(int postId) {
+        Post post = postJpa.findById(postId).orElseThrow(
+                ()-> new NotFoundException("Post Not Found", postId));
+        post.updateIsAnnouncement();
+    }
+
+//    @Transactional(readOnly = true)
+    public MyPage<ManagePostsDto> getManagePostsList(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum) {
+        if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
+        if (keyword!=null&&searchCriteria.equals(SearchCriteriaEnum.ID) && !keyword.matches("^[0-9]*$")) {
+            throw new BadRequestException("아이디 검색은 검색어가 숫자여야 합니다.", keyword);
+        }
+
+        Page<Post> postList = postJpa.getPostsListFileFetch(pageable, keyword, searchCriteria, categoryEnum);
+        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>postList.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        return MyPage.<ManagePostsDto>builder()
+                .type(ManagePostsDto.class)
+                .content(postList.stream()
+                        .map(PostMapper.INSTANCE::PostToManagePostsDto)
+                        .toList())
+                .totalElements(postList.getTotalElements())
+                .totalPages( postList.getTotalPages())
+                .build();
+
+
     }
 }
