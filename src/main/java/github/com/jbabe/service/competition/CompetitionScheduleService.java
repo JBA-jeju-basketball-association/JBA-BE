@@ -6,6 +6,7 @@ import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecordJpa;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.division.DivisionJpa;
+import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.web.dto.competition.GetScheduleResponse;
 import github.com.jbabe.web.dto.competition.GetScheduleRow;
@@ -31,6 +32,7 @@ public class CompetitionScheduleService {
     public String postCompetitionSchedule(List<PostCompetitionScheduleRequest> request, Integer id) {
         Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("대회를 찾을 수 없습니다.", id));
         List<Division> divisions = divisionJpa.findAllByCompetition(competition);
+        if (!competition.getPhase().equals(Competition.Phase.INFO)) throw new BadRequestException("이미 일정이 등록된 대회입니다.", id);
 
         competitionJpa.save(Competition.builder()
                 .competitionId(id)

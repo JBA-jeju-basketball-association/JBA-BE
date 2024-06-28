@@ -35,6 +35,7 @@ public class CompetitionScheduleController {
                                     @ExampleObject(name = "시작일 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"경기 번호가 없습니다.\",\n \"request\": \"gameNumber\"\n}"),
                                     @ExampleObject(name = "시작일 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"장소를 입력해주세요.\",\n \"request\": \"place\"\n}"),
                                     @ExampleObject(name = "시작일 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"5대5 경기여부를 입력해주세요.\",\n \"request\": \"is5x5\"\n}"),
+                                    @ExampleObject(name = "이미 일정이 등록된 대회", value = "{\n  \"code\": 400,\n  \"message\": \"Bad_Request\",\n \"detailMessage\": \"이미 일정이 등록된 대회입니다.\",\n \"request\": \"1\"\n}"),
                             }
                     )),
             @ApiResponse(responseCode = "404", description = "NOT_FOUND",
@@ -75,7 +76,7 @@ public class CompetitionScheduleController {
                             }
                     ))
     })
-    @DeleteMapping("/deleteSchedule/{id}")
+    @DeleteMapping("/delete/schedule/{id}")
     public ResponseDto deleteCompetitionSchedule (@PathVariable Integer id) {
         String res = competitionScheduleService.deleteCompetitionSchedule(id);
         return new ResponseDto(res);
