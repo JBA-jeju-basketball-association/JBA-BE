@@ -23,6 +23,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -120,12 +121,15 @@ public class PostController implements PostControllerDocs{
                                           @RequestParam(defaultValue = "20") int size,
                                           @RequestParam(required = false) String keyword,
                                           @RequestParam(required = false)String searchCriteriaString,
-                                          @RequestParam(required = false) String category){
+                                          @RequestParam(required = false) String category,
+                                          @RequestParam(required = false) LocalDate startDate,
+                                          @RequestParam(required = false) LocalDate endDate) {
 
         Pageable pageable = PageRequest.of(page, size);
         SearchCriteriaEnum searchCriteria = keyword != null ? SearchCriteriaEnum.fromValue(searchCriteriaString) : null;
         Post.Category categoryEnum = category != null ? Post.Category.pathToEnum(category) : null;
-        return new ResponseDto(postService.getManagePostsList(pageable, keyword, searchCriteria, categoryEnum));
+
+        return new ResponseDto(postService.getManagePostsList(pageable, keyword, searchCriteria, categoryEnum, startDate, endDate));
     }
 
 }
