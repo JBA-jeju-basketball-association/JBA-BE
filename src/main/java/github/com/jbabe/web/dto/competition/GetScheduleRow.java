@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class GetScheduleRow {
+    public Integer competitionResultId;
     private Integer gameNumber;
     private LocalDateTime startDate;
     private String floor;

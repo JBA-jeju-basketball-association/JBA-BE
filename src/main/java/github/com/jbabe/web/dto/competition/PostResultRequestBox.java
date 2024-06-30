@@ -1,0 +1,19 @@
+package github.com.jbabe.web.dto.competition;
+
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Valid
+public class PostResultRequestBox {
+    @Valid
+    private List<PostResultRequest> requests;
+}

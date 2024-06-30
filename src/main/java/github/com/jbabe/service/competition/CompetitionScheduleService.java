@@ -77,6 +77,7 @@ public class CompetitionScheduleService {
                         .getScheduleRows(
                                 competitionRecordJpa.findAllByDivision(division).stream().map(record ->
                                         GetScheduleRow.builder()
+                                                .competitionResultId(record.getCompetitionRecordId())
                                                 .gameNumber(record.getGameNumber())
                                                 .startDate(record.getTime())
                                                 .floor(record.getFloor())

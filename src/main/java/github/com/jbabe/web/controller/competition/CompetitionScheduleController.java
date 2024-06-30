@@ -32,9 +32,9 @@ public class CompetitionScheduleController {
                                     @ExampleObject(name = "홈팀명 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"HOME 팀명을 입력해주세요.\",\n \"request\": \"homeName\"\n}"),
                                     @ExampleObject(name = "어웨이팀명 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"AWAY 팀명을 입력해주세요.\",\n \"request\": \"awayName\"\n}"),
                                     @ExampleObject(name = "시작일 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"시작일을 입력해주세요.\",\n \"request\": \"startDate\"\n}"),
-                                    @ExampleObject(name = "시작일 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"경기 번호가 없습니다.\",\n \"request\": \"gameNumber\"\n}"),
-                                    @ExampleObject(name = "시작일 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"장소를 입력해주세요.\",\n \"request\": \"place\"\n}"),
-                                    @ExampleObject(name = "시작일 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"5대5 경기여부를 입력해주세요.\",\n \"request\": \"is5x5\"\n}"),
+                                    @ExampleObject(name = "경기번호 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"경기 번호가 없습니다.\",\n \"request\": \"gameNumber\"\n}"),
+                                    @ExampleObject(name = "장소 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"장소를 입력해주세요.\",\n \"request\": \"place\"\n}"),
+                                    @ExampleObject(name = "5대5 경기여부 미입력", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"5대5 경기여부를 입력해주세요.\",\n \"request\": \"is5x5\"\n}"),
                                     @ExampleObject(name = "이미 일정이 등록된 대회", value = "{\n  \"code\": 400,\n  \"message\": \"Bad_Request\",\n \"detailMessage\": \"이미 일정이 등록된 대회입니다.\",\n \"request\": \"1\"\n}"),
                             }
                     )),

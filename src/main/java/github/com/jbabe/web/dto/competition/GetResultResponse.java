@@ -1,9 +1,6 @@
 package github.com.jbabe.web.dto.competition;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -11,7 +8,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class GetResultResponse {
-    private List<String> divisionList;
-    private List<AddCompetitionResultRequest> resultResponse;
+    private String division;
+    private List<GetResultResponseRow> getResultResponseRows;
 }
