@@ -30,7 +30,7 @@ public class CompetitionResultService {
     public String postCompetitionResult(Integer id, List<PostResultRequest> requests) {
         Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("대회를 찾을 수 없습니다.", id));
         List<Division> divisions = divisionJpa.findAllByCompetition(competition);
-        if (!competition.getPhase().equals(Competition.Phase.SCHEDULE)) throw new BadRequestException("일정 먼저 입력 바랍니다.", id);
+        if (competition.getPhase().equals(Competition.Phase.INFO)) throw new BadRequestException("일정 먼저 입력 바랍니다.", id);
 
         competitionJpa.save(Competition.builder()
                 .competitionId(id)

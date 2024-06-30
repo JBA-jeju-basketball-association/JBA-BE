@@ -47,7 +47,7 @@ public class CompetitionRecord {
     @Column(name = "away_score")
     private Integer awayScore;
 
-    @Column(name = "file_path", unique = true)
+    @Column(name = "file_path")
     private String filePath;
 
     @Column(name = "file_name")
