@@ -71,6 +71,12 @@ public class CompetitionController {
         return new ResponseDto(competitionService.getCompetitionYearList());
     }
 
+    @Operation(summary = "종별 LIST 조회")
+    @GetMapping("/find-division-list")
+    public ResponseDto getCompetitionDivisionList() {
+        return new ResponseDto(competitionService.getCompetitionDivisionList());
+    }
+
 
 
 

@@ -11,6 +11,7 @@ import github.com.jbabe.repository.competitionPlace.CompetitionPlaceJpa;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecordJpa;
 import github.com.jbabe.repository.division.Division;
+import github.com.jbabe.repository.division.DivisionEnumJpa;
 import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
@@ -46,6 +47,7 @@ public class CompetitionDetailService {
     private final DivisionJpa divisionJpa;
     private final CompetitionAttachedFileJpa competitionAttachedFileJpa;
     private final CompetitionRecordJpa competitionRecordJpa;
+    private final DivisionEnumJpa divisionEnumJpa;
 
 
     @Transactional
@@ -106,6 +108,7 @@ public class CompetitionDetailService {
                 .map((division) -> Division.builder()
                         .competition(competition)
                         .divisionName(division)
+                        .divisionEnum(divisionEnumJpa.findByDivisionName(division).orElseThrow(() -> new NotFoundException("등록되지 않은 종별입니다.", division)))
                         .build()).toList();
         divisionJpa.saveAll(divisions);
 

@@ -11,6 +11,8 @@ import github.com.jbabe.repository.competitionPlace.CompetitionPlaceJpa;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecordJpa;
 import github.com.jbabe.repository.division.Division;
+import github.com.jbabe.repository.division.DivisionEnum;
+import github.com.jbabe.repository.division.DivisionEnumJpa;
 import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 public class CompetitionService {
 
     private final CompetitionJpa competitionJpa;
+    private final DivisionEnumJpa divisionEnumJpa;
 
     public Page<CompetitionListResponse> getCompetitionList(String status, String year, Pageable pageable) {
 
@@ -68,16 +71,8 @@ public class CompetitionService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+    public List<String> getCompetitionDivisionList() {
+        List<DivisionEnum> divisions = divisionEnumJpa.findAll();
+        return divisions.stream().map(DivisionEnum::getDivisionName).toList();
+    }
 }
