@@ -172,6 +172,7 @@ public class CompetitionDetailService {
                 .competitionId(id)
                 .user(competition.getUser())
                 .competitionName(request.getTitle())
+                .phase(competition.getPhase())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .relatedUrl(request.getRelatedURL())

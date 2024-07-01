@@ -39,15 +39,6 @@ import java.util.stream.Collectors;
 public class CompetitionService {
 
     private final CompetitionJpa competitionJpa;
-    private final CompetitionImgJpa competitionImgJpa;
-    private final StorageService storageService;
-    private final CompetitionAttachedFileJpa competitionAttachedFileJpa;
-    private final CompetitionPlaceJpa competitionPlaceJpa;
-    private final DivisionJpa divisionJpa;
-    private final CompetitionRecordJpa competitionRecordJpa;
-
-
-
 
     public Page<CompetitionListResponse> getCompetitionList(String status, String year, Pageable pageable) {
 
