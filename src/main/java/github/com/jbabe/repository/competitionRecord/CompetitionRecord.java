@@ -26,25 +26,34 @@ public class CompetitionRecord {
     @Column(name = "floor", nullable = false)
     private String floor;
 
+    @Column(name = "place", nullable = false)
+    private String place;
+
+    @Column(name = "game_number", nullable = false)
+    private Integer gameNumber;
+
     @Column(name = "time", nullable = false)
     private LocalDateTime time;
 
     @Column(name = "home_name", nullable = false)
     private String homeName;
 
-    @Column(name = "home_score", nullable = false)
+    @Column(name = "home_score")
     private Integer homeScore;
 
     @Column(name = "away_name", nullable = false)
     private String awayName;
 
-    @Column(name = "away_score", nullable = false)
+    @Column(name = "away_score")
     private Integer awayScore;
 
-    @Column(name = "file_path", unique = true)
+    @Column(name = "file_path")
     private String filePath;
 
     @Column(name = "file_name")
     private String fileName;
+
+    @Column(name = "is_5x5")
+    private boolean state5x5;
 
 }

@@ -42,6 +42,10 @@ public class Competition {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "phase", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Phase phase;
+
     @Column(name = "competition_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private CompetitionStatus competitionStatus;
@@ -62,6 +66,11 @@ public class Competition {
     @Getter
     public enum CompetitionStatus {
         NORMAL, HIDE, DELETE
+    }
+
+    @Getter
+    public enum Phase {
+        INFO, SCHEDULE, ASSIGN_REGISTRATION, ASSIGN_APPLICATION, ASSIGN_COMPLETE, FINISH
     }
 
     public static Date getStartTimeThisYear(String year) {

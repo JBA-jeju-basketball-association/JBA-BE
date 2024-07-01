@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GetResultResponse {
+public class GetScheduleResponse {
     private String division;
-    private List<GetResultResponseRow> getResultResponseRows;
+    private List<GetScheduleRow> getScheduleRows;
 }
