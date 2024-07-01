@@ -28,7 +28,7 @@ public class MainCompetitionService {
         Page<Competition> competitionPage = competitionJpa.findAllByCompetitionStatus(Competition.CompetitionStatus.NORMAL, pageable);
         List<Competition> competitions = competitionPage.getContent();
 
-        List<MainCompetitionResponse> responses = competitions.stream().map(c -> {
+        return competitions.stream().map(c -> {
             List<CompetitionPlace> competitionPlaces = competitionPlaceJpa.findAllByCompetition(c);
             List<String> placeNames = competitionPlaces.stream().map(CompetitionPlace::getPlaceName).toList();
             return MainCompetitionResponse.builder()
@@ -39,7 +39,5 @@ public class MainCompetitionService {
                     .places(placeNames)
                     .build();
         }).toList();
-
-        return responses;
     }
 }

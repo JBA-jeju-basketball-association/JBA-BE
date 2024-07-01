@@ -73,6 +73,7 @@ public class LoginCookieService {
 
 
 
+    @Transactional
     public AccessAndRefreshToken loginCookie(String email, String password) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
