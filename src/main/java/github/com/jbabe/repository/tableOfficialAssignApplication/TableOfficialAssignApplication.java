@@ -20,8 +20,9 @@ public class TableOfficialAssignApplication {
     @Column(name = "table_official_assign_application_id")
     private Integer tableOfficialAssignApplicationId;
 
+    // 연결된 competition_record 데이터가 삭제될 경우 competitionRecord=null
     @ManyToOne
-    @JoinColumn(name = "competition_record_id", nullable = false)
+    @JoinColumn(name = "competition_record_id")
     private CompetitionRecord competitionRecord;
 
     @ManyToOne

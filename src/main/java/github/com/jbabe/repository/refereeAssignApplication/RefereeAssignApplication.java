@@ -19,8 +19,9 @@ public class RefereeAssignApplication {
     @Column(name = "referee_assign_application_id")
     private Integer RefereeAssignApplicationId;
 
+    // 연결된 competition_record 데이터가 삭제될 경우 competitionRecord=null
     @ManyToOne
-    @JoinColumn(name = "competition_record_id", nullable = false)
+    @JoinColumn(name = "competition_record_id")
     private CompetitionRecord competitionRecord;
 
     @ManyToOne

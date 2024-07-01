@@ -20,8 +20,9 @@ public class TableOfficialAssign {
     @Column(name = "table_official_assign_id")
     private Integer tableOfficialAssignId;
 
-    @OneToOne
-    @JoinColumn(name = "competition_record_id", nullable = false)
+    // 연결된 competition_record 데이터가 삭제될 경우 competitionRecord=null
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    @JoinColumn(name = "competition_record_id")
     private CompetitionRecord competitionRecord;
 
     @ManyToOne
