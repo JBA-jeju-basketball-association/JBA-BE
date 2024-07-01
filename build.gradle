@@ -97,7 +97,6 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 tasks.named('bootJar'){
-    dependsOn(test)
     mainClass = 'github.com.jbabe.JbaBeApplication'
     destinationDirectory = file(buildDir)
     archivesBaseName = 'jba_ver'

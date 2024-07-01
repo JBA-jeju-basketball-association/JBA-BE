@@ -2,17 +2,19 @@ package github.com.jbabe.service.gallery;
 
 
 import github.com.jbabe.repository.gallery.Gallery;
-import github.com.jbabe.repository.gallery.GalleryDaoQueryDsl;
 import github.com.jbabe.repository.gallery.GalleryJpa;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.galleryImg.GalleryImgJpa;
 import github.com.jbabe.repository.user.UserJpa;
+import github.com.jbabe.service.SearchQueryParamUtil;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.GalleryMapper;
 import github.com.jbabe.service.storage.StorageService;
+import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
+import github.com.jbabe.web.dto.gallery.ManageGalleryDto;
 import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,12 +38,12 @@ public class GalleryService {
     private final GalleryJpa galleryJpa;
     private final GalleryImgJpa galleryImgJpa;
     private final UserJpa userJpa;
-    private final GalleryDaoQueryDsl galleryDaoQueryDsl;
+
 
 
     @Transactional(readOnly = true)
     public MyPage<GalleryListDto> getGalleryList(Pageable pageable, boolean official) {
-        Page<Gallery> galleryPages = galleryDaoQueryDsl.getGalleryList(pageable, official);
+        Page<Gallery> galleryPages = galleryJpa.getGalleryList(pageable, official);
 
         return makeResponseListAndToMyPage(galleryPages, pageable);
     }
@@ -161,8 +164,35 @@ public class GalleryService {
 //    @Transactional(readOnly = true)
     public MyPage<GalleryListDto> searchGallery(int page, int size, boolean official, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")));
-        Page<Gallery> galleryPages =  galleryDaoQueryDsl.searchGalleryList(official, keyword,pageable);
+        Page<Gallery> galleryPages =  galleryJpa.searchGalleryList(official, keyword,pageable);
 
         return makeResponseListAndToMyPage(galleryPages, pageable);
+    }
+
+    public MyPage<ManageGalleryDto> getManageGalleryList(Pageable pageable, Boolean official, String keyword, SearchCriteriaEnum searchCriteria, LocalDate startDate, LocalDate endDate){
+        SearchQueryParamUtil.validateAndAdjustDates(keyword, searchCriteria, startDate, endDate);
+        startDate = startDate == null ? LocalDate.of(2024,1,1) : startDate;
+        endDate = endDate == null ? LocalDate.now().plusDays(1) : endDate.plusDays(1);
+
+        Page<Gallery> galleries = galleryJpa.getGalleryManageList(pageable, official, keyword, searchCriteria, startDate, endDate);
+        return makeResponseListAndToMyPageForManage(galleries, pageable);
+    }
+
+    private MyPage<ManageGalleryDto> makeResponseListAndToMyPageForManage(Page<Gallery> galleries, Pageable pageable) {
+        if(pageable.getPageNumber()+1>galleries.getTotalPages()&&pageable.getPageNumber()!=0)
+            throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        List<ManageGalleryDto> responseList =  galleries.stream()
+                .map(gallery -> GalleryMapper.INSTANCE
+                        .GalleryToManageGalleryDto(gallery,
+                                gallery.getGalleryImgs().isEmpty()?"https://www.irisoele.com/img/noimage.png":
+                                        gallery.getGalleryImgs().get(0).getFileUrl()))
+                .toList();
+
+        return MyPage.<ManageGalleryDto>builder()
+                .type(ManageGalleryDto.class)
+                .content(responseList)
+                .totalElements(galleries.getTotalElements())
+                .totalPages(galleries.getTotalPages())
+                .build();
     }
 }
