@@ -45,11 +45,7 @@ public class SignController {
                                     @ExampleObject(name = "비밀번호 유효성 검사1", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"비밀번호는 영문과 특수문자 숫자를 포함하며 8자 이상 20자 이하여야 합니다.\",\n \"request\": \"password\"\n}"),
                                     @ExampleObject(name = "비밀번호 유효성 검사2", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"비밀번호에 특수문자는 !@#$^*+=-만 사용 가능합니다.\",\n \"request\": \"password\"\n}"),
                                     @ExampleObject(name = "휴대폰번호 유효성 검사", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"휴대폰번호 유효성 검사 실패\",\n \"request\": \"phoneNum\"\n}"),
-                                    @ExampleObject(name = "년도 유효성 검사(1900~2024)", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"1900 이상이어야 합니다 OR 2024 이하여야 합니다\",\n \"request\": \"year\"\n}"),
-                                    @ExampleObject(name = "월 유효성 검사(1~12)", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"1 이상이어야 합니다 OR 12 이하여야 합니다\",\n \"request\": \"month\"\n}"),
-                                    @ExampleObject(name = "일 유효성 검사(1~31)", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"1 이상이어야 합니다 OR 31 이하여야 합니다\",\n \"request\": \"day\"\n}"),
-                                    @ExampleObject(name = "생년월일 유효성 검사", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"생년월일은 현재보다 이전이여야 합니다.\",\n \"request\": \"\"\n}"),
-                                    @ExampleObject(name = "성별 유효성 검사", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"성별은 MALE 혹은 FEMALE 입니다.\",\n \"request\": \"남자\"\n}"),
+                                    @ExampleObject(name = "주민번호 유효성 검사 실패", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"주민번호 유효성 검사 실패\",\n \"request\": \"982739-1\"\n}"),
                             }
                     )),
             @ApiResponse(responseCode = "409", description = "이미 가입된 정보",
@@ -58,26 +54,21 @@ public class SignController {
                                     @ExampleObject(name = "이미 가입된 이메일", value = "{\n  \"code\": 409,\n  \"message\": \"CONFLICT\",\n \"detailMessage\": \"이미 가입된 이메일입니다.\",\n \"request\": \"hansol@gmail.com\"\n}"),
                                     @ExampleObject(name = "이미 가입된 연락처", value = "{\n  \"code\": 409,\n  \"message\": \"CONFLICT\",\n \"detailMessage\": \"이미 해당 휴대폰 번호로 가입된 유저가 있습니다.\",\n \"request\": \"010-1111-2222\"\n}"),
                             }))
-
-
     })
     @PostMapping("/sign-up")
     public ResponseDto signUp(@RequestBody @Valid SignUpRequest signUpRequest) {
 
         if (!User.isValidSpecialCharacterInPassword(signUpRequest.getPassword()))
             throw new InvalidReqeustException("비밀번호에 특수문자는 !@#$^*+=-만 사용 가능합니다.", "password");
-        if (!User.isValidGender(signUpRequest.getGender()))
-            throw new InvalidReqeustException("성별은 MALE 혹은 FEMALE 입니다.", signUpRequest.getGender());
         if (!signUpRequest.equalsPasswordAndPasswordConfirm())
             throw new BadRequestException("비밀번호와 비밀번호 확인이 같지 않습니다.", "");
-        if (!isValidBirthday(signUpRequest.getYear(), signUpRequest.getMonth(), signUpRequest.getDay()))
-            throw new InvalidReqeustException("생년월일은 현재보다 이전이여야 합니다.", "");
-
         if (userJpa.existsByEmail(signUpRequest.getEmail()))
             throw new ConflictException("이미 가입된 이메일입니다.", signUpRequest.getEmail());
         if (userJpa.existsByPhoneNum(signUpRequest.getPhoneNum()))
             throw new ConflictException("이미 해당 휴대폰 번호로 가입된 유저가 있습니다.", signUpRequest.getPhoneNum());
-
+        if (signUpRequest.getBirth().length() != 8) {
+            throw new InvalidReqeustException("주민번호 유효성 검사 실패", signUpRequest.getBirth());
+        }
         String name = signService.signUp(signUpRequest);
         return new ResponseDto(name);
     }

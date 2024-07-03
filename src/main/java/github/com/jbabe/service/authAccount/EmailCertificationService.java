@@ -21,11 +21,11 @@ public class EmailCertificationService {
     private final JavaMailSender mailSender;
     private final RedisUtil redisUtil;
     private final UserJpa userJpa;
-    private final int authNumber = generateRandomNumber(100000, 999999);
     @Value("${email.address}")
     private String emailAddress;
 
     public void signUpSendEmail(String email) {
+        int authNumber = generateRandomNumber(100000, 999999);
         if (userJpa.existsByEmail(email)) {
             throw new ConflictException("이미 가입된 이메일입니다.", email);
         }
@@ -38,7 +38,7 @@ public class EmailCertificationService {
                         "<br><br>" +
                         "<h1>[인증 번호] : " + authNumber + "</h1>" ; //이메일 내용 삽입
         try {
-            mailSend(setFrom, toMail, title, content);
+            mailSend(setFrom, toMail, title, content, authNumber);
         }catch (Exception e) {
             e.printStackTrace();
             throw new NotAcceptableException("메일을 발송할 수 없습니다.", email);
@@ -46,7 +46,7 @@ public class EmailCertificationService {
     }
 
     @Transactional
-    public void mailSend(String setFrom, String toMail, String title, String content) {
+    public void mailSend(String setFrom, String toMail, String title, String content, int authNum) {
         MimeMessage message = mailSender.createMimeMessage();//JavaMailSender 객체를 사용하여 MimeMessage 객체를 생성
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message,true,"utf-8");//이메일 메시지와 관련된 설정을 수행합니다.
@@ -55,7 +55,7 @@ public class EmailCertificationService {
             helper.setTo(toMail);//이메일의 수신자 주소 설정
             helper.setSubject(title);//이메일의 제목을 설정
             helper.setText(content,true);//이메일의 내용 설정 두 번째 매개 변수에 true를 설정하여 html 설정으로한다.
-            redisUtil.setDataExpire(Integer.toString(authNumber), toMail, 60*5L); // redis에 데이터 저장 // 유효기간 5분
+            redisUtil.setDataExpire(toMail, Integer.toString(authNum), 60*5L); // redis에 데이터 저장 // 유효기간 5분
             mailSender.send(message);
         } catch (MessagingException e) {//이메일 서버에 연결할 수 없거나, 잘못된 이메일 주소를 사용하거나, 인증 오류가 발생하는 등 오류
             // 이러한 경우 MessagingException이 발생
@@ -64,8 +64,8 @@ public class EmailCertificationService {
     }
 
     public Boolean checkAuthNum(String email, String authNum) {
-        if (redisUtil.getData(authNum) == null) return false;
-        else if (redisUtil.getData(authNum).equals(email)) return true;
+        if (redisUtil.getData(email) == null) return false;
+        else if (redisUtil.getData(email).equals(authNum)) return true;
         else return false;
     }
 }

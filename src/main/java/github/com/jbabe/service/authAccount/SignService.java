@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @Service
@@ -25,17 +26,14 @@ public class SignService {
     @Transactional
     public String signUp(SignUpRequest signUpRequest) {
 
-
         String pwd = passwordEncoder.encode(signUpRequest.getPassword());
-        LocalDate dateOfBirth = LocalDate.of(signUpRequest.getYear(), signUpRequest.getMonth(), signUpRequest.getDay());
-
         User user = User.builder()
                 .email(signUpRequest.getEmail())
                 .password(pwd)
                 .name(signUpRequest.getName())
                 .phoneNum(signUpRequest.getPhoneNum())
-                .gender(User.Gender.valueOf(signUpRequest.getGender()))
-                .dateOfBirth(dateOfBirth)
+                .gender(signUpRequest.transformGender())
+                .dateOfBirth(signUpRequest.getBirthByLocalDate())
                 .userStatus(User.UserStatus.NORMAL)
                 .role(User.Role.ROLE_USER)
                 .team(signUpRequest.getTeam())
