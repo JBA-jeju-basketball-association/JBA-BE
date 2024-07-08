@@ -355,7 +355,7 @@ public interface PostControllerDocs {
     )
     @GetMapping("/manage")
     public ResponseDto getManagePostsList(@Parameter(description = "페이지 쪽수 (기본값 = 0)") int page,
-                                          @Parameter(description = "페이지당 보여질 갤러리게시물 갯수 (기본값 = 6)") int size,
+                                          @Parameter(description = "페이지당 보여질 갤러리게시물 갯수 (기본값 = 20)") int size,
                                           @Parameter(description = "검색 키워드 null 일시 일반 목록 조회.") String keyword,
                                           @Parameter(description = "검색 기준 (기본값 = null) 검색어가 있을시 검색 기준은 필수 입니다.", examples = {
                                                   @ExampleObject(name = "전체", value = "null", description = "전체 조회"),
