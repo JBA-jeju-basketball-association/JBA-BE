@@ -20,10 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSender;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -70,6 +67,11 @@ public class SignController {
         }
         String name = signService.signUp(signUpRequest);
         return new ResponseDto(name);
+    }
+
+    @GetMapping("/check-email")
+    public ResponseDto checkEmail(@RequestParam String email) {
+        return new ResponseDto(signService.checkEmail(email));
     }
 
 
