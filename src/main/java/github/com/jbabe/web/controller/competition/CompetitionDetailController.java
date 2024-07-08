@@ -102,15 +102,5 @@ public class CompetitionDetailController {
         return new ResponseDto(competitionDetailService.updateCompetition(id, updateCompetitionRequest, files, type));
     }
 
-    @Operation(summary = "대회 삭제")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "404", description = "NOT_FOUND",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "대회를 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"해당 id로 대회를 찾을 수 없습니다.\",\n \"request\": \"1\"\n}")
-                    ))
-    })
-    @DeleteMapping("/delete/{id}")
-    public ResponseDto deleteCompetition(@PathVariable Integer id) {
-        return new ResponseDto(competitionDetailService.deleteCompetition(id));
-    }
+
 }

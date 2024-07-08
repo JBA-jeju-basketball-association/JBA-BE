@@ -11,6 +11,8 @@ import java.util.List;
 public interface CompetitionAttachedFileJpa extends JpaRepository<CompetitionAttachedFile, Integer> {
     List<CompetitionAttachedFile> findAllByCompetition(Competition competition);
 
+    List<CompetitionAttachedFile> findAllByCompetitionCompetitionId(Integer id);
+
     @Query("SELECT c.filePath FROM CompetitionAttachedFile c WHERE c.filePath IS NOT NULL")
     List<String> findAllFilePath();
 }

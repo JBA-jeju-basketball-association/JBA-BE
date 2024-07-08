@@ -1,5 +1,6 @@
 package github.com.jbabe.repository.competition;
 
+import github.com.jbabe.repository.competitionAttachedFile.CompetitionAttachedFile;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
@@ -61,6 +62,9 @@ public class Competition {
 
     @OneToMany(mappedBy = "competition", fetch = FetchType.LAZY)
     private List<Division> divisions;
+
+    @OneToMany(mappedBy = "competition", fetch = FetchType.LAZY)
+    private List<CompetitionAttachedFile> competitionAttachedFiles;
 
 
     @Getter

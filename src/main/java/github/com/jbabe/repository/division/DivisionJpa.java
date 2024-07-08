@@ -11,5 +11,6 @@ import java.util.List;
 public interface DivisionJpa extends JpaRepository<Division, Integer> {
     List<Division> findAllByCompetition(Competition competition);
 
+    List<Division> findAllByCompetitionCompetitionId(Integer id);
     boolean existsByDivisionNameAndCompetition(String divisionName, Competition competition);
 }
