@@ -1,7 +1,7 @@
 package github.com.jbabe.service.post;
 
 import github.com.jbabe.repository.post.Post;
-import github.com.jbabe.repository.post.PostJpa;
+import github.com.jbabe.repository.post.PostJpaDao;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFile;
 import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
 import github.com.jbabe.repository.postImg.PostImg;
@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class PostService {
-    private final PostJpa postJpa;
+    private final PostJpaDao postJpa;
     private final UserJpa userJpa;
     private final PostImgJpa postImgJpa;
     private final PostAttachedFileJpa postAttachedFileJpa;

@@ -1,5 +1,6 @@
 package github.com.jbabe.repository.user;
 
+import github.com.jbabe.service.exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,18 +76,30 @@ public class User {
 
 
     @Getter
+    @AllArgsConstructor
     public enum Gender{
-        MALE, FEMALE
+        MALE("mail"), FEMALE("femail");
+        private final String path;
     }
 
     @Getter
+    @AllArgsConstructor
     public enum UserStatus{
-        NORMAL, HIDE, DELETE, LOCKED
+        NORMAL("normal"), HIDE("hide"), DELETE("delete"), LOCKED("locked");
+        private final String path;
     }
 
     @Getter
+    @AllArgsConstructor
     public enum Role{
-        ROLE_USER, ROLE_MASTER, ROLE_ADMIN, ROLE_REFEREE_LEADER, ROLE_REFEREE, ROLE_TABLE_OFFICIAL_LEADER, ROLE_TABLE_OFFICIAL
+        ROLE_USER("user"), ROLE_MASTER("master"), ROLE_ADMIN("admin"), ROLE_REFEREE_LEADER("referee-leader"), ROLE_REFEREE("referee"), ROLE_TABLE_OFFICIAL_LEADER("table-official-leader"), ROLE_TABLE_OFFICIAL("table-official");
+        final String path;
+        public static Role PathToRole(String path){
+            return Arrays.stream(Role.values())
+                    .filter(role -> role.path.equals(path))
+                    .findAny()
+                    .orElseThrow(()->new BadRequestException("Unsupported permissions", path));
+        }
     }
 
 

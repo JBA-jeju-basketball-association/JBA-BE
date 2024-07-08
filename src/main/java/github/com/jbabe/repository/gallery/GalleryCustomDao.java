@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 
-public interface GalleryRepositoryCustom {
+public interface GalleryCustomDao {
 
     Page<Gallery> getGalleryList(Pageable pageable, boolean official);
     Page<Gallery> getGalleryManageList(Pageable pageable, Boolean official, String keyword, SearchCriteriaEnum searchCriteria, LocalDate startDate, LocalDate endDate);

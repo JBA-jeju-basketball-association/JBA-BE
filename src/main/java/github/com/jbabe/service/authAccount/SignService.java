@@ -8,6 +8,7 @@ import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.web.dto.authAccount.SignUpRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -44,5 +45,10 @@ public class SignService {
         userJpa.save(user);
 
         return signUpRequest.getName();
+    }
+
+    public String checkEmail(String email) {
+        if (userJpa.existsByEmail(email)) throw new ConflictException("이미 가입된 이메일입니다.", email);
+        return "OK";
     }
 }

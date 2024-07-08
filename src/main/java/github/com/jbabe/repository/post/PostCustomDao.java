@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface PostRepositoryCustom {
+public interface PostCustomDao {
 
     Page<Post> searchPostList(String keyword, Post.Category category, Pageable pageable);
 

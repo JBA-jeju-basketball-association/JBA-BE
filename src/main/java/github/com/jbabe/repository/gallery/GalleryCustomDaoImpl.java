@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor
-public class GalleryRepositoryCustomImpl implements GalleryRepositoryCustom {
+public class GalleryCustomDaoImpl implements GalleryCustomDao {
     private final JPAQueryFactory jpaQueryFactory;
     private final QGallery qGallery = QGallery.gallery;
 
