@@ -76,16 +76,4 @@ public class CompetitionController {
     public ResponseDto getCompetitionDivisionList() {
         return new ResponseDto(competitionService.getCompetitionDivisionList());
     }
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -67,20 +67,7 @@ public class CompetitionScheduleController {
         return new ResponseDto(res);
     }
 
-    @Operation(summary = "대회일정 삭제")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "404", description = "NOT_FOUND",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "대회를 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"대회를 찾을 수 없습니다.\",\n \"request\": \"1\"\n}"),
-                            }
-                    ))
-    })
-    @DeleteMapping("/delete/schedule/{id}")
-    public ResponseDto deleteCompetitionSchedule (@PathVariable Integer id) {
-        String res = competitionScheduleService.deleteCompetitionSchedule(id);
-        return new ResponseDto(res);
-    }
+
 
     @Operation(summary = "대회일정 수정")
     @ApiResponses(value = {

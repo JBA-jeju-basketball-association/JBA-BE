@@ -1,12 +1,14 @@
 package github.com.jbabe.repository.competition;
 
 import github.com.jbabe.web.dto.competition.CompetitionListResponse;
+import github.com.jbabe.web.dto.competition.GetCompetitionAdminListResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -34,4 +36,30 @@ public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
     Page<Competition> findAllByCompetitionStatus(Competition.CompetitionStatus competitionStatus, Pageable pageable);
 
     List<Competition> findAllByCompetitionStatus(Competition.CompetitionStatus competitionStatus);
+
+    @Query("SELECT new github.com.jbabe.web.dto.competition.GetCompetitionAdminListResponse( " +
+            "c.competitionId, u.email, " +
+            "CASE " +
+            "WHEN CURRENT_DATE < c.startDate THEN '예정' " +
+            "WHEN CURRENT_DATE BETWEEN c.startDate AND c.endDate THEN '진행중' " +
+            "WHEN CURRENT_DATE > c.endDate THEN '종료' " +
+            "END, " +
+            "c.phase, " +
+            "c.competitionName, c.startDate, c.endDate, c.content, c.relatedUrl, c.competitionStatus, c.createAt, c.updateAt, c.deleteAt) " +
+            "FROM Competition c " +
+            "LEFT JOIN c.user u " +
+            "LEFT JOIN c.divisions d " +
+            "WHERE (:searchKey IS NULL OR " +
+            "(:searchType = 'title' AND (c.competitionName LIKE %:searchKey%))  OR " +
+            "(:searchType = 'email' AND (u.email LIKE %:searchKey%)) OR " +
+            "(:searchType = 'id' AND (c.competitionId = :numberSearchKey))) " +
+            "AND (:filterStartDate IS NULL OR :filterEndDate IS NULL OR (c.createAt BETWEEN :filterStartDate AND :filterEndDate)) " +
+            "AND (:division = '전체' OR d.divisionName = :division) " +
+            "AND (:situation = '전체' OR " +
+            "(:situation = '예정' AND CURRENT_DATE < c.startDate) OR " +
+            "(:situation = '진행중' AND CURRENT_DATE BETWEEN c.startDate AND c.endDate) OR " +
+            "(:situation = '완료' AND CURRENT_DATE > c.endDate)) " +
+            "GROUP BY c.competitionId " +
+            "ORDER BY c.createAt DESC")
+    Page<GetCompetitionAdminListResponse> competitionAdminList(String searchType, String searchKey, Integer numberSearchKey, LocalDateTime filterStartDate, LocalDateTime filterEndDate, String division, String situation, Pageable pageable);
 }
