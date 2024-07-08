@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public interface PostJpa extends JpaRepository<Post, Integer>, PostRepositoryCustom {
+public interface PostJpaDao extends JpaRepository<Post, Integer>, PostCustomDao {
     Page<Post> findByIsAnnouncementFalseAndPostStatusAndCategory(Post.PostStatus postStatus, Post.Category category, Pageable pageable);
     List<Post> findByIsAnnouncementTrueAndPostStatusAndCategory(Post.PostStatus postStatus, Post.Category category, Sort sort);
 

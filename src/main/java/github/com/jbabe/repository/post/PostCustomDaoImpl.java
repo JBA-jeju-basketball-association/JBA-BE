@@ -24,7 +24,7 @@ import java.util.Optional;
 
 
 @RequiredArgsConstructor
-public class PostRepositoryCustomImpl implements PostRepositoryCustom{
+public class PostCustomDaoImpl implements PostCustomDao {
     private final JPAQueryFactory jpaQueryFactory;
 
     private final QPost qPost = QPost.post;

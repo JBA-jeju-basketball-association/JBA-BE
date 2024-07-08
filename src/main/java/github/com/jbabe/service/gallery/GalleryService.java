@@ -2,7 +2,7 @@ package github.com.jbabe.service.gallery;
 
 
 import github.com.jbabe.repository.gallery.Gallery;
-import github.com.jbabe.repository.gallery.GalleryJpa;
+import github.com.jbabe.repository.gallery.GalleryJpaDao;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.galleryImg.GalleryImgJpa;
 import github.com.jbabe.repository.user.UserJpa;
@@ -35,7 +35,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GalleryService {
     private final StorageService storageService;
-    private final GalleryJpa galleryJpa;
+    private final GalleryJpaDao galleryJpa;
     private final GalleryImgJpa galleryImgJpa;
     private final UserJpa userJpa;
 
