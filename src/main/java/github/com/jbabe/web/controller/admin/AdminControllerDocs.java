@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 
@@ -40,4 +41,15 @@ public interface AdminControllerDocs {
                                     "시작날짜 값이 있는데 마지막날짜가 null인 경우 현재 날짜로 지정되고<br>" +
                                     "현재 시간 보다 늦은 날짜로 검색 시도시 400 에러 발생 합니다.", example = "2022-07-31")
                             LocalDate endDate);
+
+    @Operation(summary = "유저 권한 수정", description = "유저 권한 수정 API")
+    ResponseDto updateUserPermission(@Parameter(description = "유저 고유 번호 userId (필수 값으로 null은 허용 안됨)") int userId,   @Parameter(description = "유저 권한 수정될 유저의 권한 (필수 값으로 null은 허용 안됨)", examples = {
+            @ExampleObject(name = "ROLE_USER", value = "user", description = "유저 권한으로 조건 검색"),
+            @ExampleObject(name = "ROLE_MASTER", value = "master", description = "마스터 권한 조건 검색"),
+            @ExampleObject(name = "ROLE_ADMIN", value = "admin", description = "운영자 권한 조건 검색"),
+            @ExampleObject(name = "ROLE_REFEREE_LEADER", value = "referee-leader", description = "레프리 리더 조건 검색"),
+            @ExampleObject(name = "ROLE_REFEREE", value = "referee", description = "레프리조건검색"),
+            @ExampleObject(name = "ROLE_TABLE_OFFICIAL_LEADER", value = "table-official-leader", description = "테이블 오피셜 리더 조건검색"),
+            @ExampleObject(name = "ROLE_TABLE_OFFICIAL", value = "table-official", description = " 테이블 오피셜 조건 검색")})
+    String permissionsStr);
 }

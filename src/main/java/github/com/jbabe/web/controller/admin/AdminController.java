@@ -7,10 +7,7 @@ import github.com.jbabe.web.dto.manageUser.UserSearchCriteriaEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
@@ -33,6 +30,13 @@ public class AdminController implements AdminControllerDocs{
         UserSearchCriteriaEnum criteria = keyword != null ? UserSearchCriteriaEnum.pathToEnum(searchCriteriaString) : null;
         User.Role permissions = permissionsStr != null ? User.Role.PathToRole(permissionsStr) : null;
         return new ResponseDto(adminService.getUserInfo(criteria, keyword, permissions, pageable, startDate, endDate));
+    }
 
+    @Override
+    @PutMapping("/user/permission")
+    public ResponseDto updateUserPermission(@RequestParam int userId, @RequestParam String permissionsStr) {
+        User.Role permissions = User.Role.PathToRole(permissionsStr);
+        adminService.updateUserPermission(userId, permissions);
+        return new ResponseDto();
     }
 }
