@@ -16,7 +16,6 @@ public class  QueryDslUtil<T> {
         return new OrderSpecifier(order, fieldPath);
     }
 
-
     public static OrderSpecifier[] getOrderSpecifiers(@NotNull Pageable pageable, @NotNull Class klass) {
 
         // orderVariable must match the variable of FROM
