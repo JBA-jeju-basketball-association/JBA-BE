@@ -8,6 +8,7 @@ import github.com.jbabe.service.mapper.UserMapper;
 import github.com.jbabe.web.dto.manageUser.ManageUserDto;
 import github.com.jbabe.web.dto.manageUser.UserSearchCriteriaEnum;
 import github.com.jbabe.web.dto.myPage.MyPage;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,5 +37,12 @@ public class AdminService {
                 .totalElements(users.getTotalElements())
                 .totalPages(users.getTotalPages())
                 .build();
+    }
+
+    @Transactional
+    public void updateUserPermission(int userId, User.Role permissions) {
+        long execute = userJpa.updatePermissionAndGetExecute(userId, permissions);
+        if(execute == 0) throw new NotFoundException("User not found", userId);
+
     }
 }

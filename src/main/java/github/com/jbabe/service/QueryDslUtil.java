@@ -9,13 +9,11 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
 
 public class  QueryDslUtil<T> {
-
     public static OrderSpecifier<?> getSortedColumn(Order order, Path<?> parent, String fieldName) {
         Path<Object> fieldPath = Expressions.path(Object.class, parent, fieldName);
         //  메서드 내부에서는 Expressions.path() 메서드를 사용하여 Path<Object> 객체를 생성합니다. 이 객체는 부모 경로와 필드 이름을 조합하여 특정 필드를 가리키는 경로를 나타냅니다.
         return new OrderSpecifier(order, fieldPath);
     }
-
 
     public static OrderSpecifier[] getOrderSpecifiers(@NotNull Pageable pageable, @NotNull Class klass) {
 
