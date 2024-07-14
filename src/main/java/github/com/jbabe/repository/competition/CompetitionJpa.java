@@ -58,7 +58,7 @@ public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
             "AND (:situation = '전체' OR " +
             "(:situation = '예정' AND CURRENT_DATE < c.startDate) OR " +
             "(:situation = '진행중' AND CURRENT_DATE BETWEEN c.startDate AND c.endDate) OR " +
-            "(:situation = '완료' AND CURRENT_DATE > c.endDate)) " +
+            "(:situation = '종료' AND CURRENT_DATE > c.endDate)) " +
             "GROUP BY c.competitionId " +
             "ORDER BY c.createAt DESC")
     Page<GetCompetitionAdminListResponse> competitionAdminList(String searchType, String searchKey, Integer numberSearchKey, LocalDateTime filterStartDate, LocalDateTime filterEndDate, String division, String situation, Pageable pageable);

@@ -74,9 +74,9 @@ public class CompetitionAdminController {
         if (!divisionList.contains(division))
             throw new BadRequestException("해당 종별을 존재하지 않습니다.", division);
 
-        List<String> situationList = new ArrayList<>(Arrays.asList("전체", "예정", "진행중", "완료"));
+        List<String> situationList = new ArrayList<>(Arrays.asList("전체", "예정", "진행중", "종료"));
         if (!situationList.contains(situation))
-            throw new BadRequestException("situation은 전체, 예정, 진행중, 완료 만 가능합니다.", situation);
+            throw new BadRequestException("situation은 전체, 예정, 진행중, 종료 만 가능합니다.", situation);
 
         Page<GetCompetitionAdminListResponse> responses = competitionAdminService.getCompetitionAdminList(searchType, searchKey, filterStartDate, filterEndDate, division, situation, pageable);
         return new ResponseDto(responses);
