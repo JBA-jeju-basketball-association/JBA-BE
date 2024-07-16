@@ -30,6 +30,9 @@ jasypt:
   encryptor:
     password: ${JASYPT_SECRET_KEY}
     bean: jasyptStringEncryptor
+    property:
+      prefix: ENC(
+      suffix: )
 
 jwt:
   jwt-password:
