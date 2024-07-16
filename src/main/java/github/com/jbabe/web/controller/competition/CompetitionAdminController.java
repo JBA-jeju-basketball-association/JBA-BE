@@ -37,7 +37,7 @@ public class CompetitionAdminController {
             searchKey 는 string 타입으로 null 또는 빈 스트링 넣으면 전체 조회 \n
             날짜는 둘중 하나가 null 일 경우 전체조회(filterStartDate, filterEndDate 둘다 있어야 필터가 적용됨) \n
             division 은 전체 또는 divisionENum table 에 있는 division 만 넣을 수 있음(대회 게시물 전체 조회 및 division 목록 조회 api 참고) \n
-            situation 은 전체, 예정, 진행중, 완료 만 가능
+            situation 은 전체, 예정, 진행중, 종료 만 가능
             
             searchKey, filterStartDate, filterEndDate 만 null 허용
             searchKey 미입력 시 title
