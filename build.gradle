@@ -105,7 +105,7 @@ tasks.named('test') {
 tasks.named('bootJar'){
     mainClass = 'github.com.jbabe.JbaBeApplication'
     destinationDirectory = file(buildDir)
-    archiveBaseName = 'jba_ver'
+    archivesBaseName = 'jba_ver'
     archiveVersion = "0.0.3"
 }
 clean {
