@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,7 +22,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+      uses: gradle/actions/setup-gradle@v3
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build --exclude-task test
@@ -36,6 +35,7 @@ jobs:
         APP_NAME=myapp
         JAR_PATH=/path/to/deploy
         JAR_FILE=\$JAR_PATH/\$APP_NAME.jar
+        BACKUP_DIR=\$JAR_PATH/backup
         LOG_FILE=\$JAR_PATH/\$APP_NAME.log
 
         mkdir -p \$BACKUP_DIR
@@ -48,6 +48,11 @@ jobs:
             echo 'No application process found.'
         fi
 
+        if [ -f \$JAR_FILE ]; then
+            echo 'Backing up current jar file...'
+            mv \$JAR_FILE \$BACKUP_DIR/\$(date +%Y%m%d%H%M%S)_\$APP_NAME.jar
+        fi
+
         echo 'Deploying new jar file...'
         cp \$JAR_PATH/build/libs/*.jar \$JAR_FILE
 
@@ -58,7 +63,7 @@ jobs:
         " > deployment/deploy.sh
         chmod +x deployment/deploy.sh
 
-    - name: executing remote ssh commands using ssh key
+    - name: Check SSH connection
       uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.HOST }}
@@ -68,6 +73,16 @@ jobs:
         script: |
           whoami
           ls -al
+          echo "SSH connection successful."
+
+    - name: Create deployment directory
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
           mkdir -p /path/to/deploy
 
     - name: Deploy files to server
@@ -80,7 +95,7 @@ jobs:
         source: "deployment/*"
         target: "/path/to/deploy"
 
-    - name: executing remote ssh commands for deployment
+    - name: Run deployment script on server
       uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.HOST }}
@@ -92,7 +107,6 @@ jobs:
           ./deploy.sh
 
   dependency-submission:
-
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -106,4 +120,4 @@ jobs:
         distribution: 'temurin'
 
     - name: Generate and submit dependency graph
-      uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+      uses: gradle/actions/dependency-submission@v3
