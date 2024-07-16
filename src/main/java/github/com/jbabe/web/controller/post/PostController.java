@@ -2,6 +2,7 @@ package github.com.jbabe.web.controller.post;
 
 import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.service.exception.BadRequestException;
+import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.post.PostService;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
@@ -13,12 +14,15 @@ import github.com.jbabe.web.dto.post.PostModifyDto;
 import github.com.jbabe.web.dto.post.PostReqDto;
 import github.com.jbabe.web.dto.post.PostsListDto;
 import github.com.jbabe.web.dto.storage.FileDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,7 +68,7 @@ public class PostController implements PostControllerDocs{
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable String category,
             @RequestParam(required = false) boolean isOfficial,
-            @RequestPart (value = "body") PostReqDto postReqDto,
+            @RequestPart (value = "body") @Valid PostReqDto postReqDto,
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> multipartFiles,
             @RequestParam(required = false) Optional<SaveFileType> type){
 
@@ -85,7 +89,7 @@ public class PostController implements PostControllerDocs{
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Integer postId,
             @RequestParam(required = false) Boolean isOfficial,
-            @RequestPart (value = "body") PostModifyDto postModifyDto,
+            @RequestPart (value = "body") @Valid PostModifyDto postModifyDto,
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> multipartFiles,
             @RequestParam(required = false) Optional<SaveFileType> type){
 
@@ -96,11 +100,17 @@ public class PostController implements PostControllerDocs{
         if (multipartFiles != null && !multipartFiles.isEmpty()) {
             files = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(() -> SaveFileType.small));
         }
-        boolean response = postService.updatePost(postModifyDto, postId, files, isOfficial, customUserDetails);
-        if (response) {
-            return new ResponseDto();
-        } else {
-            throw new BadRequestException("BRE", postModifyDto);
+        try {
+            boolean response = postService.updatePost(postModifyDto, postId, files, isOfficial, customUserDetails);
+            if (response) {
+                return new ResponseDto();
+            } else {
+                throw new BadRequestException("BRE", postModifyDto);
+            }
+        }catch (DataIntegrityViolationException sqlException){
+            throw new ConflictException("Title Duplication",postModifyDto.getTitle());
+        }catch (JpaSystemException jpaSystemException){
+            throw new BadRequestException("Missing A Required Value", postModifyDto);
         }
     }
 
