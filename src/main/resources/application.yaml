@@ -58,6 +58,6 @@ springdoc:
 server:
   port: 443
   ssl:
-    key-store: src/main/resources/keystore.p12
+    key-store: ../src/main/resources/keystore.p12
     key-store-password: ${ssl_password}
     key-store-type: PKCS12
