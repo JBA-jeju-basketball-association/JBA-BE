@@ -32,6 +32,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    // JUnit 5
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
@@ -102,7 +105,7 @@ tasks.named('test') {
 tasks.named('bootJar'){
     mainClass = 'github.com.jbabe.JbaBeApplication'
     destinationDirectory = file(buildDir)
-    archivesBaseName = 'jba_ver'
+    archiveBaseName = 'jba_ver'
     archiveVersion = "0.0.3"
 }
 clean {
