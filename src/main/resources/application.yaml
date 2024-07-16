@@ -30,9 +30,6 @@ jasypt:
   encryptor:
     password: ${JASYPT_SECRET_KEY}
     bean: jasyptStringEncryptor
-    property:
-      prefix: ENC(
-      suffix: )
 
 jwt:
   jwt-password:
@@ -58,3 +55,9 @@ springdoc:
     path: /jba-docs.html
   version: 1.0.0
 
+server:
+  port: 443
+  ssl:
+    key-store: src/main/resources/keystore.p12
+    key-store-password: ENC(UuRdL4E1wsQ4EZdPDIHxllp0R3OGh/VPFvU+BKZ9rC1VrNx2mzIrmg==)
+    key-store-type: PKCS12
