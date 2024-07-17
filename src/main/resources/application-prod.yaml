@@ -11,9 +11,9 @@ spring:
 
   datasource:
     username: ENC(dwj/vyhyvJGjquwmQNALlTOLF7W+TDrx)
-    password: ENC(Geo4IHpXtYZNzzFrXKJSrvLMYPembAnGT7ajiPagSDg=)
+    password: ENC(8jWQBM8435ZAlmTwUfqMUt8dXq40e3nc)
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(V8aQFNv5wr4Ql3VJodqyM0NlrIhdCqh5IRPrYlMZwR2DjK7NZZihjtMQDeNr4fCpKFl812vkWJ6y8zA6cUyAVOSrjRW0W3olBqRfUO04eXrdrxEJe/H4GjToB4yRFCxH)
+    url: ENC(xsiMXiy5T/nh6LjEMsd7YpORWloNh1FTQgHhLtxCmLVjeTtZxuOe2wY9Q5mJjYhF3G2pF6KcSDTuqwMdfvTmeA==)
     
   mvc:
     pathmatch:
@@ -54,3 +54,10 @@ springdoc:
   swagger-ui:
     path: /jba-docs.html
   version: 1.0.0
+
+server:
+  port: 443
+  ssl:
+    key-store: ../../ssldir/keystore.p12
+    key-store-password: ${ssl_password}
+    key-store-type: PKCS12
