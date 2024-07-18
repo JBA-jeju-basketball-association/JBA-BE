@@ -149,7 +149,6 @@ public class User {
         return this.failureCount < 4;
     }
 
-
     public void loginValueSetting(boolean failure){
         this.userStatus = failure ?
                 (isFailureCountingOrLocking()||isUnlockTime() ? UserStatus.NORMAL : UserStatus.LOCKED)
