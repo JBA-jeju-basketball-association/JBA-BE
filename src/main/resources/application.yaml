@@ -41,6 +41,7 @@ email:
 
 aws:
   server-url: ENC(GUpc3MWW/cmzT0P+0CoK7ZFxKSonX3QQMr9auCSmKEI=)
+  new-server-url: ENC(5Uf5jgyCNS1RSm7x9mr11ril8VV0274RlmkXtc5L/K94744heMCh2g==)
   s3:
     credentials:
       access-key: ENC(3GPc4s7104mBP6+PswGBPiXzNHj/Rj+BSaArVv0yf9w=)

@@ -124,21 +124,29 @@ public interface PostControllerDocs {
                                             "}")
                     })
     )
-    @ApiResponse(responseCode = "400", description = "DB 반영 실패",
+    @ApiResponse(responseCode = "400", description = "필수 값 누락",
             content = @Content(mediaType = "application/json",
                     examples = {
-                            @ExampleObject(name = "DB 반영 실패",
-                                    description = "⬆️⬆️ DB에 반영하는데 실패함, DB 조건에 맞지 않는 정보로 인해 DB 세이브 실패함<br>ex) 중복 불가 정보에 중복된 값이 들어온 경우",
+                            @ExampleObject(name = "필수 값 누락 - 제목",
+                                    description = "⬆️⬆️ 필수 값 제목의 누락으로 DB에 반영하는데 실패함",
                                     value = """
-                                            {
-                                              "code": 400,
-                                              "message": "BAD_REQUEST",
-                                              "detailMessage": "DB에 반영하는데 실패하였습니다. (제목이 중복됐을 가능성이 있습니다.)  could not execute statement [(conn=271638) Duplicate entry '게시물 입니다3.' for key 'name'] [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; SQL [insert into post (category,content,create_at,is_announcement,name,user_id) values (?,?,?,?,?,?)]; constraint [name]",
-                                              "request": "게시물 입니다3"
-                                            }""")
+                                              {
+                                                "code": 400,
+                                                "message": "Invalid_Request",
+                                                "detailMessage": "제목은 필수입니다.",
+                                                "request": "title"
+                                              }"""),
+                            @ExampleObject(name = "필수 값 누락 - 내용",
+                                    description = "⬆️⬆️ 필수 값 내용의 누락으로 DB에 반영하는데 실패함",
+                                    value = """
+                                              {
+                                                "code": 400,
+                                                "message": "Invalid_Request",
+                                                "detailMessage": "내용 필수입니다.",
+                                                "request": "content"
+                                              }""")
                     })
     )
-
     @ApiResponse(responseCode = "403", description = "권한이 없을때",
             content = @Content(mediaType = "application/json",
                     examples = {
@@ -162,6 +170,20 @@ public interface PostControllerDocs {
                                             "  \"code\": 200,\n" +
                                             "  \"message\": \"OK\"\n" +
                                             "}")
+                    })
+    )
+    @ApiResponse(responseCode = "409", description = "게시물 제목 중복",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "게시물 제목 중복",
+                                    description = "⬆️⬆️ 작성 시도한 게시물의 제목과 동일한 게시물이 이미 있음",
+                                    value = """
+                                             {
+                                              "code": 409,
+                                              "message": "CONFLICT",
+                                              "detailMessage": "Title Duplication",
+                                              "request": "게시물 입니다."
+                                            }""")
                     })
     )
     ResponseDto regPost(
@@ -229,6 +251,43 @@ public interface PostControllerDocs {
                                             "  \"code\": 200,\n" +
                                             "  \"message\": \"OK\"\n" +
                                             "}")
+                    })
+    )
+    @ApiResponse(responseCode = "409", description = "게시물 제목 중복",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "게시물 제목 중복",
+                                    description = "⬆️⬆️ 작성 시도한 게시물의 제목과 동일한 게시물이 이미 있음",
+                                    value = """
+                                             {
+                                              "code": 409,
+                                              "message": "CONFLICT",
+                                              "detailMessage": "Title Duplication",
+                                              "request": "게시물 입니다."
+                                            }""")
+                    })
+    )
+    @ApiResponse(responseCode = "400", description = "필수 값 누락",
+            content = @Content(mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "필수 값 누락 - 제목",
+                                    description = "⬆️⬆️ 필수 값 제목의 누락으로 DB에 반영하는데 실패함",
+                                    value = """
+                                              {
+                                                "code": 400,
+                                                "message": "Invalid_Request",
+                                                "detailMessage": "제목은 필수입니다.",
+                                                "request": "title"
+                                              }"""),
+                            @ExampleObject(name = "필수 값 누락 - 내용",
+                                    description = "⬆️⬆️ 필수 값 내용의 누락으로 DB에 반영하는데 실패함",
+                                    value = """
+                                              {
+                                                "code": 400,
+                                                "message": "Invalid_Request",
+                                                "detailMessage": "내용 필수입니다.",
+                                                "request": "content"
+                                              }""")
                     })
     )
     ResponseDto updatePost(
