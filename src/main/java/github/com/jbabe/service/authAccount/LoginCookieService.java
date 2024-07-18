@@ -75,8 +75,9 @@ public class LoginCookieService {
 
     @Transactional
     public AccessAndRefreshToken loginCookie(String email, String password) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String userEmail = authentication.getName();
             User user = userJpa.findByEmail(userEmail).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", userEmail));

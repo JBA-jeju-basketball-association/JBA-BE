@@ -9,4 +9,5 @@ import java.time.LocalDate;
 public interface UserCustomDao {
     Page<User> searchUser(UserSearchCriteriaEnum criteria, String keyword, User.Role permissions, Pageable pageable, LocalDate startDate, LocalDate endDate);
 
+    long updatePermissionAndGetExecute(int userId, User.Role permissions);
 }

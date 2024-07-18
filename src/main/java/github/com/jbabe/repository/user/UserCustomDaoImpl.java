@@ -51,4 +51,13 @@ public class UserCustomDaoImpl implements UserCustomDao{
 
         return new PageImpl<>(userList, pageable, total!=null? total:0);
     }
+
+    @Override
+    public long updatePermissionAndGetExecute(int userId, User.Role permissions) {
+        return jpaQueryFactory.update(qUser)
+                .set(qUser.role, permissions)
+                .where(qUser.userId.eq(userId))
+                .execute();
+
+    }
 }
