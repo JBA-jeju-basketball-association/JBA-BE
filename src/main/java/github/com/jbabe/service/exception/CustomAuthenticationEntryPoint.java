@@ -35,7 +35,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         int statusCode = getStatusCode(exception);
 
         response.setStatus(statusCode);
-        
+
         String[] responseStr = checkExceptionAndMakeMessage(request, exception);
 
         makeResponse(responseStr, statusCode,response);
