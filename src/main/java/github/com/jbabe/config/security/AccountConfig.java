@@ -4,6 +4,7 @@ import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,11 +30,11 @@ public class AccountConfig {
 
 
 
-    @Transactional
-    public User failureCounting(String principal) {
+//    @Transactional(noRollbackFor = BadCredentialsException.class)
+    public void failureCounting(String principal) {
         User failUser = findMyUser(principal);
         failUser.loginValueSetting(true);
-        return failUser;
+
     }
 
     @Transactional
