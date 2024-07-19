@@ -31,7 +31,7 @@ public class Division {
     private List<CompetitionRecord> competitionRecords;
 
     @ManyToOne
-    @JoinColumn(name = "division_enum_id", nullable = false)
+    @JoinColumn(name = "division_enum_id")
     private DivisionEnum divisionEnum;
 
 }

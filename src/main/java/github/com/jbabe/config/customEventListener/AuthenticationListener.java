@@ -21,15 +21,15 @@ public class AuthenticationListener {
 
     @EventListener
     public void handleBadCredentialsEvent(AuthenticationFailureBadCredentialsEvent event){
-        accountConfig.failureCounting(event.getAuthentication().getName());
+        User user = accountConfig.failureCounting(event.getAuthentication().getName());
 
-//        throw new CustomBadCredentialsException(
-//                user.getUserStatus() == User.UserStatus.LOCKED?
-//                        event.getException().getMessage()+" 계정이 잠깁니다."
-//                        :event.getException().getMessage(),
-//                new AuthFailureMessage(user)
-//
-//        );
+        throw new CustomBadCredentialsException(
+                user.getUserStatus() == User.UserStatus.LOCKED?
+                        event.getException().getMessage()+" 계정이 잠깁니다."
+                        :event.getException().getMessage(),
+                new AuthFailureMessage(user)
+
+        );
     }
     @EventListener
     public void handleAuthSuccessEvent(AuthenticationSuccessEvent event){
