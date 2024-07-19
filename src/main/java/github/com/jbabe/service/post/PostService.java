@@ -21,6 +21,7 @@ import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
@@ -209,13 +210,26 @@ public class PostService {
                 .map(PostAttachedFile::getFilePath).toList());
     }
 
+    @Transactional(readOnly = true)
     public MyPage<PostsListDto> searchPostList(Pageable pageable, String category, String keyword) {
 
         if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
-        List<Post> announcementPosts = postJpa.getAnnouncementPosts(categoryEnum, pageable.getSort());
-        Page<Post> generalPosts = postJpa.searchPostList(keyword, categoryEnum, pageable);
-        return getReturnContents(pageable, announcementPosts, generalPosts);
+        Page<Post> postList = postJpa.searchPostList(keyword, categoryEnum, pageable);
+
+        return getReturnContentsNew(pageable, postList);
+    }
+    private MyPage<PostsListDto> getReturnContentsNew(Pageable pageable, Page<Post> generalPosts) {
+        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>generalPosts.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        List<PostsListDto> postsListDto = generalPosts.stream()
+                .map(PostMapper.INSTANCE::PostToPostsListDto).toList();
+
+        return MyPage.<PostsListDto>builder()
+                .type(PostsListDto.class)
+                .content(postsListDto)
+                .totalElements(generalPosts.getTotalElements())
+                .totalPages( generalPosts.getTotalPages())
+                .build();
     }
 
     private MyPage<PostsListDto> getReturnContents(Pageable pageable, List<Post> announcementPosts, Page<Post> generalPosts) {
