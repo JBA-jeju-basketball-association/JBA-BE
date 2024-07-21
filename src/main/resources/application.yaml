@@ -10,11 +10,20 @@ spring:
       max-request-size: 10MB # 한개 요청의 최대 사이즈 (default: 10MB)
 
   datasource:
-    username: ENC(dwj/vyhyvJGjquwmQNALlTOLF7W+TDrx)
-    password: ENC(Geo4IHpXtYZNzzFrXKJSrvLMYPembAnGT7ajiPagSDg=)
+    username: ENC(TlaulwBRllLajYjTkCauEQ==)
+    password: ENC(64fDxMDXCawegKuZFDbzkOlbuHgtfv4U)
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(V8aQFNv5wr4Ql3VJodqyM0NlrIhdCqh5IRPrYlMZwR2DjK7NZZihjtMQDeNr4fCpKFl812vkWJ6y8zA6cUyAVOSrjRW0W3olBqRfUO04eXrdrxEJe/H4GjToB4yRFCxH)
-    
+    url: ENC(ZfqrxTBGigFdkVnsSO3vGKIm0PFAjRK382DCHI1WHDeY3+J+CQqeOz9JJ1rNs/mn4KRnj9ZHcpo=)
+
+
+#    devDB
+#  datasource:
+#    username: ENC(9tw3qrOzQ9In8o0DZo2Id+6ohWLEj8ZL)
+#    password: ENC(7xE8H8L38tpigQdQVREk7Yd1/eck19TIcxtkMwPvBho=)
+#    driver-class-name: org.mariadb.jdbc.Driver
+#    url: ENC(V8aQFNv5wr4Ql3VJodqyM0NlrIhdCqh5IRPrYlMZwR2DjK7NZZihjtMQDeNr4fCpKFl812vkWJ6y8zA6cUyAVOSrjRW0W3olBqRfUO04eXrdrxEJe/H4GjToB4yRFCxH)
+
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -28,7 +37,7 @@ spring:
 
 jasypt:
   encryptor:
-#    password: ${JASYPT_SECRET_KEY}
+    password: ${JASYPT_SECRET_KEY}
     bean: jasyptStringEncryptor
 
 jwt:
