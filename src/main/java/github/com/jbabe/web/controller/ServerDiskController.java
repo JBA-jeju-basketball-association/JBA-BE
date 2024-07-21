@@ -2,12 +2,8 @@ package github.com.jbabe.web.controller;
 
 import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.web.dto.ResponseDto;
-import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.storage.FileDto;
-import github.com.jbabe.web.dto.storage.RequestFileDto;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.jni.FileInfo;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +25,13 @@ public class ServerDiskController {
     public ResponseDto uploadFile(@RequestPart("uploadFiles")List<MultipartFile> multipartFiles) {
         List<FileDto> response = serverDiskService.fileUploadAndGetUrl(multipartFiles);
         return new ResponseDto(response);
+    }
+
+    @PostMapping("/ck-editor-upload")
+    public Map<String, Object> ckEditorImgUpload(//한개 업로드
+                                                 @RequestPart("uploadFile") MultipartFile multipartFile
+    ) {
+        return serverDiskService.ckEditorImgUpload(multipartFile);
     }
 
     @GetMapping("/getFile/{fileServerName}")
