@@ -17,25 +17,23 @@ import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.web.dto.competition.CompetitionDetailAttachedFile;
-import github.com.jbabe.web.dto.competition.GetCompetitionAdminListRequest;
 import github.com.jbabe.web.dto.competition.GetCompetitionAdminListResponse;
 import github.com.jbabe.web.dto.competition.GetTotalCompetitionAndDivisionList;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static io.netty.util.AsciiString.containsIgnoreCase;
 
 @Service
 @RequiredArgsConstructor
@@ -51,27 +49,27 @@ public class CompetitionAdminService {
     private final CompetitionPlaceJpa competitionPlaceJpa;
 
 
-    public Page<GetCompetitionAdminListResponse> getCompetitionAdminList(GetCompetitionAdminListRequest request, Pageable pageable) {
+    public Page<GetCompetitionAdminListResponse> getCompetitionAdminList(String searchType, String searchKey, LocalDate filterStartDate, LocalDate filterEndDate, String division, String situation, Pageable pageable) {
         LocalDateTime filterStartTime;
         LocalDateTime filterEndTime;
-        String realSearchKey = request.getSearchKey();
+        String realSearchKey = searchKey;
         Integer numberSearchKey = 0;
         try {
             numberSearchKey = Integer.parseInt(realSearchKey);
         }catch (NumberFormatException e) {}
 
-        if (request.getFilterStartDate() != null) {
-            filterStartTime = LocalDateTime.ofInstant(request.getFilterStartDate().toInstant(), ZoneId.systemDefault());
+        if (filterStartDate != null) {
+            filterStartTime = filterStartDate.atTime(LocalTime.of(0,0,0));
         }else filterStartTime = null;
 
-        if (request.getFilterEndDate() != null) {
-            filterEndTime = LocalDateTime.ofInstant(request.getFilterEndDate().toInstant(), ZoneId.systemDefault());
+        if (filterEndDate != null) {
+            filterEndTime = filterEndDate.atTime(LocalTime.of(0,0,0));
         }else filterEndTime = null;
 
-        if (Objects.equals(request.getSearchKey(), "")) realSearchKey = null;
+        if (Objects.equals(searchKey, "")) realSearchKey = null;
 
         Page<GetCompetitionAdminListResponse> responses =
-                competitionJpa.competitionAdminList(request.getSearchType(), realSearchKey, numberSearchKey, filterStartTime, filterEndTime, request.getDivision(), request.getSituation(), pageable);
+                competitionJpa.competitionAdminList(searchType, realSearchKey, numberSearchKey, filterStartTime, filterEndTime, division, situation, pageable);
 
         responses.getContent().forEach(item -> {
             if (item.getContent() != null) item.setContent(Jsoup.parse(item.getContent()).text().replace("\u00A0", " "));

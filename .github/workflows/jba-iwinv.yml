@@ -1,0 +1,123 @@
+name: jba iwinv
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build --exclude-task test
+
+    - name: Prepare files for deployment
+      run: |
+        mkdir -p deployment
+        cp -r build/libs/*.jar deployment/
+        echo "#!/bin/bash
+        APP_NAME=myapp
+        JAR_PATH=/path/to/deploy
+        JAR_FILE=\$JAR_PATH/\$APP_NAME.jar
+        BACKUP_DIR=\$JAR_PATH/backup
+        LOG_FILE=\$JAR_PATH/\$APP_NAME.log
+
+        mkdir -p \$BACKUP_DIR
+
+        echo 'Stopping current application...'
+        if pgrep -f \$APP_NAME.jar > /dev/null; then
+            pkill -f \$APP_NAME.jar
+            echo 'Application stopped.'
+        else
+            echo 'No application process found.'
+        fi
+
+        if [ -f \$JAR_FILE ]; then
+            echo 'Backing up current jar file...'
+            mv \$JAR_FILE \$BACKUP_DIR/\$(date +%Y%m%d%H%M%S)_\$APP_NAME.jar
+        fi
+
+        echo 'Deploying new jar file...'
+        cp \$JAR_PATH/build/libs/*.jar \$JAR_FILE
+
+        echo 'Starting new application...'
+        nohup java -jar \$JAR_FILE > \$LOG_FILE 2>&1 &
+
+        echo 'Deployment complete. Application started.'
+        " > deployment/deploy.sh
+        chmod +x deployment/deploy.sh
+
+    - name: Check SSH connection
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          whoami
+          ls -al
+          echo "SSH connection successful."
+
+    - name: Create deployment directory
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          mkdir -p /path/to/deploy
+
+    - name: Deploy files to server
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        source: "deployment/*"
+        target: "/path/to/deploy"
+
+    - name: Run deployment script on server
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd /path/to/deploy
+          ./deploy.sh
+
+  dependency-submission:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Generate and submit dependency graph
+      uses: gradle/actions/dependency-submission@v3

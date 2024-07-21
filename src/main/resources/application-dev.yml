@@ -10,8 +10,8 @@ spring:
       max-request-size: 10MB # 한개 요청의 최대 사이즈 (default: 10MB)
 
   datasource:
-    username: ENC(dwj/vyhyvJGjquwmQNALlTOLF7W+TDrx)
-    password: ENC(Geo4IHpXtYZNzzFrXKJSrvLMYPembAnGT7ajiPagSDg=)
+    username: ENC(9tw3qrOzQ9In8o0DZo2Id+6ohWLEj8ZL)
+    password: ENC(7xE8H8L38tpigQdQVREk7Yd1/eck19TIcxtkMwPvBho=)
     driver-class-name: org.mariadb.jdbc.Driver
     url: ENC(V8aQFNv5wr4Ql3VJodqyM0NlrIhdCqh5IRPrYlMZwR2DjK7NZZihjtMQDeNr4fCpKFl812vkWJ6y8zA6cUyAVOSrjRW0W3olBqRfUO04eXrdrxEJe/H4GjToB4yRFCxH)
 
@@ -21,6 +21,11 @@ spring:
   jpa:
     open-in-view: false
     show-sql: true
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        format_sql: true
   data:
     redis:
       host: localhost
@@ -55,4 +60,7 @@ springdoc:
   swagger-ui:
     path: /jba-docs.html
   version: 1.0.0
-
+server:
+  port: 8080
+  ssl:
+    enabled: false

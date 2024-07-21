@@ -74,10 +74,10 @@ public class PostController implements PostControllerDocs{
 
         if(multipartFiles != null && !multipartFiles.isEmpty()){
             List<FileDto> files = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
-            boolean response = postService.createPost(postReqDto, category, files, isOfficial);
+            boolean response = postService.createPost(postReqDto, category, files, isOfficial, customUserDetails);
             if(response) return new ResponseDto();
         }
-        boolean response = postService.createPost(postReqDto, category, null, isOfficial);
+        boolean response = postService.createPost(postReqDto, category, null, isOfficial, customUserDetails);
         if(response) return new ResponseDto();
         else throw new BadRequestException("BRE", postReqDto);
     }

@@ -18,9 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,19 +42,17 @@ public class LoginCookieService {
 
             if (jwtTokenConfig.refreshTokenValidate(redisRefreshToken)) {
                 Date refreshTokenExpiredTime = jwtTokenConfig.getTokenValidity(requestRefreshToken);
-                long cookieExpiredTime = new Date(refreshTokenExpiredTime.getTime()).getTime()/1000;
-
+                long cookieExpiredTime = (refreshTokenExpiredTime.getTime() - System.currentTimeMillis()) / 1000 + (60*60*9);
+                System.out.println(cookieExpiredTime);
                 String userEmail = jwtTokenConfig.getUserEmail(redisRefreshToken);
-
                 String newAccessToken = jwtTokenConfig.createAccessToken(userEmail);
                 String newRefreshToken = jwtTokenConfig.regenerateRefreshToken(userEmail, requestRefreshToken);
                 ResponseCookie cookie = ResponseCookie.from("RefreshToken", newRefreshToken)
-                        .maxAge(cookieExpiredTime) // 쿠키의 유효 시간
-                        .path("/")  // 모든 페이지에서 사용가능
-                        .secure(true) //TODO https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
-                        .sameSite("Strict") //TODO
-                        // 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능 -> 배포 시 변경필요
-                        .httpOnly(true)  // TODO : ssl 배포 시 true 변경 필요
+                        .maxAge(cookieExpiredTime)
+                        .path("/")
+                        .secure(true)
+                        .sameSite("None")
+                        .httpOnly(true)
                         .build();
 
                 jwtTokenConfig.saveRedisTokens(newAccessToken, newRefreshToken);
@@ -87,12 +83,13 @@ public class LoginCookieService {
             String accessToken = jwtTokenConfig.createAccessToken(userEmail);
             String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Tokens 저장
-            ResponseCookie cookie = ResponseCookie.from("RefreshToken", refreshToken)
-                    .maxAge(jwtTokenConfig.getRefreshTokenValidMillisecond()/1000) // 쿠키의 유효 시간
-                    .path("/")  // 모든 페이지에서 사용가능
-                    .secure(true) //TODO https 환경에서만 발동 여부 -> 배포시 true로 변경 필요
-                    .sameSite("None") //TODO 동일 사이트와 크로스 사이트에 모두 쿠키 전송이 가능 -> 배포 시 변경필요
-                    .httpOnly(true)  //TODO : ssl 배포 시 true 변경 필요
+            ResponseCookie cookie = ResponseCookie
+                    .from("RefreshToken", refreshToken)
+                    .maxAge(jwtTokenConfig.getRefreshTokenValidMillisecond()/1000 + 60*60*9)
+                    .path("/")
+                    .secure(true)
+                    .sameSite("None")
+                    .httpOnly(true)
                     .build();
             return new AccessAndRefreshToken(accessToken, cookie);
 

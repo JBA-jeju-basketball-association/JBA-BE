@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
                     "GROUP BY c.competitionId " +
                     "ORDER BY c.startDate DESC, c.endDate DESC, c.competitionId DESC "
     )
-    Page<CompetitionListResponse> findAllCompetitionPagination(String status, Date startDateFilter, Date endDateFilter, Competition.CompetitionStatus competitionStatus, Pageable pageable);
+    Page<CompetitionListResponse> findAllCompetitionPagination(@Param("status") String status, @Param("startDateFilter") Date startDateFilter, @Param("endDateFilter") Date endDateFilter, @Param("competitionStatus") Competition.CompetitionStatus competitionStatus, @Param("pageable") Pageable pageable);
 
     Page<Competition> findAllByCompetitionStatus(Competition.CompetitionStatus competitionStatus, Pageable pageable);
 
@@ -58,7 +59,7 @@ public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
             "AND (:situation = '전체' OR " +
             "(:situation = '예정' AND CURRENT_DATE < c.startDate) OR " +
             "(:situation = '진행중' AND CURRENT_DATE BETWEEN c.startDate AND c.endDate) OR " +
-            "(:situation = '완료' AND CURRENT_DATE > c.endDate)) " +
+            "(:situation = '종료' AND CURRENT_DATE > c.endDate)) " +
             "GROUP BY c.competitionId " +
             "ORDER BY c.createAt DESC")
     Page<GetCompetitionAdminListResponse> competitionAdminList(String searchType, String searchKey, Integer numberSearchKey, LocalDateTime filterStartDate, LocalDateTime filterEndDate, String division, String situation, Pageable pageable);
