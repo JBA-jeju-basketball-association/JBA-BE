@@ -1,5 +1,6 @@
 package github.com.jbabe.config.customEventListener;
 
+import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +13,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class SchedulerConfig {
-    private final StorageService storageService;
+    private final ServerDiskService serverDiskService;
     @Scheduled(cron = "1 0 0 * * MON")
     public void cleanupOldWithdrawnUserAndSetupOldProduct(){
         log.warn("파일 삭제 시작");
-        List<String> cleanupList = storageService.cleanupS3Bucket();
-        if(cleanupList == null)
+        List<String> cleanupList = serverDiskService.cleanupStorage();
+        if(cleanupList == null || cleanupList.isEmpty())
             log.info("제거 할 파일이 없습니다.");
         else {
             log.info("삭제된 파일 목록 : " + cleanupList);

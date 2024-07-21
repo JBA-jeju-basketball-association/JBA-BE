@@ -8,6 +8,7 @@ import github.com.jbabe.repository.redis.RedisTokenRepository;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.NotFoundException;
+import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.awsTest.FinishUploadRequest;
@@ -40,7 +41,7 @@ public class Test {
     private final UserJpa userJpa;
     private final RedisTokenRepository redisTokenRepository;
     private final AmazonS3 amazonS3Client;
-    private final StorageService storageService;
+    private final ServerDiskService serverDiskService;
 
     @GetMapping("/test")
     public String test(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -48,12 +49,12 @@ public class Test {
         return user.getName();
     }
 
-    @GetMapping("/testSihu")
+    @GetMapping("/testCleanStorage")
     public Object test() {
 
         log.warn("파일 삭제 시작");
-        List<String> cleanupList = storageService.cleanupS3Bucket();
-        if(cleanupList == null)
+        List<String> cleanupList = serverDiskService.cleanupStorage();
+        if(cleanupList == null || cleanupList.isEmpty())
             log.info("제거 할 파일이 없습니다.");
         else {
             log.info("삭제된 파일 목록 : " + cleanupList);

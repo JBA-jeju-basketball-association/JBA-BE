@@ -4,6 +4,7 @@ import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.post.PostService;
+import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
@@ -37,7 +38,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PostController implements PostControllerDocs{
     private final PostService postService;
-    private final StorageService storageService;
+    private final ServerDiskService serverDiskService;
 
     @Override
     @GetMapping("/{category}")//게시물 목록 전체조회
@@ -73,7 +74,7 @@ public class PostController implements PostControllerDocs{
             @RequestParam(required = false) Optional<SaveFileType> type){
 
         if(multipartFiles != null && !multipartFiles.isEmpty()){
-            List<FileDto> files = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
+            List<FileDto> files = serverDiskService.fileUploadAndGetUrl(multipartFiles);
             boolean response = postService.createPost(postReqDto, category, files, isOfficial, customUserDetails);
             if(response) return new ResponseDto();
         }
@@ -98,7 +99,7 @@ public class PostController implements PostControllerDocs{
 //                .orElse(5);
         List<FileDto> files = null;
         if (multipartFiles != null && !multipartFiles.isEmpty()) {
-            files = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(() -> SaveFileType.small));
+            files = serverDiskService.fileUploadAndGetUrl(multipartFiles);
         }
         try {
             boolean response = postService.updatePost(postModifyDto, postId, files, isOfficial, customUserDetails);
