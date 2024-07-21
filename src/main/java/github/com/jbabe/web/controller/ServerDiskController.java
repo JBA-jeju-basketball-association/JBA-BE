@@ -4,6 +4,7 @@ import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.storage.FileDto;
+import github.com.jbabe.web.dto.storage.RequestFileDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.jni.FileInfo;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/api/upload")
@@ -25,14 +27,14 @@ public class ServerDiskController {
 
     @PostMapping("/uploadFiles")
     public ResponseDto uploadFile(@RequestPart("uploadFiles")List<MultipartFile> multipartFiles) {
-        String response = serverDiskService.fileUploadAndGetUrl(multipartFiles);
+        List<RequestFileDto> response = serverDiskService.fileUploadAndGetUrl(multipartFiles);
         return new ResponseDto(response);
     }
 
-    @GetMapping("/getFile/{fileName}")
-    public ResponseEntity<Resource> getFiles(@PathVariable("fileName") String fileName) {
+    @GetMapping("/getFile/{fileServerName}")
+    public ResponseEntity<Resource> getFiles(@PathVariable("fileServerName") String fileServerName) {
         try {
-            Resource resource = serverDiskService.loadFileAsResource(fileName);
+            Resource resource = serverDiskService.loadFileAsResource(fileServerName);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                     .body(resource);

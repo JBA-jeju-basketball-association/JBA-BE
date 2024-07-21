@@ -1,6 +1,7 @@
 package github.com.jbabe.service.storage;
 
 import github.com.jbabe.web.dto.storage.FileDto;
+import github.com.jbabe.web.dto.storage.RequestFileDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -13,17 +14,21 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ServerDiskService {
     @Value("${upload.path}")
     private String uploadPath;
 
-    public String fileUploadAndGetUrl(List<MultipartFile> multipartFiles) {
+    public List<RequestFileDto> fileUploadAndGetUrl(List<MultipartFile> multipartFiles) {
 
-        multipartFiles.forEach(multipartFile ->
+
+        return multipartFiles.stream().map(multipartFile ->
                 {
                     // 2. 서버에 파일 저장 & DB에 파일 정보(fileinfo) 저장
                     // - 동일 파일명을 피하기 위해 random값 사용
@@ -36,22 +41,28 @@ public class ServerDiskService {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
+
+                    return RequestFileDto.builder()
+                            .uploaded(true)
+                            .url("https://shinhs010.codns.com/v1/api/upload/getFile/" + saveFileName)
+                            .fileName(originalFilename)
+                            .build();
                 }
-        );
-        return "OK";
+        ).collect(Collectors.toList());
+
     }
 
-    public Resource loadFileAsResource(String fileName) throws FileNotFoundException {
+    public Resource loadFileAsResource(String fileServerName) throws FileNotFoundException {
         try {
-            Path filePath = Paths.get(uploadPath).resolve(fileName).normalize();
+            Path filePath = Paths.get(uploadPath).resolve(fileServerName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists()) {
                 return resource;
             }else {
-                throw new FileNotFoundException("File not found: " + fileName);
+                throw new FileNotFoundException("File not found: " + fileServerName);
             }
         }catch (MalformedURLException | FileNotFoundException ex) {
-            throw new FileNotFoundException("File not found: " + fileName);
+            throw new FileNotFoundException("File not found: " + fileServerName);
         }
     }
 
