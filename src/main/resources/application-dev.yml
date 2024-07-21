@@ -61,3 +61,5 @@ springdoc:
     path: /jba-docs.html
   version: 1.0.0
 
+upload:
+  path: /mnt/files/
