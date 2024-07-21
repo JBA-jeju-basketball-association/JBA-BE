@@ -55,12 +55,9 @@ public class GalleryController implements GalleryControllerDocs{
     public ResponseDto regGalleryPost(@RequestBody GalleryDetailsDto requestRegister,
                                       @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                       @RequestParam(name = "official", required = false) boolean isOfficial){
-        //유저아이디 임시로 null일경우 5삽입
-        Integer userId = Optional.ofNullable(customUserDetails)
-                .map(CustomUserDetails::getUserId)
-                .orElse(5);
+
         galleryService.registerGalleryPost(requestRegister,
-                userId, isOfficial);
+                customUserDetails, isOfficial);
         return new ResponseDto();
     }
     @Override

@@ -9,6 +9,7 @@ import github.com.jbabe.repository.postImg.PostImgJpa;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.SearchQueryParamUtil;
 import github.com.jbabe.service.exception.BadRequestException;
+import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
 import github.com.jbabe.service.storage.StorageService;
@@ -20,7 +21,9 @@ import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -70,16 +73,20 @@ public class PostService {
     }
 
     @Transactional
-    public boolean createPost(PostReqDto postReqDto, String category, List<FileDto> files, boolean isOfficial) {
+    public boolean createPost(PostReqDto postReqDto, String category, List<FileDto> files, boolean isOfficial, CustomUserDetails customUserDetails) {
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
-        ////테스트 임시 작성자임의 등록
-        Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(5).orElseThrow(()->
-                new NotFoundException("User Not Found", 5)),isOfficial);
+        Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(customUserDetails.getUserId()).orElseThrow(()->
+                new NotFoundException("User Not Found", customUserDetails.getUserId())),isOfficial);
         post.addFiles(files, postReqDto.getPostImgs());
         try{
             postJpa.save(post);
         }catch (DataIntegrityViolationException sqlException){
-            throw new BadRequestException("DB에 반영하는데 실패하였습니다. (제목이 중복됐을 가능성이 있습니다.)  "+sqlException.getMessage(),postReqDto.getTitle());
+            throw new ConflictException("Title Duplication",postReqDto.getTitle());
+        }catch (JpaSystemException jpaSystemException){
+            throw new BadRequestException("Missing A Required Value", postReqDto);
+        }
+        catch (Exception e){
+            throw new BadRequestException("Post Creation Failed", postReqDto);
         }
         return true;
     }
@@ -121,11 +128,12 @@ public class PostService {
 
 
 //        if (!userId.equals(originPost.getUser().getUserId()))
-//            throw new NotAcceptableException("로그인한 유저의 정보와 게시글 작성자 정보가 다름", String.valueOf(postId));
-
+//            throw new NoAcceptableException("로그인한 유저의 정보와 게시글 작성자 정보가 다름", String.valueOf(postId));
         originPost.notifyAndEditSubjectLineContent(postModifyDto, isOfficial);
 
         return true;
+
+
     }
 
     private void checkAndDeleteFiles(Post originPost, List<FileDto> remainingFiles) {
@@ -202,13 +210,26 @@ public class PostService {
                 .map(PostAttachedFile::getFilePath).toList());
     }
 
+    @Transactional(readOnly = true)
     public MyPage<PostsListDto> searchPostList(Pageable pageable, String category, String keyword) {
 
         if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
-        List<Post> announcementPosts = postJpa.getAnnouncementPosts(categoryEnum, pageable.getSort());
-        Page<Post> generalPosts = postJpa.searchPostList(keyword, categoryEnum, pageable);
-        return getReturnContents(pageable, announcementPosts, generalPosts);
+        Page<Post> postList = postJpa.searchPostList(keyword, categoryEnum, pageable);
+
+        return getReturnContentsNew(pageable, postList);
+    }
+    private MyPage<PostsListDto> getReturnContentsNew(Pageable pageable, Page<Post> generalPosts) {
+        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>generalPosts.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
+        List<PostsListDto> postsListDto = generalPosts.stream()
+                .map(PostMapper.INSTANCE::PostToPostsListDto).toList();
+
+        return MyPage.<PostsListDto>builder()
+                .type(PostsListDto.class)
+                .content(postsListDto)
+                .totalElements(generalPosts.getTotalElements())
+                .totalPages( generalPosts.getTotalPages())
+                .build();
     }
 
     private MyPage<PostsListDto> getReturnContents(Pageable pageable, List<Post> announcementPosts, Page<Post> generalPosts) {

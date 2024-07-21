@@ -16,7 +16,7 @@ public class DivisionEnum {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "division_enum_id")
-    private long divisionEnumId;
+    private int divisionEnumId;
 
     @Column(name = "division_value", nullable = false)
     private String divisionName;

@@ -3,6 +3,7 @@ package github.com.jbabe.repository.user;
 import github.com.jbabe.service.exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -78,7 +79,7 @@ public class User {
     @Getter
     @AllArgsConstructor
     public enum Gender{
-        MALE("mail"), FEMALE("femail");
+        MALE("male"), FEMALE("female");
         private final String path;
     }
 
@@ -149,8 +150,7 @@ public class User {
         return this.failureCount < 4;
     }
 
-
-    public void loginValueSetting(boolean failure){
+    public User loginValueSetting(boolean failure){
         this.userStatus = failure ?
                 (isFailureCountingOrLocking()||isUnlockTime() ? UserStatus.NORMAL : UserStatus.LOCKED)
                 : UserStatus.NORMAL;
@@ -160,6 +160,7 @@ public class User {
                         : (isFailureCountingOrLocking() ? failureCount + 1 : 0))
                 : 0;
         this.lockAt = failure ? LocalDateTime.now() : null;
+        return this;
     }
 
 }

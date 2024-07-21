@@ -60,4 +60,14 @@ public class UserCustomDaoImpl implements UserCustomDao{
                 .execute();
 
     }
+
+    @Override
+    public void updateFailureCount(User user) {
+        jpaQueryFactory.update(qUser)
+                .set(qUser.failureCount, user.getFailureCount())
+                .set(qUser.userStatus, user.getUserStatus())
+                .set(qUser.lockAt, user.getLockAt())
+                .where(qUser.userId.eq(user.getUserId()))
+                .execute();
+    }
 }
