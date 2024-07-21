@@ -75,8 +75,8 @@ public class PostService {
     public boolean createPost(PostReqDto postReqDto, String category, List<FileDto> files, boolean isOfficial) {
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
         ////테스트 임시 작성자임의 등록
-        Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(5).orElseThrow(()->
-                new NotFoundException("User Not Found", 5)),isOfficial);
+        Post post = PostMapper.INSTANCE.PostRequestToPostEntity(postReqDto, categoryEnum, userJpa.findById(22).orElseThrow(()->
+                new NotFoundException("User Not Found", 22)),isOfficial);
         post.addFiles(files, postReqDto.getPostImgs());
         try{
             postJpa.save(post);

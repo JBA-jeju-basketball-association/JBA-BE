@@ -10,8 +10,8 @@ spring:
       max-request-size: 10MB # 한개 요청의 최대 사이즈 (default: 10MB)
 
   datasource:
-    username: ENC(dwj/vyhyvJGjquwmQNALlTOLF7W+TDrx)
-    password: ENC(Geo4IHpXtYZNzzFrXKJSrvLMYPembAnGT7ajiPagSDg=)
+    username: ENC(9tw3qrOzQ9In8o0DZo2Id+6ohWLEj8ZL)
+    password: ENC(7xE8H8L38tpigQdQVREk7Yd1/eck19TIcxtkMwPvBho=)
     driver-class-name: org.mariadb.jdbc.Driver
     url: ENC(V8aQFNv5wr4Ql3VJodqyM0NlrIhdCqh5IRPrYlMZwR2DjK7NZZihjtMQDeNr4fCpKFl812vkWJ6y8zA6cUyAVOSrjRW0W3olBqRfUO04eXrdrxEJe/H4GjToB4yRFCxH)
 
