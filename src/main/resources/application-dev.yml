@@ -60,4 +60,7 @@ springdoc:
   swagger-ui:
     path: /jba-docs.html
   version: 1.0.0
-
+server:
+  port: 8080
+  ssl:
+    enabled: false
