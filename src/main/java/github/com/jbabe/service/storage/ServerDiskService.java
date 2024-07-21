@@ -114,11 +114,10 @@ public class ServerDiskService {
                 Path filePath = Paths.get(uploadPath).resolve(item).normalize();
                 try {
                     Files.deleteIfExists(filePath);
+                    deleteList.add(item);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }else {
-                deleteList.add(item);
             }
         });
         return deleteList;
