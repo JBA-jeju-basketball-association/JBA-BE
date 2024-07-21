@@ -13,7 +13,7 @@ public interface PostCustomDao {
 
     Page<Post> searchPostList(String keyword, Post.Category category, Pageable pageable);
 
-    List<Post> getAnnouncementPosts(Post.Category categoryEnum, Sort sort);
+    List<Post> getAnnouncementPosts(Post.Category categoryEnum, Pageable pageable);
 
     Page<Post> getPostsListFileFetch(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum, LocalDate startDate, LocalDate endDate);
 

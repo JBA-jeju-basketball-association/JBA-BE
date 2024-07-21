@@ -6,6 +6,7 @@ import github.com.jbabe.web.filters.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,6 +37,9 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfig()))
                 .authorizeRequests(a ->
                         a
+                                .requestMatchers(HttpMethod.POST, "/v1/api/post/*","/v1/api/gallery/register").hasAnyRole("MASTER", "ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/v1/api/post/**", "/v1/api/gallery/*").hasAnyRole("MASTER", "ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/v1/api/post/*", "/v1/api/gallery/*").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers("/test","v1/api/competition/post/**", "v1/api/competition/delete/**", "v1/api/competition/update/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers("/v1/api/sign/logout").authenticated()
 

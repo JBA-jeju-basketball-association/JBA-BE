@@ -11,6 +11,7 @@ import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.GalleryMapper;
 import github.com.jbabe.service.storage.StorageService;
+import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -78,10 +80,11 @@ public class GalleryService {
     }
 
     @Transactional
-    public void registerGalleryPost(GalleryDetailsDto requestRegister, Integer userId, boolean isOfficial) {
+    public void registerGalleryPost(GalleryDetailsDto requestRegister, CustomUserDetails customUserDetails, boolean isOfficial) {
 
+        int userId = customUserDetails.getUserId();
         Gallery galleryEntity = GalleryMapper.INSTANCE.GalleryDetailsDtoToGallery(requestRegister, userJpa.findById(userId)
-                .orElseThrow(()->new NotFoundException("NotFoundUser", 5)), isOfficial);// 유저아이디 임시삽입
+                .orElseThrow(()->new NotFoundException("NotFoundUser", userId)), isOfficial);
 
 //        for(GalleryImg img: galleryEntity.getGalleryImgs()){
 //            img.setGallery(galleryEntity);
