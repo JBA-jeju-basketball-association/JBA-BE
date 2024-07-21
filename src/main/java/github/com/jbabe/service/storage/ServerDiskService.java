@@ -108,6 +108,7 @@ public class ServerDiskService {
     public List<String> cleanupStorage() {
         List<String> byDB = getAllFileKeysByDB();
         List<String> byStorage = getAllFileServerName();
+        List<String> deleteList = new ArrayList<>();
         byStorage.forEach(item -> {
             if (!byDB.contains(item)) {
                 Path filePath = Paths.get(uploadPath).resolve(item).normalize();
@@ -117,10 +118,10 @@ public class ServerDiskService {
                     throw new RuntimeException(e);
                 }
             }else {
-                byStorage.remove(item);
+                deleteList.add(item);
             }
         });
-        return byDB;
+        return deleteList;
     }
 
     public Resource loadFileAsResource(String fileServerName) throws FileNotFoundException {
@@ -168,7 +169,7 @@ public class ServerDiskService {
 
 
     public List<String> getAllFileKeysByDB(){
-        Set<String> filePath = new HashSet<>();
+        List<String> filePath = new ArrayList<>();
         filePath.addAll(competitionAttachedFileJpa.findAllFilePath());
         filePath.addAll(competitionImgJpa.findAllFilePath());
         filePath.addAll(competitionRecordJpa.findAllFilePath());
