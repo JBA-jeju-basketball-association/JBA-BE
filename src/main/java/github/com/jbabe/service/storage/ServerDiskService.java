@@ -25,7 +25,7 @@ public class ServerDiskService {
     @Value("${upload.path}")
     private String uploadPath;
 
-    public List<RequestFileDto> fileUploadAndGetUrl(List<MultipartFile> multipartFiles) {
+    public List<FileDto> fileUploadAndGetUrl(List<MultipartFile> multipartFiles) {
 
 
         return multipartFiles.stream().map(multipartFile ->
@@ -42,9 +42,8 @@ public class ServerDiskService {
                         throw new RuntimeException(e);
                     }
 
-                    return RequestFileDto.builder()
-                            .uploaded(true)
-                            .url("https://shinhs010.codns.com/v1/api/upload/getFile/" + saveFileName)
+                    return FileDto.builder()
+                            .fileUrl("https://shinhs010.codns.com/v1/api/upload/getFile/" + saveFileName)
                             .fileName(originalFilename)
                             .build();
                 }
