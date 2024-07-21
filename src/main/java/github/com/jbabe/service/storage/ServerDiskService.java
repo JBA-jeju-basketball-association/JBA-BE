@@ -1,16 +1,25 @@
 package github.com.jbabe.service.storage;
 
 import github.com.jbabe.web.dto.storage.FileDto;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ServerDiskService {
+    @Value("${upload.path}")
+    private String uploadPath;
 
     public String fileUploadAndGetUrl(List<MultipartFile> multipartFiles) {
 
@@ -32,6 +41,20 @@ public class ServerDiskService {
         return "OK";
     }
 
+    public Resource loadFileAsResource(String fileName) throws FileNotFoundException {
+        try {
+            Path filePath = Paths.get(uploadPath).resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()) {
+                return resource;
+            }else {
+                throw new FileNotFoundException("File not found: " + fileName);
+            }
+        }catch (MalformedURLException | FileNotFoundException ex) {
+            throw new FileNotFoundException("File not found: " + fileName);
+        }
+    }
+
 
     // 파일 저장 이름 만들기
 // - 사용자들이 올리는 파일 이름이 같을 수 있으므로, 자체적으로 랜덤 이름을 만들어 사용한다
@@ -49,6 +72,6 @@ public class ServerDiskService {
 
     // fullPath 만들기
     private String getFullPath(String filename) {
-        return "/mnt/files" + filename;
+        return "/mnt/files/" + filename;
     }
 }
