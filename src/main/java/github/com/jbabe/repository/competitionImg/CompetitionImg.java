@@ -16,7 +16,7 @@ public class CompetitionImg {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "competition_img_id")
-    private String competitionImgId;
+    private long competitionImgId;
 
     @JoinColumn(name = "competition_id", nullable = false)
     @ManyToOne

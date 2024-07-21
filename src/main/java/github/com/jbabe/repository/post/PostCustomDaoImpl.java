@@ -13,10 +13,7 @@ import github.com.jbabe.repository.user.QUser;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,38 +30,36 @@ public class PostCustomDaoImpl implements PostCustomDao {
 
     @Override
     public Page<Post> searchPostList(String keyword, Post.Category category, Pageable pageable){
-//        QPost qPost = QPost.post;
+
         BooleanExpression predicate = qPost.category.eq(category)
-                .and(qPost.isAnnouncement.eq(false))
                 .and(qPost.postStatus.eq(Post.PostStatus.NORMAL));
         if(keyword!=null) {
             predicate = predicate.and(qPost.name.containsIgnoreCase(keyword));
 //                    .or(qPost.content.containsIgnoreCase(keyword)));
         }
-        List<Post> postList = getPostListQuery(qPost, predicate, pageable);
+        List<Post> postList = getPostListQuery(predicate, pageable);
+
+        return new PageImpl<>(postList, pageable,
+                pageable.getPageNumber()==0 && postList.isEmpty() ? 0 : getPostTotalCount(predicate));
 
 
 
-
-        Long total = getPostTotalCount(qPost, predicate);
-
-        return new PageImpl<>(postList, pageable, total != null ? total : 0);
 
     }
 
-    private Long getPostTotalCount(QPost qPost, BooleanExpression predicate) {
+    private Long getPostTotalCount(BooleanExpression predicate) {
         return jpaQueryFactory.select(qPost.postId.count())
                 .from(qPost)
                 .where(predicate)
                 .fetchOne();
     }
 
-    private List<Post> getPostListQuery(QPost qPost, BooleanExpression predicate, Pageable pageable) {
+    private List<Post> getPostListQuery(BooleanExpression predicate, Pageable pageable) {
         List<Tuple> tuples = jpaQueryFactory
                 .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount, qPost.foreword)
                 .from(qPost)
                 .where(predicate)
-                .orderBy(qPost.createAt.desc())
+                .orderBy(qPost.isAnnouncement.desc(), qPost.createAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -74,7 +69,7 @@ public class PostCustomDaoImpl implements PostCustomDao {
 
 
     @Override
-    public List<Post> getAnnouncementPosts(Post.Category categoryEnum, Sort sort) {
+    public List<Post> getAnnouncementPosts(Post.Category categoryEnum, Pageable pageable) {
         List<Tuple> tuples = jpaQueryFactory
                 .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount, qPost.foreword)
                 .from(qPost)
@@ -82,6 +77,8 @@ public class PostCustomDaoImpl implements PostCustomDao {
                         .and(qPost.category.eq(categoryEnum))
                         .and(qPost.postStatus.eq(Post.PostStatus.NORMAL)))
                 .orderBy(qPost.createAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
         return tuplesToPostEntity(qPost, tuples);
@@ -187,7 +184,7 @@ public class PostCustomDaoImpl implements PostCustomDao {
 */
 
 
-        Long total = getPostTotalCount(qPost, predicate);
+        Long total = getPostTotalCount(predicate);
 
 
         return new PageImpl<>(postList, pageable, total != null ? total : 0);
