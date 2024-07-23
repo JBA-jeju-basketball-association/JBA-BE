@@ -1,12 +1,14 @@
 package github.com.jbabe.repository.user;
 
 import github.com.jbabe.service.exception.BadRequestException;
+import github.com.jbabe.service.exception.InvalidReqeustException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +38,7 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "phone_num", nullable = false, unique = true)
+    @Column(name = "phone_num", nullable = false)
     private String phoneNum;
 
     @Column(name = "gender", nullable = false)
@@ -161,6 +163,48 @@ public class User {
                 : 0;
         this.lockAt = failure ? LocalDateTime.now() : null;
         return this;
+    }
+
+    public static LocalDate getBirthByLocalDate(String birth) {
+
+        String dateStr = birth.substring(0, 6);
+        LocalDate date;
+
+        // 추출한 6자리 문자열을 yyMMdd 형식의 LocalDate로 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
+        try {
+            date = LocalDate.parse(dateStr, formatter);
+        }catch (Exception e) {
+            throw new InvalidReqeustException("주민번호 유효성 검사 실패", birth);
+        }
+        int currentYear = LocalDate.now().getYear();
+        if (date.getYear() > currentYear) {
+            date = date.withYear(date.getYear() - 100);
+        }
+
+        return date;
+    }
+
+    public static User.Gender transformGender(String birth) {
+        String num = birth.substring(7, 8);
+        if (num.equals("1") || num.equals("3")) {
+            return User.Gender.MALE;
+        }else if (num.equals("2") || num.equals("4")){
+            return User.Gender.FEMALE;
+        }else {
+            throw new InvalidReqeustException("주민번호 유효성 검사 실패", birth);
+        }
+    }
+    public static String getRoleKorean(User.Role role) {
+        return switch (role) {
+            case ROLE_MASTER -> "마스터";
+            case ROLE_ADMIN -> "관리자";
+            case ROLE_REFEREE -> "심판부";
+            case ROLE_REFEREE_LEADER -> "심판이사";
+            case ROLE_TABLE_OFFICIAL -> "경기부";
+            case ROLE_TABLE_OFFICIAL_LEADER -> "경기이사";
+            default -> "회원";
+        };
     }
 
 }

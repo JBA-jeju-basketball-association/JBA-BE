@@ -33,7 +33,7 @@ public class SignUpRequest {
     private String name;
 
     @NotEmpty
-    @Pattern(regexp = "^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})+$", message = "휴대폰번호 유효성 검사 실패")
+    @Pattern(regexp = "^01([016789])-(\\d{4})-(\\d{4})$", message = "휴대폰번호 유효성 검사 실패")
     @Schema(description = "휴대폰번호", example = "010-1234-5678")
     private String phoneNum;
 
@@ -46,36 +46,5 @@ public class SignUpRequest {
 
     public boolean equalsPasswordAndPasswordConfirm() {
         return password.equals(passwordConfirm);
-    }
-
-    public LocalDate getBirthByLocalDate() {
-
-        String dateStr = birth.substring(0, 6);
-        LocalDate date;
-
-        // 추출한 6자리 문자열을 yyMMdd 형식의 LocalDate로 변환
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
-        try {
-             date = LocalDate.parse(dateStr, formatter);
-        }catch (Exception e) {
-            throw new InvalidReqeustException("주민번호 유효성 검사 실패", birth);
-        }
-        int currentYear = LocalDate.now().getYear();
-        if (date.getYear() > currentYear) {
-            date = date.withYear(date.getYear() - 100);
-        }
-
-        return date;
-    }
-
-    public User.Gender transformGender() {
-        String num = birth.substring(7, 8);
-        if (num.equals("1") || num.equals("3")) {
-            return User.Gender.MALE;
-        }else if (num.equals("2") || num.equals("4")){
-            return User.Gender.FEMALE;
-        }else {
-            throw new InvalidReqeustException("주민번호 유효성 검사 실패", birth);
-        }
     }
 }

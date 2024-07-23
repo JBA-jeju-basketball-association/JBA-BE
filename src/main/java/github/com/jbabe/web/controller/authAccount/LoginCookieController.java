@@ -30,7 +30,6 @@ public class LoginCookieController {
         AccessAndRefreshToken accessAndRefreshToken = loginCookieService.loginCookie(loginRequest.getEmail(), loginRequest.getPassword());
         httpServletResponse.setHeader("Set-Cookie", accessAndRefreshToken.getResponseCookie().toString());
         httpServletResponse.setHeader("access-token", accessAndRefreshToken.getAccessToken());
-        System.out.println(accessAndRefreshToken.getResponseCookie().toString());
         return new ResponseDto();
     }
 
@@ -52,7 +51,6 @@ public class LoginCookieController {
         AccessAndRefreshToken newTokens = loginCookieService.refreshTokenCookie(expiredAccessToken, refreshToken);
         response.setHeader("access-token", newTokens.getAccessToken());
         response.setHeader("Set-Cookie", newTokens.getResponseCookie().toString());
-        System.out.println(refreshToken);
         return new ResponseDto();
     }
 
