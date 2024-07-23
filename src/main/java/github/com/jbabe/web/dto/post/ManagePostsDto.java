@@ -16,7 +16,6 @@ public class ManagePostsDto {
     private String thumbnail;
     @Schema(description = "제목", example = "게시물 입니다.")
     private String title;
-//    private String foreword;
     @Schema(description = "내용", example = "<p>POST 페이지 더미데이터입니다.</p>")
     private String content;
 

@@ -8,7 +8,6 @@ import lombok.Setter;
 public class PostsListDto {
     private long postId;
     private Boolean isAnnouncement;
-//    private String foreword;
     private String title;
     private String writer;
     private String createAt;

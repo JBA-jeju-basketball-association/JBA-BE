@@ -56,7 +56,7 @@ public class PostCustomDaoImpl implements PostCustomDao {
 
     private List<Post> getPostListQuery(BooleanExpression predicate, Pageable pageable) {
         List<Tuple> tuples = jpaQueryFactory
-                .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount, qPost.foreword)
+                .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount)
                 .from(qPost)
                 .where(predicate)
                 .orderBy(qPost.isAnnouncement.desc(), qPost.createAt.desc())
@@ -71,7 +71,7 @@ public class PostCustomDaoImpl implements PostCustomDao {
     @Override
     public List<Post> getAnnouncementPosts(Post.Category categoryEnum, Pageable pageable) {
         List<Tuple> tuples = jpaQueryFactory
-                .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount, qPost.foreword)
+                .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount)
                 .from(qPost)
                 .where(qPost.isAnnouncement.eq(true)
                         .and(qPost.category.eq(categoryEnum))
@@ -94,7 +94,6 @@ public class PostCustomDaoImpl implements PostCustomDao {
                                 .name(tuple.get(qPost.user.name))
                                 .build())
                         .viewCount(tuple.get(qPost.viewCount))
-                        .foreword(tuple.get(qPost.foreword))
                         .build())
                 .toList();
     }
