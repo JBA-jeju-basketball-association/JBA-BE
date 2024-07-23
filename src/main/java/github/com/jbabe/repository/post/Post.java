@@ -75,9 +75,6 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<PostImg> postImgs;
 
-    @Column(name = "foreword")
-    private String foreword;
-
     @Transient
     private String tempWriterName;
 
@@ -106,14 +103,12 @@ public void setUserEmail(String email){
         if(thumbnail!=null) this.postImgs = new ArrayList<>(Collections.singletonList(
                 PostImg.builder().imgUrl(thumbnail).build())
         );
-        this.foreword = post.getForeword();
     }
 
     public void notifyAndEditSubjectLineContent(PostModifyDto postModifyDto, Boolean isOfficial) {
         if(isOfficial!=null) this.isAnnouncement = isOfficial;
         this.name = postModifyDto.getTitle();
         this.content = postModifyDto.getContent();
-//        this.foreword = postModifyDto.getForeword();
         addFiles(postModifyDto.getRemainingFiles(), postModifyDto.getPostImgs());
         this.updateAt = LocalDateTime.now();
 
