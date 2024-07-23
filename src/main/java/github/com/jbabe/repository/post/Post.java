@@ -9,12 +9,14 @@ import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -111,7 +113,7 @@ public void setUserEmail(String email){
         if(isOfficial!=null) this.isAnnouncement = isOfficial;
         this.name = postModifyDto.getTitle();
         this.content = postModifyDto.getContent();
-        this.foreword = postModifyDto.getForeword();
+//        this.foreword = postModifyDto.getForeword();
         addFiles(postModifyDto.getRemainingFiles(), postModifyDto.getPostImgs());
         this.updateAt = LocalDateTime.now();
 
