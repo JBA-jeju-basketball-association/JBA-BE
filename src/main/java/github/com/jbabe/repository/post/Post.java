@@ -75,6 +75,7 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<PostImg> postImgs;
 
+
     @Transient
     private String tempWriterName;
 
