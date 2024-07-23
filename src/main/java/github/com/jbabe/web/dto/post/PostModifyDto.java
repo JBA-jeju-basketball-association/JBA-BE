@@ -3,7 +3,6 @@ package github.com.jbabe.web.dto.post;
 import github.com.jbabe.web.dto.storage.FileDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.util.List;
@@ -16,8 +15,8 @@ public class PostModifyDto {
     @NotBlank(message = "내용은 필수입니다.")
     @Schema(description = "응답 메세지", example = "<p>POST 페이지 더미데이터입니다.</p>")
     private String content;
-    @Schema(description = "머릿말", example = "합격자 발표")
-    private String foreword;
+//    @Schema(description = "머릿말", example = "합격자 발표")
+//    private String foreword;
     @Schema(description = "첨부 파일 정보", example = """
             [
                 {
