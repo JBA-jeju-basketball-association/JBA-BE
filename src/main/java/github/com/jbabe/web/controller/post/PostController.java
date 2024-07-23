@@ -39,7 +39,7 @@ import java.util.Optional;
 public class PostController implements PostControllerDocs{
     private final PostService postService;
     private final ServerDiskService serverDiskService;
-
+    private final StorageService storageService;
     @Override
     @GetMapping("/{category}")//게시물 목록 전체조회
     public ResponseDto getAllPostsList(@RequestParam(name = "page", defaultValue = "0") int page,
@@ -99,7 +99,8 @@ public class PostController implements PostControllerDocs{
 //                .orElse(5);
         List<FileDto> files = null;
         if (multipartFiles != null && !multipartFiles.isEmpty()) {
-            files = serverDiskService.fileUploadAndGetUrl(multipartFiles);
+            files = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(() -> SaveFileType.small));
+//            files = serverDiskService.fileUploadAndGetUrl(multipartFiles);
         }
         try {
             boolean response = postService.updatePost(postModifyDto, postId, files, isOfficial, customUserDetails);

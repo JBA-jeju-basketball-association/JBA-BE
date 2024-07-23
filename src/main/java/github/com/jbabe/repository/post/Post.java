@@ -69,11 +69,12 @@ public class Post {
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
 
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<PostAttachedFile> postAttachedFiles;
 
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<PostImg> postImgs;
+
 
     @Transient
     private String tempWriterName;
