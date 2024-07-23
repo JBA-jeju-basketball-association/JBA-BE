@@ -41,6 +41,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.PUT, "/v1/api/post/**", "/v1/api/gallery/*").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/v1/api/post/*", "/v1/api/gallery/*").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers("/test","v1/api/competition/post/**", "v1/api/competition/delete/**", "v1/api/competition/update/**").hasAnyRole("MASTER", "ADMIN")
+                                .requestMatchers("/test","v1/api/user/**").hasAnyRole("MASTER", "ADMIN", "REFEREE", "REFEREE_LEADER", "TABLE_OFFICIAL", "TABLE_OFFICIAL_LEADER", "USER") // 회원이면 가능
+
                                 .requestMatchers("/v1/api/sign/logout").authenticated()
 
                                 .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
