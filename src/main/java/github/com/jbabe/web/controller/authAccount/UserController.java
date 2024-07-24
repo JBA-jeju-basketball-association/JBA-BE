@@ -1,6 +1,7 @@
 package github.com.jbabe.web.controller.authAccount;
 
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.service.authAccount.LoginCookieService;
 import github.com.jbabe.service.authAccount.UserService;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.InvalidReqeustException;
@@ -8,8 +9,11 @@ import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.authAccount.UpdateAccountRequest;
 import github.com.jbabe.web.dto.authAccount.UpdatePasswordRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final LoginCookieService loginCookieService;
 
     @GetMapping("/get/user-info")
     public ResponseDto getUserInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -43,13 +48,17 @@ public class UserController {
 
     @PutMapping("/update/password")
     public ResponseDto updatePassword(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                      @RequestBody @Valid UpdatePasswordRequest request) {
+                                      @RequestBody @Valid UpdatePasswordRequest request,
+                                      HttpServletRequest httpServletRequest,
+                                      HttpServletResponse httpServletResponse) {
         if (!User.isValidSpecialCharacterInPassword(request.getNewPW()))
             throw new InvalidReqeustException("비밀번호에 특수문자는 !@#$^*+=-만 사용 가능합니다.", "password");
         if (!request.getNewPW().equals(request.getNewPWConfirm()))
             throw new BadRequestException("비밀번호와 비밀번호 확인이 같지 않습니다.", "");
 
         String response = userService.updatePassword(customUserDetails, request);
+        ResponseCookie cookie = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("AccessToken"));
+        httpServletResponse.setHeader("Set-Cookie", cookie.toString());
         return new ResponseDto(response);
     }
 }
