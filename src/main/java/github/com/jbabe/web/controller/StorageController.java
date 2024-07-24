@@ -48,6 +48,12 @@ public class StorageController implements StorageControllerDocs{
     public Map<String, Object> ckEditorImgUpload(//한개 업로드
                                   @RequestPart("uploadFile") MultipartFile multipartFile
     ) {
+        Map<String, Object> response;
+        if(activeProfile.equals("dev"))
+            response = storageService.ckEditorImgUpload(multipartFile);
+        else if (activeProfile.equals("default"))
+            response = serverDiskService.ckEditorImgUpload(multipartFile);
+        else throw new StorageUpdateFailedException("activeProfile is not valid", activeProfile);
         return storageService.ckEditorImgUpload(multipartFile);
     }
 

@@ -59,7 +59,7 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("https://jejubasketball.shop", "https://localhost:3000", "http://localhost:3000", "https://jba.co.kr")); // TODO: 쿠키사용 시 변경
+        corsConfiguration.setAllowedOrigins(List.of("https://jbaserver.shop", "https://localhost:3000", "http://localhost:3000", "https://jba.co.kr")); // TODO: 쿠키사용 시 변경
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.addExposedHeader("access-token");
         corsConfiguration.addExposedHeader("refresh-token");
