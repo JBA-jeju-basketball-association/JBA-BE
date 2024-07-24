@@ -22,7 +22,7 @@ public class ServerDiskController {
     private final ServerDiskService serverDiskService;
 
     @PostMapping("/uploadFiles")
-    public ResponseDto uploadFile(@RequestPart("uploadFiles")List<MultipartFile> multipartFiles) {
+    public ResponseDto uploadFil(@RequestPart("uploadFiles")List<MultipartFile> multipartFiles) {
         List<FileDto> response = serverDiskService.fileUploadAndGetUrl(multipartFiles);
         return new ResponseDto(response);
     }
@@ -35,7 +35,7 @@ public class ServerDiskController {
     }
 
     @GetMapping("/getFile/{fileServerName}")
-    public ResponseEntity<Resource> getFiles(@PathVariable("fileServerName") String fileServerName) {
+    public ResponseEntity<Resource> getFile(@PathVariable("fileServerName") String fileServerName) {
         try {
             Resource resource = serverDiskService.loadFileAsResource(fileServerName);
             return ResponseEntity.ok()
