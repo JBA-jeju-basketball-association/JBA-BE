@@ -66,7 +66,7 @@ springdoc:
   version: 1.0.0
 
 server:
-  port: 443
+  port: 8080  # HTTP 포트 설정 (또는 8443으로 설정하여 HTTPS와 혼합할 수 있습니다)
 #  ssl:
 #    key-store: ../../ssldir/keystore.p12
 #    key-store-password: ${ssl_password}
