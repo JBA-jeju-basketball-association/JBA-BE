@@ -69,16 +69,18 @@ public class LoginCookieService {
 
 
 
-    @Transactional
+//    @Transactional
     public AccessAndRefreshToken loginCookie(String email, String password) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
         try {
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
             String userEmail = authentication.getName();
-            User user = userJpa.findByEmail(userEmail).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", userEmail));
-            user.setLoginAt(LocalDateTime.now());
-            userJpa.save(user);
+
+
+//            User user = userJpa.findByEmail(userEmail).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", userEmail));
+//            user.setLoginAt(LocalDateTime.now());
+//            userJpa.save(user);
 
             String accessToken = jwtTokenConfig.createAccessToken(userEmail);
             String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);
