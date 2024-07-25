@@ -30,8 +30,9 @@ public interface PostMapper {
     @Mapping(target = "createAt", dateFormat = "yyyy-MM-dd")
     @Mapping(target = "writer", source = "post.tempWriterName")
     @Mapping(target = "files", source = "postAttachedFiles")
-    @Mapping(target = "title", source = "name")
-    PostResponseDto PostToPostResponseDto(Post post);
+    @Mapping(target = "postImgs", source = "postImgs")
+    @Mapping(target = "title", source = "post.name")
+    PostResponseDto PostToPostResponseDto(Post post, List<PostAttachedFile> postAttachedFiles, List<PostImg> postImgs);
 
     @Mapping(target = "category", source = "category")
     @Mapping(target = "name", source = "postReqDto.title")
@@ -77,7 +78,6 @@ public interface PostMapper {
     @Mapping(target = "fileId", source = "postAttachedFileId")
     @Mapping(target = "fileUrl", source = "filePath")
     FileDto postAttachedFileToFileDto(PostAttachedFile postAttachedFile);
-
     List<FileDto> postAttachedFilesToFileDtos(List<PostAttachedFile> postAttachedFiles);
 
     @Mapping(target = "fileId", source = "postImgId")
