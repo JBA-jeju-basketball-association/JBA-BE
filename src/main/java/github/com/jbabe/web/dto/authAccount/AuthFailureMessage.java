@@ -17,11 +17,11 @@ public class AuthFailureMessage {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final LocalDateTime withdrawalDate;
 
-    public AuthFailureMessage(User myUser){
+    public AuthFailureMessage(FailureUserDto myUser){
         this.name = myUser.getName();
         this.failureCount = myUser.isDisabled()||myUser.isLocked() ? null:myUser.getFailureCount();
-        this.status = myUser.getUserStatus().name();
-        this.failureDate = myUser.getLockAt();
-        this.withdrawalDate = myUser.getDeleteAt();
+        this.status = myUser.getStatus().name();
+        this.failureDate = myUser.getFailureDate();
+        this.withdrawalDate = myUser.getWithdrawalDate();
     }
 }

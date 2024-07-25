@@ -5,6 +5,7 @@ import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.CustomBadCredentialsException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.web.dto.authAccount.AuthFailureMessage;
+import github.com.jbabe.web.dto.authAccount.FailureUserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,9 +44,9 @@ public class CustomUserDetailService implements UserDetailsService {
 
     public void checkAccountStatusBeforeLogin(User user){
         if(user.isLocked() && !user.isUnlockTime()){
-            throw new CustomBadCredentialsException("Login Locked User", new AuthFailureMessage(user));
+            throw new CustomBadCredentialsException("Login Locked User", new AuthFailureMessage(new FailureUserDto(user)));
         } else if (user.isDisabled()) {
-            throw  new CustomBadCredentialsException("Disable User", new AuthFailureMessage(user));
+            throw  new CustomBadCredentialsException("Disable User", new AuthFailureMessage(new FailureUserDto(user)));
         }
     }
 
