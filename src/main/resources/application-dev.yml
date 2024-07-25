@@ -63,9 +63,3 @@ springdoc:
 
 upload:
   path: /mnt/files/
-
-#server:
-#  port: 8080
-#  ssl:
-#    enabled: false
-

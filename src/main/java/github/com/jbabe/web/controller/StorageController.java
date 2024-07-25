@@ -54,7 +54,7 @@ public class StorageController implements StorageControllerDocs{
         else if (activeProfile.equals("default"))
             response = serverDiskService.ckEditorImgUpload(multipartFile);
         else throw new StorageUpdateFailedException("activeProfile is not valid", activeProfile);
-        return storageService.ckEditorImgUpload(multipartFile);
+        return response;
     }
 
     @DeleteMapping("/multipart-files")//업로드 취소 (삭제)
