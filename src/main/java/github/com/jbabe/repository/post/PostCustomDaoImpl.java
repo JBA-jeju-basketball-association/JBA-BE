@@ -213,6 +213,7 @@ public class PostCustomDaoImpl implements PostCustomDao {
                 .orElseThrow(()-> new NotFoundException("Post Not Found", postId));
 
         post.setTempWriterName(postTuple.get(qPost.user.name));
+        post.increaseViewCount();
 //        post.ifPresent(p -> {
 //            p.setTempWriterName(postTuple.get(qPost.user.name));
 //            p.setPostAttachedFiles(postAttachedFiles);

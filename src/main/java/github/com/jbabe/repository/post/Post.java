@@ -51,7 +51,7 @@ public class Post {
     @Column(name = "view_count", nullable = false)
     private Integer viewCount;
 
-    @Column(name = "post_statu204s", nullable = false)
+    @Column(name = "post_status", nullable = false)
 
     @Enumerated(EnumType.STRING)
     private PostStatus postStatus;
