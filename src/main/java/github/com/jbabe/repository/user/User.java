@@ -152,7 +152,7 @@ public class User {
         return this.failureCount < 4;
     }
 
-    public User loginValueSetting(boolean failure){
+    public void loginValueSetting(boolean failure){
         this.userStatus = failure ?
                 (isFailureCountingOrLocking()||isUnlockTime() ? UserStatus.NORMAL : UserStatus.LOCKED)
                 : UserStatus.NORMAL;
@@ -162,7 +162,7 @@ public class User {
                         : (isFailureCountingOrLocking() ? failureCount + 1 : 0))
                 : 0;
         this.lockAt = failure ? LocalDateTime.now() : null;
-        return this;
+        this.loginAt = failure ? this.loginAt : LocalDateTime.now();
     }
 
     public static LocalDate getBirthByLocalDate(String birth) {
