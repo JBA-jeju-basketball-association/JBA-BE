@@ -65,12 +65,5 @@ springdoc:
     path: /jba-docs.html
   version: 1.0.0
 
-server:
-  port: 443
-  ssl:
-    key-store: ../../ssldir/keystore.p12
-    key-store-password: ${ssl_password}
-    key-store-type: PKCS12
-
 upload:
   path: /mnt/files/
