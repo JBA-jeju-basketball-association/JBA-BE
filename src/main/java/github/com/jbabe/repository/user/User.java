@@ -207,6 +207,20 @@ public class User {
         };
     }
 
+    public String emailMasking(String email) {
+        int atIndex = email.indexOf("@");
+        String modified = "";
+        StringBuilder star = new StringBuilder();
+        if (atIndex < 4) {
+            modified = email;
+        }else {
+            star.append("*".repeat(Math.max(0, atIndex-3)));
+            modified = email.substring(0,3) + star + email.substring(atIndex);
+        }
+
+        return modified;
+    }
+
 }
 
 

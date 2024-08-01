@@ -37,6 +37,8 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfig()))
                 .authorizeRequests(a ->
                         a
+                                .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
+                                        "v1/api/mail/*", "v1/api/gallery", "/v1/api/user/post/findEmail", "v1/api/user/post/checkUserInfo", "v1/api/user/update/password-in-findPassword").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/v1/api/post/*","/v1/api/gallery/register", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/v1/api/post/**", "/v1/api/gallery/*","v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/v1/api/post/*", "/v1/api/gallery/*", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
@@ -45,8 +47,7 @@ public class SecurityConfig {
 
                                 .requestMatchers("/v1/api/sign/logout").authenticated()
 
-                                .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
-                                        "/mail/*", "v1/api/gallery").permitAll()
+
                 )
                 .exceptionHandling(e -> {
                     e.authenticationEntryPoint(new CustomAuthenticationEntryPoint());
