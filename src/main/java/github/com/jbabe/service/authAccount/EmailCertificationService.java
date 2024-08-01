@@ -45,6 +45,23 @@ public class EmailCertificationService {
         }
     }
 
+    public void findPasswordSendEmail(String email) {
+        int authNumber = generateRandomNumber(100000, 999999);
+        String setFrom = emailAddress; // email-config에 설정한 자신의 이메일 주소를 입력
+        String toMail = email;
+        String title = "[인증]제주특별자치도농구협회 회원인증"; // 이메일 제목
+        String content =
+                "홈페이지로 돌아가 인증 번호를 정확히 입력해주세요." + 	//html 형식으로 작성 !
+                        "<br><br>" +
+                        "<h1>[인증 번호] : " + authNumber + "</h1>" ; //이메일 내용 삽입
+        try {
+            mailSend(setFrom, toMail, title, content, authNumber);
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new NotAcceptableException("메일을 발송할 수 없습니다.", email);
+        }
+    }
+
     @Transactional
     public void mailSend(String setFrom, String toMail, String title, String content, int authNum) {
         MimeMessage message = mailSender.createMimeMessage();//JavaMailSender 객체를 사용하여 MimeMessage 객체를 생성
