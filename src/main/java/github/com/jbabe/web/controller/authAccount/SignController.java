@@ -48,7 +48,6 @@ public class SignController {
                     content = @Content(mediaType = "application/json",
                             examples = {
                                     @ExampleObject(name = "이미 가입된 이메일", value = "{\n  \"code\": 409,\n  \"message\": \"CONFLICT\",\n \"detailMessage\": \"이미 가입된 이메일입니다.\",\n \"request\": \"hansol@gmail.com\"\n}"),
-                                    @ExampleObject(name = "이미 가입된 연락처", value = "{\n  \"code\": 409,\n  \"message\": \"CONFLICT\",\n \"detailMessage\": \"이미 해당 휴대폰 번호로 가입된 유저가 있습니다.\",\n \"request\": \"010-1111-2222\"\n}"),
                             }))
     })
     @PostMapping("/sign-up")
@@ -60,8 +59,6 @@ public class SignController {
             throw new BadRequestException("비밀번호와 비밀번호 확인이 같지 않습니다.", "");
         if (userJpa.existsByEmail(signUpRequest.getEmail()))
             throw new ConflictException("이미 가입된 이메일입니다.", signUpRequest.getEmail());
-        if (userJpa.existsByPhoneNum(signUpRequest.getPhoneNum()))
-            throw new ConflictException("이미 해당 휴대폰 번호로 가입된 유저가 있습니다.", signUpRequest.getPhoneNum());
         if (signUpRequest.getBirth().length() != 8) {
             throw new InvalidReqeustException("주민번호 유효성 검사 실패", signUpRequest.getBirth());
         }

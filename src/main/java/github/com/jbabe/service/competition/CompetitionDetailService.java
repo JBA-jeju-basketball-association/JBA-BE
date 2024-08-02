@@ -17,6 +17,7 @@ import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.exception.NotFoundException;
+import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
@@ -42,7 +43,7 @@ public class CompetitionDetailService {
     private final UserJpa userJpa;
     private final CompetitionJpa competitionJpa;
     private final CompetitionImgJpa competitionImgJpa;
-    private final StorageService storageService;
+    private final ServerDiskService serverDiskService;
     private final CompetitionPlaceJpa competitionPlaceJpa;
     private final DivisionJpa divisionJpa;
     private final CompetitionAttachedFileJpa competitionAttachedFileJpa;
@@ -81,7 +82,7 @@ public class CompetitionDetailService {
 
         // competition_attached_file table save
         if (files != null) {
-            List<FileDto> response = storageService.fileUploadAndGetUrl(files, type.orElseGet(()-> SaveFileType.small));
+            List<FileDto> response = serverDiskService.fileUploadAndGetUrl(files);
             List<CompetitionAttachedFile> competitionAttachedFiles = response.stream()
                     .map((res) -> CompetitionAttachedFile.builder()
                             .competition(competition)
@@ -192,7 +193,7 @@ public class CompetitionDetailService {
         if (!request.getDeletedCkImgUrls().isEmpty()) {
             List<CompetitionImg> deletedCompetitionImgs = competitionImgs.stream().filter((item) -> request.getDeletedCkImgUrls().contains(item.getImgUrl())).toList();
             competitionImgJpa.deleteAll(deletedCompetitionImgs);
-            storageService.uploadCancel(deletedCompetitionImgs.stream().map(CompetitionImg::getImgUrl).collect(Collectors.toList()));
+            serverDiskService.fileDelete(deletedCompetitionImgs.stream().map(CompetitionImg::getImgUrl).collect(Collectors.toList()));
         }
 
         // 새로운 ck 이미지 데이터 저장
@@ -230,7 +231,7 @@ public class CompetitionDetailService {
         List<CompetitionAttachedFile> deletedAttachedFiles = competitionAttachedFiles.stream().filter((af) -> !request.getUploadedAttachedFiles().contains(af.getFilePath())).toList();
         competitionAttachedFileJpa.deleteAll(deletedAttachedFiles);
         if (files != null && !files.isEmpty()) {
-            List<FileDto> response = storageService.fileUploadAndGetUrl(files, type.orElseGet(()-> SaveFileType.small));
+            List<FileDto> response = serverDiskService.fileUploadAndGetUrl(files);
             List<CompetitionAttachedFile> newCompetitionAttachedFiles = response.stream()
                     .map((res) -> CompetitionAttachedFile.builder()
                             .competition(competition)

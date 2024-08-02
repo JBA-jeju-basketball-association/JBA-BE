@@ -11,7 +11,10 @@ import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.postImg.QPostImg;
 import github.com.jbabe.repository.user.QUser;
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.service.exception.NotFoundException;
+import github.com.jbabe.service.mapper.PostMapper;
 import github.com.jbabe.web.dto.SearchCriteriaEnum;
+import github.com.jbabe.web.dto.post.PostResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 
@@ -56,7 +59,7 @@ public class PostCustomDaoImpl implements PostCustomDao {
 
     private List<Post> getPostListQuery(BooleanExpression predicate, Pageable pageable) {
         List<Tuple> tuples = jpaQueryFactory
-                .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount, qPost.foreword)
+                .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount)
                 .from(qPost)
                 .where(predicate)
                 .orderBy(qPost.isAnnouncement.desc(), qPost.createAt.desc())
@@ -71,7 +74,7 @@ public class PostCustomDaoImpl implements PostCustomDao {
     @Override
     public List<Post> getAnnouncementPosts(Post.Category categoryEnum, Pageable pageable) {
         List<Tuple> tuples = jpaQueryFactory
-                .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount, qPost.foreword)
+                .select(qPost.postId, qPost.isAnnouncement, qPost.name, qPost.createAt, qPost.user.name, qPost.viewCount)
                 .from(qPost)
                 .where(qPost.isAnnouncement.eq(true)
                         .and(qPost.category.eq(categoryEnum))
@@ -94,7 +97,6 @@ public class PostCustomDaoImpl implements PostCustomDao {
                                 .name(tuple.get(qPost.user.name))
                                 .build())
                         .viewCount(tuple.get(qPost.viewCount))
-                        .foreword(tuple.get(qPost.foreword))
                         .build())
                 .toList();
     }
@@ -192,7 +194,7 @@ public class PostCustomDaoImpl implements PostCustomDao {
     }
 
     @Override
-    public Optional<Post> getPostJoinFiles(Integer postId) {
+    public PostResponseDto getPostJoinFiles(Integer postId) {
         Tuple postTuple = jpaQueryFactory
                 .select(qPost, qPost.user.name)
                 .from(qPost)
@@ -207,12 +209,19 @@ public class PostCustomDaoImpl implements PostCustomDao {
                 .selectFrom(qPostImg)
                 .where(qPostImg.post.postId.eq(postId))
                 .fetch();
-        Optional<Post> post = Optional.ofNullable(postTuple).map(tuple -> tuple.get(qPost));
-        post.ifPresent(p -> {
-            p.setTempWriterName(postTuple.get(qPost.user.name));
-            p.setPostAttachedFiles(postAttachedFiles);
-            p.setPostImgs(postImgs);
-        });
-        return post;
+        Post post = Optional.ofNullable(postTuple).map(tuple -> tuple.get(qPost))
+                .orElseThrow(()-> new NotFoundException("Post Not Found", postId));
+
+        post.setTempWriterName(postTuple.get(qPost.user.name));
+        post.increaseViewCount();
+//        post.ifPresent(p -> {
+//            p.setTempWriterName(postTuple.get(qPost.user.name));
+//            p.setPostAttachedFiles(postAttachedFiles);
+//            p.setPostImgs(postImgs);
+//        });
+
+
+
+        return PostMapper.INSTANCE.PostToPostResponseDto(post, postAttachedFiles, postImgs);
     }
 }

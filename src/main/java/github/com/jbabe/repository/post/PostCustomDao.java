@@ -1,6 +1,7 @@
 package github.com.jbabe.repository.post;
 
 import github.com.jbabe.web.dto.SearchCriteriaEnum;
+import github.com.jbabe.web.dto.post.PostResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,7 +18,7 @@ public interface PostCustomDao {
 
     Page<Post> getPostsListFileFetch(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum, LocalDate startDate, LocalDate endDate);
 
-    Optional<Post> getPostJoinFiles(Integer postId);
+    PostResponseDto getPostJoinFiles(Integer postId);
 
 
 

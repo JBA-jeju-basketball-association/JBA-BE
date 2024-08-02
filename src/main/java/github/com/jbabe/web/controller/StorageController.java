@@ -1,14 +1,19 @@
 package github.com.jbabe.web.controller;
 
+import github.com.jbabe.config.JPAConfig;
+import github.com.jbabe.service.exception.StorageUpdateFailedException;
+import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,6 +23,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class StorageController implements StorageControllerDocs{
     private final StorageService storageService;
+    private final ServerDiskService serverDiskService;
+
+//    @Value("${spring.profiles.active:default}")
+//    private String activeProfile;
 
     @Override
     @PostMapping(value = "/multipart-files",
@@ -26,7 +35,13 @@ public class StorageController implements StorageControllerDocs{
                                            @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
                                            @RequestParam(required = false) Optional<SaveFileType> type
     ) {
-        List<FileDto> response = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
+        List<FileDto> response;
+        if(JPAConfig.ACTIVE_PROFILE.equals("dev"))
+            response = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
+        else if (JPAConfig.ACTIVE_PROFILE.equals("default"))
+            response = serverDiskService.fileUploadAndGetUrl(multipartFiles);
+        else throw new StorageUpdateFailedException("activeProfile is not valid", JPAConfig.ACTIVE_PROFILE);
+
         return new ResponseDto(response);
     }
 
@@ -34,7 +49,13 @@ public class StorageController implements StorageControllerDocs{
     public Map<String, Object> ckEditorImgUpload(//한개 업로드
                                   @RequestPart("uploadFile") MultipartFile multipartFile
     ) {
-        return storageService.ckEditorImgUpload(multipartFile);
+        Map<String, Object> response;
+        if(JPAConfig.ACTIVE_PROFILE.equals("dev"))
+            response = storageService.ckEditorImgUpload(multipartFile);
+        else if (JPAConfig.ACTIVE_PROFILE.equals("default"))
+            response = serverDiskService.ckEditorImgUpload(multipartFile);
+        else throw new StorageUpdateFailedException("activeProfile is not valid", JPAConfig.ACTIVE_PROFILE);
+        return response;
     }
 
     @DeleteMapping("/multipart-files")//업로드 취소 (삭제)

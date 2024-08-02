@@ -64,12 +64,9 @@ public class PostService {
 
 //        Post post = postJpa.findByIdUrlsJoin(Post.Category.pathToEnum(category), postId).orElseThrow(
 //                ()-> new NotFoundException("Post Not Found", postId));
-        Post post = postJpa.getPostJoinFiles(postId).orElseThrow(
-                ()-> new NotFoundException("Post Not Found", postId));
+       return postJpa.getPostJoinFiles(postId);
+//        post.increaseViewCount();
 
-        post.increaseViewCount();
-
-        return PostMapper.INSTANCE.PostToPostResponseDto(post);
     }
 
     @Transactional

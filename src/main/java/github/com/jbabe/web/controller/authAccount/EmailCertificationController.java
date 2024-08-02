@@ -46,6 +46,14 @@ public class EmailCertificationController {
         return new ResponseDto();
     }
 
+    @PostMapping("/find-password-send-mail")
+    public ResponseDto findPasswordSendEmail(@RequestBody @Valid EmailRequest emailRequest) {
+
+        System.out.println("이메일 인증 이메일 : " + emailRequest.getEmail());
+        emailCertificationService.findPasswordSendEmail(emailRequest.getEmail());
+        return new ResponseDto();
+    }
+
     @Operation(summary = "인증번호 확인하기")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "유효성 검사",

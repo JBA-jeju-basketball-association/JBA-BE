@@ -7,7 +7,7 @@ spring:
       file-size-threshold: 0B # 파일을 디스크에 저장하지 않고 메모리에 저장하는 최소 크기 (default: 0B)
       location: /users/charming/temp # 업로드된 파일이 임시로 저장되는 디스크 위치 (default: WAS가 결정)
       max-file-size: 10MB # 한개 파일의 최대 사이즈 (default: 1MB)
-      max-request-size: 10MB # 한개 요청의 최대 사이즈 (default: 10MB)
+      max-request-size: 100MB # 한개 요청의 최대 사이즈 (default: 10MB)
 
   datasource:
     username: ENC(TlaulwBRllLajYjTkCauEQ==)
@@ -50,7 +50,7 @@ email:
 
 aws:
   server-url: ENC(GUpc3MWW/cmzT0P+0CoK7ZFxKSonX3QQMr9auCSmKEI=)
-  new-server-url: ENC(5Uf5jgyCNS1RSm7x9mr11ril8VV0274RlmkXtc5L/K94744heMCh2g==)
+  new-server-url: ENC(1EHikIocPhT0REvGeohO6att0lRBZnW42NH39cHU7ns=)
   s3:
     credentials:
       access-key: ENC(3GPc4s7104mBP6+PswGBPiXzNHj/Rj+BSaArVv0yf9w=)
@@ -65,9 +65,5 @@ springdoc:
     path: /jba-docs.html
   version: 1.0.0
 
-server:
-  port: 443
-  ssl:
-    key-store: ../../ssldir/keystore.p12
-    key-store-password: ${ssl_password}
-    key-store-type: PKCS12
+upload:
+  path: /mnt/files/

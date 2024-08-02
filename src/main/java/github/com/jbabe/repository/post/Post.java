@@ -9,12 +9,14 @@ import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -67,14 +69,12 @@ public class Post {
     @Column(name = "delete_at")
     private LocalDateTime deleteAt;
 
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<PostAttachedFile> postAttachedFiles;
 
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<PostImg> postImgs;
 
-    @Column(name = "foreword")
-    private String foreword;
 
     @Transient
     private String tempWriterName;
@@ -104,14 +104,12 @@ public void setUserEmail(String email){
         if(thumbnail!=null) this.postImgs = new ArrayList<>(Collections.singletonList(
                 PostImg.builder().imgUrl(thumbnail).build())
         );
-        this.foreword = post.getForeword();
     }
 
     public void notifyAndEditSubjectLineContent(PostModifyDto postModifyDto, Boolean isOfficial) {
         if(isOfficial!=null) this.isAnnouncement = isOfficial;
         this.name = postModifyDto.getTitle();
         this.content = postModifyDto.getContent();
-        this.foreword = postModifyDto.getForeword();
         addFiles(postModifyDto.getRemainingFiles(), postModifyDto.getPostImgs());
         this.updateAt = LocalDateTime.now();
 

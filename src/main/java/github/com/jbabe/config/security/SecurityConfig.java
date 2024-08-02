@@ -37,14 +37,17 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfig()))
                 .authorizeRequests(a ->
                         a
-                                .requestMatchers(HttpMethod.POST, "/v1/api/post/*","/v1/api/gallery/register").hasAnyRole("MASTER", "ADMIN")
-                                .requestMatchers(HttpMethod.PUT, "/v1/api/post/**", "/v1/api/gallery/*").hasAnyRole("MASTER", "ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/v1/api/post/*", "/v1/api/gallery/*").hasAnyRole("MASTER", "ADMIN")
-                                .requestMatchers("/test","v1/api/competition/post/**", "v1/api/competition/delete/**", "v1/api/competition/update/**").hasAnyRole("MASTER", "ADMIN")
+                                .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
+                                        "v1/api/mail/*", "v1/api/gallery", "/v1/api/user/post/findEmail", "v1/api/user/post/checkUserInfo", "v1/api/user/update/password-in-findPassword").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/v1/api/post/*","/v1/api/gallery/register", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/v1/api/post/**", "/v1/api/gallery/*","v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/v1/api/post/*", "/v1/api/gallery/*", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
+                                .requestMatchers("v1/api/competition/admin/**").hasAnyRole("MASTER", "ADMIN")
+                                .requestMatchers("/test","v1/api/user/**").hasAnyRole("MASTER", "ADMIN", "REFEREE", "REFEREE_LEADER", "TABLE_OFFICIAL", "TABLE_OFFICIAL_LEADER", "USER") // 회원이면 가능
+
                                 .requestMatchers("/v1/api/sign/logout").authenticated()
 
-                                .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
-                                        "/mail/*", "v1/api/competition/competition", "v1/api/gallery").permitAll()
+
                 )
                 .exceptionHandling(e -> {
                     e.authenticationEntryPoint(new CustomAuthenticationEntryPoint());
@@ -57,10 +60,9 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("https://jejubasketball.shop", "https://localhost:3000", "http://localhost:3000", "https://jba.co.kr")); // TODO: 쿠키사용 시 변경
+        corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://jba.co.kr"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.addExposedHeader("access-token");
-        corsConfiguration.addExposedHeader("refresh-token");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowedMethods(List.of("GET","PUT","POST","PATCH","DELETE","OPTIONS"));
         corsConfiguration.setMaxAge(1000L*60*60);

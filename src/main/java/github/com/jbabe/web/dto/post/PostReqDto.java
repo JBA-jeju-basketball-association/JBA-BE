@@ -15,8 +15,6 @@ public class PostReqDto {
     @NotBlank(message = "내용은 필수입니다.")
     @Schema(description = "내용", example = "<p>POST 페이지 더미데이터입니다.</p>")
     private String content;
-    @Schema(description = "머릿말", example = "합격자 발표")
-    private String foreword;
     @Schema(description = "원 게시물의 이미지 정보", example = """
                 [
                 {
