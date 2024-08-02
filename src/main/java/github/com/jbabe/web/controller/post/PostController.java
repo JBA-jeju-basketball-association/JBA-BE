@@ -112,8 +112,8 @@ public class PostController implements PostControllerDocs{
             } else {
                 throw new BadRequestException("BRE", postModifyDto);
             }
-        }catch (DataIntegrityViolationException sqlException){
-            throw new ConflictException("Title Duplication",postModifyDto.getTitle());
+//        }catch (DataIntegrityViolationException sqlException){
+//            throw new ConflictException("Title Duplication",postModifyDto.getTitle());
         }catch (JpaSystemException jpaSystemException){
             throw new BadRequestException("Missing A Required Value", postModifyDto);
         }
