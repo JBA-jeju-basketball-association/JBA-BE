@@ -4,9 +4,10 @@ import github.com.jbabe.web.dto.storage.FileDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
-
+@Setter
 @Getter
 public class PostModifyDto {
     @NotBlank(message = "제목은 필수입니다.")

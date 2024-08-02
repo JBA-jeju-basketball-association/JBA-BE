@@ -121,6 +121,7 @@ public class PostService {
             }
             remainingFiles.addAll(newFiles);
         }
+        postModifyDto.setRemainingFiles(remainingFiles);
 
 
 

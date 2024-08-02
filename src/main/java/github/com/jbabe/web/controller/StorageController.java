@@ -24,6 +24,7 @@ import java.util.Optional;
 public class StorageController implements StorageControllerDocs{
     private final StorageService storageService;
     private final ServerDiskService serverDiskService;
+    private final JPAConfig jpaConfig;
 
 //    @Value("${spring.profiles.active:default}")
 //    private String activeProfile;
@@ -36,11 +37,11 @@ public class StorageController implements StorageControllerDocs{
                                            @RequestParam(required = false) Optional<SaveFileType> type
     ) {
         List<FileDto> response;
-        if(JPAConfig.ACTIVE_PROFILE.equals("dev"))
+        if(jpaConfig.getActiveProfile().equals("dev"))
             response = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
-        else if (JPAConfig.ACTIVE_PROFILE.equals("default"))
+        else if (jpaConfig.getActiveProfile().equals("default"))
             response = serverDiskService.fileUploadAndGetUrl(multipartFiles);
-        else throw new StorageUpdateFailedException("activeProfile is not valid", JPAConfig.ACTIVE_PROFILE);
+        else throw new StorageUpdateFailedException("activeProfile is not valid", jpaConfig.getActiveProfile());
 
         return new ResponseDto(response);
     }
@@ -50,11 +51,11 @@ public class StorageController implements StorageControllerDocs{
                                   @RequestPart("uploadFile") MultipartFile multipartFile
     ) {
         Map<String, Object> response;
-        if(JPAConfig.ACTIVE_PROFILE.equals("dev"))
+        if(jpaConfig.getActiveProfile().equals("dev"))
             response = storageService.ckEditorImgUpload(multipartFile);
-        else if (JPAConfig.ACTIVE_PROFILE.equals("default"))
+        else if (jpaConfig.getActiveProfile().equals("default"))
             response = serverDiskService.ckEditorImgUpload(multipartFile);
-        else throw new StorageUpdateFailedException("activeProfile is not valid", JPAConfig.ACTIVE_PROFILE);
+        else throw new StorageUpdateFailedException("activeProfile is not valid", jpaConfig.getActiveProfile());
         return response;
     }
 
