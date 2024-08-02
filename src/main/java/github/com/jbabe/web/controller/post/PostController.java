@@ -1,5 +1,6 @@
 package github.com.jbabe.web.controller.post;
 
+import github.com.jbabe.config.JPAConfig;
 import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.ConflictException;
@@ -99,8 +100,9 @@ public class PostController implements PostControllerDocs{
 //                .orElse(5);
         List<FileDto> files = null;
         if (multipartFiles != null && !multipartFiles.isEmpty()) {
-            files = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(() -> SaveFileType.small));
-//            files = serverDiskService.fileUploadAndGetUrl(multipartFiles);
+            files = JPAConfig.ACTIVE_PROFILE.equals("dev")?
+                    storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(() -> SaveFileType.small))
+            :serverDiskService.fileUploadAndGetUrl(multipartFiles);
         }
         try {
             boolean response = postService.updatePost(postModifyDto, postId, files, isOfficial, customUserDetails);
