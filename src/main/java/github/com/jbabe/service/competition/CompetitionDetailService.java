@@ -71,11 +71,11 @@ public class CompetitionDetailService {
         competitionJpa.save(competition);
 
         // competition_img table save
-        List<CompetitionImg> competitionImgs = addCompetitionRequest.getRealCkImgs().stream()
+        List<CompetitionImg> competitionImgs = addCompetitionRequest.getCkImgRequests().stream()
                 .map((img) -> CompetitionImg.builder()
                         .competition(competition)
-                        .imgUrl(img)
-                        .fileName(img)
+                        .imgUrl(img.getFileUrl())
+                        .fileName(img.getFileName())
                         .build()).toList();
         competitionImgJpa.saveAll(competitionImgs);
 
@@ -197,11 +197,11 @@ public class CompetitionDetailService {
         }
 
         // 새로운 ck 이미지 데이터 저장
-        List<CompetitionImg> newCompetitionImgs = request.getRealCkImgs().stream().map((r) ->
+        List<CompetitionImg> newCompetitionImgs = request.getCkImgRequests().stream().map((r) ->
                 CompetitionImg.builder()
                         .competition(competition)
-                        .imgUrl(r)
-                        .fileName(r)
+                        .imgUrl(r.getFileUrl())
+                        .fileName(r.getFileName())
                         .build()
         ).toList();
         competitionImgJpa.saveAll(newCompetitionImgs);

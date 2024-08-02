@@ -1,5 +1,6 @@
 package github.com.jbabe.web.dto.competition;
 
+import github.com.jbabe.web.dto.storage.CkImgRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -39,7 +40,7 @@ public class UpdateCompetitionRequest {
     private String ckData;
 
     @Schema(description = "ckImg", example = "https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/575e3d52-fe9c-4248-8913-0b6e7b1bec25.png")
-    private List<String> realCkImgs;
+    private List<CkImgRequest> ckImgRequests;
 
     @Schema(description = "기존 업데이트 되었던 파일 URL", example = "https://sirimp-bucket.s3.ap-northeast-2.amazonaws.com/575e3d52-fe9c-4248-8913-0b6e7b1bec25.png")
     private List<String> uploadedAttachedFiles;

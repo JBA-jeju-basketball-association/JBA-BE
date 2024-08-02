@@ -168,11 +168,11 @@ public class PostService {
 
     private List<PostImg> getImagesToBeDeleted(List<PostImg> originImgs, List<FileDto> remainingImgs) {
         List<PostImg> imgsToBeDeleted = new ArrayList<>();
-        for(PostImg postImg: originImgs){
-            if(remainingImgs.stream().noneMatch(f->f.getFileUrl().equals(postImg.getImgUrl()))){
-                imgsToBeDeleted.add(postImg);
-            }
-        }
+//        for(PostImg postImg: originImgs){
+//            if(remainingImgs.stream().noneMatch(f->f.getFileUrl() != null && f.getFileUrl().equals(postImg.getImgUrl()))){
+//                imgsToBeDeleted.add(postImg);
+//            }
+//        }
         if(!imgsToBeDeleted.isEmpty()) storageService.uploadCancel(imgsToBeDeleted.stream()
                 .map(PostImg::getImgUrl).toList());
         return imgsToBeDeleted;
