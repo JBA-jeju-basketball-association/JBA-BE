@@ -64,10 +64,9 @@ public class PostService {
 
 //        Post post = postJpa.findByIdUrlsJoin(Post.Category.pathToEnum(category), postId).orElseThrow(
 //                ()-> new NotFoundException("Post Not Found", postId));
-        PostResponseDto postResponse = postJpa.getPostJoinFiles(postId);
+       return postJpa.getPostJoinFiles(postId);
 //        post.increaseViewCount();
 
-        return postResponse;
     }
 
     @Transactional
@@ -122,6 +121,7 @@ public class PostService {
             }
             remainingFiles.addAll(newFiles);
         }
+        postModifyDto.setRemainingFiles(remainingFiles);
 
 
 
@@ -168,11 +168,11 @@ public class PostService {
 
     private List<PostImg> getImagesToBeDeleted(List<PostImg> originImgs, List<FileDto> remainingImgs) {
         List<PostImg> imgsToBeDeleted = new ArrayList<>();
-        for(PostImg postImg: originImgs){
-            if(remainingImgs.stream().noneMatch(f->f.getFileUrl().equals(postImg.getImgUrl()))){
-                imgsToBeDeleted.add(postImg);
-            }
-        }
+//        for(PostImg postImg: originImgs){
+//            if(remainingImgs.stream().noneMatch(f->f.getFileUrl() != null && f.getFileUrl().equals(postImg.getImgUrl()))){
+//                imgsToBeDeleted.add(postImg);
+//            }
+//        }
         if(!imgsToBeDeleted.isEmpty()) storageService.uploadCancel(imgsToBeDeleted.stream()
                 .map(PostImg::getImgUrl).toList());
         return imgsToBeDeleted;

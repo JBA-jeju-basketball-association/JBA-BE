@@ -1,5 +1,6 @@
 package github.com.jbabe.web.controller;
 
+import github.com.jbabe.config.JPAConfig;
 import github.com.jbabe.service.exception.StorageUpdateFailedException;
 import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.service.storage.StorageService;
@@ -23,9 +24,10 @@ import java.util.Optional;
 public class StorageController implements StorageControllerDocs{
     private final StorageService storageService;
     private final ServerDiskService serverDiskService;
+    private final JPAConfig jpaConfig;
 
-    @Value("${spring.profiles.active:default}")
-    private String activeProfile;
+//    @Value("${spring.profiles.active:default}")
+//    private String activeProfile;
 
     @Override
     @PostMapping(value = "/multipart-files",
@@ -35,11 +37,11 @@ public class StorageController implements StorageControllerDocs{
                                            @RequestParam(required = false) Optional<SaveFileType> type
     ) {
         List<FileDto> response;
-        if(activeProfile.equals("dev"))
+        if(jpaConfig.getActiveProfile().equals("dev"))
             response = storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(()->SaveFileType.small));
-        else if (activeProfile.equals("default"))
+        else if (jpaConfig.getActiveProfile().equals("default"))
             response = serverDiskService.fileUploadAndGetUrl(multipartFiles);
-        else throw new StorageUpdateFailedException("activeProfile is not valid", activeProfile);
+        else throw new StorageUpdateFailedException("activeProfile is not valid", jpaConfig.getActiveProfile());
 
         return new ResponseDto(response);
     }
@@ -49,11 +51,11 @@ public class StorageController implements StorageControllerDocs{
                                   @RequestPart("uploadFile") MultipartFile multipartFile
     ) {
         Map<String, Object> response;
-        if(activeProfile.equals("dev"))
+        if(jpaConfig.getActiveProfile().equals("dev"))
             response = storageService.ckEditorImgUpload(multipartFile);
-        else if (activeProfile.equals("default"))
+        else if (jpaConfig.getActiveProfile().equals("default"))
             response = serverDiskService.ckEditorImgUpload(multipartFile);
-        else throw new StorageUpdateFailedException("activeProfile is not valid", activeProfile);
+        else throw new StorageUpdateFailedException("activeProfile is not valid", jpaConfig.getActiveProfile());
         return response;
     }
 
