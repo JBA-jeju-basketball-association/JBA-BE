@@ -92,7 +92,7 @@ public class PostController implements PostControllerDocs{
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Integer postId,
             @RequestParam(required = false) Boolean isOfficial,
-            @RequestPart (value = "body") @Valid PostModifyDto postModifyDto,
+            @RequestPart (value = "body")@Valid PostModifyDto postModifyDto,
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> multipartFiles,
             @RequestParam(required = false) Optional<SaveFileType> type){
 
