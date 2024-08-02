@@ -22,7 +22,6 @@ public class AddCompetitionRequest {
     @NotEmpty(message = "종별을 선택해주세요.")
     @Schema(description = "종별", example = "element")
     private List<String> divisions;
-
     @NotNull(message = "시작일을 입력해주세요.")
     private Date startDate;
 

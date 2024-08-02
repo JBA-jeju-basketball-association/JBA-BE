@@ -1,5 +1,6 @@
 package github.com.jbabe.config.security;
 
+import github.com.jbabe.config.SwaggerConfig;
 import github.com.jbabe.service.exception.CustomAuthenticationEntryPoint;
 import github.com.jbabe.service.exception.CustomExceptionDeniedHandler;
 import github.com.jbabe.web.filters.JwtFilter;
@@ -25,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtTokenConfig jwtTokenConfig;
+    private final SwaggerConfig swaggerConfig;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -60,7 +62,7 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://jba.co.kr"));
+        corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://jba.co.kr", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.addExposedHeader("access-token");
         corsConfiguration.addAllowedHeader("*");
