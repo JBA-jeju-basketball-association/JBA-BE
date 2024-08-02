@@ -55,7 +55,7 @@ public class StorageController implements StorageControllerDocs{
         else if (JPAConfig.ACTIVE_PROFILE.equals("default"))
             response = serverDiskService.ckEditorImgUpload(multipartFile);
         else throw new StorageUpdateFailedException("activeProfile is not valid", JPAConfig.ACTIVE_PROFILE);
-        return storageService.ckEditorImgUpload(multipartFile);
+        return response;
     }
 
     @DeleteMapping("/multipart-files")//업로드 취소 (삭제)

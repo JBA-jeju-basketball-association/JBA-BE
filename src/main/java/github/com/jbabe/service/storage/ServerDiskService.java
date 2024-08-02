@@ -10,6 +10,7 @@ import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
 import github.com.jbabe.repository.postImg.PostImgJpa;
 import github.com.jbabe.service.exception.StorageUpdateFailedException;
 import github.com.jbabe.web.dto.storage.FileDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -28,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ServerDiskService {
     @Value("${upload.path}")
     private String uploadPath;
@@ -38,19 +40,6 @@ public class ServerDiskService {
     private final PostAttachedFileJpa postAttachedFileJpa;
     private final PostImgJpa postImgJpa;
 
-    public ServerDiskService(CompetitionAttachedFileJpa competitionAttachedFileJpa,
-                             CompetitionImgJpa competitionImgJpa,
-                             CompetitionRecordJpa competitionRecordJpa,
-                             GalleryImgJpa galleryImgJpa,
-                             PostAttachedFileJpa postAttachedFileJpa,
-                             PostImgJpa postImgJpa) {
-        this.competitionAttachedFileJpa = competitionAttachedFileJpa;
-        this.competitionImgJpa = competitionImgJpa;
-        this.competitionRecordJpa = competitionRecordJpa;
-        this.galleryImgJpa = galleryImgJpa;
-        this.postAttachedFileJpa = postAttachedFileJpa;
-        this.postImgJpa = postImgJpa;
-    }
 
     public List<FileDto> fileUploadAndGetUrl(List<MultipartFile> multipartFiles) {
         return multipartFiles.stream().map(multipartFile ->
@@ -68,7 +57,7 @@ public class ServerDiskService {
                     }
 
                     return FileDto.builder()
-                            .fileUrl("https://shinhs010.codns.com/v1/api/upload/getFile/" + saveFileName)
+                            .fileUrl("https://jbaserver.shop/v1/api/upload/getFile/" + saveFileName)
                             .fileName(originalFilename)
                             .build();
                 }
@@ -85,7 +74,7 @@ public class ServerDiskService {
         try {
             file.transferTo(new File(getFullPath(saveFileName)));
             response.put("uploaded", true);
-            response.put("url", "https://shinhs010.codns.com/v1/api/upload/getFile/" + saveFileName);
+            response.put("url", "https://jbaserver.shop/v1/api/upload/getFile/" + saveFileName);
             response.put("fileName", file.getOriginalFilename());
         } catch (IOException e) {
             throw new RuntimeException(e);
