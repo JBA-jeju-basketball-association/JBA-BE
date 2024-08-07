@@ -62,7 +62,7 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://jba.co.kr", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
+        corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://jba.co.kr", "https://jejubasketball.shop", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.addExposedHeader("access-token");
         corsConfiguration.addAllowedHeader("*");
