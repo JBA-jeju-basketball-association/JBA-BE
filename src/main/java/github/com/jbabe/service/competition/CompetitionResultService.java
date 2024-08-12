@@ -46,28 +46,14 @@ public class CompetitionResultService {
                 .updateAt(competition.getUpdateAt())
                 .deleteAt(competition.getDeleteAt())
                 .build());
-//        List<Integer> competitionRecordIds = requests.stream().map(item -> {
-//
-//        })
-//        divisions.forEach((division ->
-//                competitionRecordJpa.deleteAll(competitionRecordJpa.findAllByDivision(division))
-//        {
-//            List<CompetitionRecord> competitionRecords = competitionRecordJpa.findAllByDivision(division);
-//            competitionRecords.forEach(item -> {
-//                item.getCompetitionRecordId()
-//            });
-//        }
-//        ));
-
-
+        divisions.forEach((division ->
+                competitionRecordJpa.deleteAll(competitionRecordJpa.findAllByDivision(division))
+        ));
 
         requests.forEach((request) ->
                     request.getPostResultRequestRows().forEach((row) -> {
                         Division division = divisions.stream().filter((item) -> Objects.equals(item.getDivisionName(), request.getDivision())).toList().get(0);
                         if (row.getCompetitionResultId() != null) {
-                            CompetitionRecord record = competitionRecordJpa.findById(row.getCompetitionResultId()).orElseThrow(() -> new NotFoundException("대회기록을 찾을 수 없습니다.", row.getCompetitionResultId()));
-                            System.out.println(record.getTime());
-                            System.out.println(row.getStartDate());
                             competitionRecordJpa.save(CompetitionRecord.builder()
                                     .competitionRecordId(row.getCompetitionResultId())
                                     .division(division)
