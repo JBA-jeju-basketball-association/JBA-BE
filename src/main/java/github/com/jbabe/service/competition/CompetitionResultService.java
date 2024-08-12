@@ -46,7 +46,6 @@ public class CompetitionResultService {
                 .updateAt(competition.getUpdateAt())
                 .deleteAt(competition.getDeleteAt())
                 .build());
-
         divisions.forEach((division ->
                 competitionRecordJpa.deleteAll(competitionRecordJpa.findAllByDivision(division))
         ));
@@ -61,7 +60,7 @@ public class CompetitionResultService {
                                     .floor(row.getFloor())
                                     .place(row.getPlace())
                                     .gameNumber(row.getGameNumber())
-                                    .time(row.getStartDate())
+                                    .time(row.getStartDate().plusHours(9))
                                     .homeName(row.getHomeName())
                                     .homeScore(row.getHomeScore())
                                     .awayName(row.getAwayName())
@@ -70,13 +69,15 @@ public class CompetitionResultService {
                                     .fileName(row.getFileName())
                                     .state5x5(row.isState5x5())
                                     .build());
+
+
                         } else {
                             competitionRecordJpa.save(CompetitionRecord.builder()
                                     .division(division)
                                     .floor(row.getFloor())
                                     .place(row.getPlace())
                                     .gameNumber(row.getGameNumber())
-                                    .time(row.getStartDate())
+                                    .time(row.getStartDate().plusHours(9))
                                     .homeName(row.getHomeName())
                                     .homeScore(row.getHomeScore())
                                     .awayName(row.getAwayName())
