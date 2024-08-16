@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfig()))
                 .authorizeRequests(a ->
                         a
-                                .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login",
+                                .requestMatchers("/resource/static/**", "/v1/api/sign/sign-up", "/v1/api/sign/login-cookie",
                                         "v1/api/mail/*", "v1/api/gallery", "/v1/api/user/post/findEmail", "v1/api/user/post/checkUserInfo", "v1/api/user/update/password-in-findPassword").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/v1/api/post/*","/v1/api/gallery/register", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/v1/api/post/**", "/v1/api/gallery/*","v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
@@ -47,7 +47,7 @@ public class SecurityConfig {
                                 .requestMatchers("v1/api/competition/admin/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers("/test","v1/api/user/**").hasAnyRole("MASTER", "ADMIN", "REFEREE", "REFEREE_LEADER", "TABLE_OFFICIAL", "TABLE_OFFICIAL_LEADER", "USER") // 회원이면 가능
 
-                                .requestMatchers("/v1/api/sign/logout").authenticated()
+                                .requestMatchers("/v1/api/sign/logout-cookie").authenticated()
 
 
                 )
@@ -64,7 +64,7 @@ public class SecurityConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://jba.co.kr", "https://jejubasketball.shop", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.addExposedHeader("access-token");
+        corsConfiguration.addExposedHeader("Authorization");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowedMethods(List.of("GET","PUT","POST","PATCH","DELETE","OPTIONS"));
         corsConfiguration.setMaxAge(1000L*60*60);

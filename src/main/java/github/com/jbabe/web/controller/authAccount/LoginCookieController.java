@@ -29,13 +29,13 @@ public class LoginCookieController {
     public ResponseDto LoginCookie(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
         AccessAndRefreshToken accessAndRefreshToken = loginCookieService.loginCookie(loginRequest.getEmail(), loginRequest.getPassword());
         httpServletResponse.setHeader("Set-Cookie", accessAndRefreshToken.getResponseCookie().toString());
-        httpServletResponse.setHeader("access-token", accessAndRefreshToken.getAccessToken());
-        return new ResponseDto();
+        return new ResponseDto(accessAndRefreshToken.getAccessToken());
     }
 
     @PostMapping("/logout-cookie")
     public ResponseDto logoutCookie(@AuthenticationPrincipal CustomUserDetails customUserDetails, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        ResponseCookie cookie = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("AccessToken"));
+        System.out.println(httpServletRequest.getHeader("Authorization"));
+        ResponseCookie cookie = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
         httpServletResponse.setHeader("Set-Cookie", cookie.toString());
         return new ResponseDto();
     }
@@ -49,9 +49,8 @@ public class LoginCookieController {
             throw new BadRequestException("Header에 AccessToken 이 없습니다.", "");
 
         AccessAndRefreshToken newTokens = loginCookieService.refreshTokenCookie(expiredAccessToken, refreshToken);
-        response.setHeader("access-token", newTokens.getAccessToken());
         response.setHeader("Set-Cookie", newTokens.getResponseCookie().toString());
-        return new ResponseDto();
+        return new ResponseDto(newTokens.getAccessToken());
     }
 
 }
