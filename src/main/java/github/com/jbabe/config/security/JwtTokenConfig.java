@@ -53,7 +53,7 @@ public class JwtTokenConfig {
     public static final String EXCEPTION_HEADER_NAME = "AUTH_EXCEPTION";
 
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("AccessToken");
+        return request.getHeader("Authorization");
     }
 
     public String createAccessToken(String email) {
