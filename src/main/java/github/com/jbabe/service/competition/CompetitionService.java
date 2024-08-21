@@ -55,7 +55,7 @@ public class CompetitionService {
             competitionListResponses = competitionJpa.findAllCompetitionWithYearPagination(status, startDateFilter, endDateFilter, Competition.CompetitionStatus.NORMAL, pageable);
         }
 
-        if (competitionListResponses.getTotalElements() == 0) throw new NotFoundException("totalElement is 0", "");
+//        if (competitionListResponses.getTotalElements() == 0) throw new NotFoundException("totalElement is 0", "");
         return competitionListResponses;
     }
 
