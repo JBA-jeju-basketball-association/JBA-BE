@@ -45,10 +45,16 @@ public class CompetitionService {
 
     public Page<CompetitionListResponse> getCompetitionList(String status, String year, Pageable pageable) {
 
-        Date startDateFilter = Competition.getStartTimeThisYear(year);
-        Date endDateFilter = Competition.getEndTimeThisYear(year);
 
-        Page<CompetitionListResponse> competitionListResponses = competitionJpa.findAllCompetitionPagination(status, startDateFilter, endDateFilter, Competition.CompetitionStatus.NORMAL, pageable);
+        Page<CompetitionListResponse> competitionListResponses;
+        if (year == null) {
+            competitionListResponses = competitionJpa.findAllCompetitionPagination(status, Competition.CompetitionStatus.NORMAL, pageable);
+        }else {
+            Date startDateFilter = Competition.getStartTimeThisYear(year);
+            Date endDateFilter = Competition.getEndTimeThisYear(year);
+            competitionListResponses = competitionJpa.findAllCompetitionWithYearPagination(status, startDateFilter, endDateFilter, Competition.CompetitionStatus.NORMAL, pageable);
+        }
+
         if (competitionListResponses.getTotalElements() == 0) throw new NotFoundException("totalElement is 0", "");
         return competitionListResponses;
     }
