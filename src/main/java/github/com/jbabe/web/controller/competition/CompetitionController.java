@@ -48,10 +48,9 @@ public class CompetitionController {
     })
     @GetMapping
     public ResponseDto getCompetitionList(@RequestParam("status") String status,
-                                          @RequestParam("year") String year,
+                                          @RequestParam(value = "year", required = false) String year,
                                           Pageable pageable) {
         if (status == null || (!status.equals("ALL") && !status.equals("EXPECTED") && !status.equals("PROCEEDING") && !status.equals("COMPLETE"))) throw new BadRequestException("상태를 정확히 입력해주세요", status);
-        if (year == null || year.isEmpty()) throw new BadRequestException("년도를 정확히 입력해주세요", year);
         Page<CompetitionListResponse> data = competitionService.getCompetitionList(status, year, pageable);
     return new ResponseDto(data);
     }
