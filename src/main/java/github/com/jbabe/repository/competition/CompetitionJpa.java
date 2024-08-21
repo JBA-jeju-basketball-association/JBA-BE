@@ -32,7 +32,27 @@ public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
                     "GROUP BY c.competitionId " +
                     "ORDER BY c.startDate DESC, c.endDate DESC, c.competitionId DESC "
     )
-    Page<CompetitionListResponse> findAllCompetitionPagination(@Param("status") String status, @Param("startDateFilter") Date startDateFilter, @Param("endDateFilter") Date endDateFilter, @Param("competitionStatus") Competition.CompetitionStatus competitionStatus, @Param("pageable") Pageable pageable);
+    Page<CompetitionListResponse> findAllCompetitionWithYearPagination(@Param("status") String status, @Param("startDateFilter") Date startDateFilter, @Param("endDateFilter") Date endDateFilter, @Param("competitionStatus") Competition.CompetitionStatus competitionStatus, @Param("pageable") Pageable pageable);
+
+    @Query(
+            "SELECT new github.com.jbabe.web.dto.competition.CompetitionListResponse(c.competitionId, c.competitionName, " +
+                    "CASE WHEN size(c.divisions) = 1 THEN d.divisionName" +
+                    "     WHEN size(c.divisions) >= 2 THEN '혼합' END ," +
+                    "c.startDate, c.endDate) " +
+                    "FROM Competition c " +
+                    "LEFT JOIN c.divisions d " +
+                    "WHERE " +
+                    "c.competitionStatus = :competitionStatus AND " +
+                    "CASE " +
+                    "           WHEN :status = 'ALL' THEN TRUE " +
+                    "           WHEN :status = 'EXPECTED' THEN (c.startDate > CURRENT_DATE ) " +
+                    "           WHEN :status = 'PROCEEDING' THEN (c.startDate < CURRENT_DATE AND c.endDate > CURRENT_DATE ) " +
+                    "           WHEN :status = 'COMPLETE' THEN (c.endDate < CURRENT_DATE ) " +
+                    "END " +
+                    "GROUP BY c.competitionId " +
+                    "ORDER BY c.startDate DESC, c.endDate DESC, c.competitionId DESC "
+    )
+    Page<CompetitionListResponse> findAllCompetitionPagination(@Param("status") String status, @Param("competitionStatus") Competition.CompetitionStatus competitionStatus, @Param("pageable") Pageable pageable);
 
     Page<Competition> findAllByCompetitionStatus(Competition.CompetitionStatus competitionStatus, Pageable pageable);
 
