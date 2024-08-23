@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -38,11 +40,18 @@ public class ServerDiskController {
     public ResponseEntity<Resource> getFile(@PathVariable("fileServerName") String fileServerName) {
         try {
             Resource resource = serverDiskService.loadFileAsResource(fileServerName);
+            String contentType = Files.probeContentType(resource.getFile().toPath());
+
+            if(contentType == null) {
+                contentType = "application/octet-stream";
+            }
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                     .body(resource);
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(404).body(null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
