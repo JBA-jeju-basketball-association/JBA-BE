@@ -23,7 +23,7 @@ public class CompetitionResultController {
     private final CompetitionResultService competitionResultService;
 
 
-    @Operation(summary = "대회일정 등록")
+    @Operation(summary = "대회결과 등록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "BAD_REQUEST",
                     content = @Content(mediaType = "application/json",
