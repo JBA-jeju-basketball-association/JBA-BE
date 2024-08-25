@@ -211,7 +211,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public MyPage<PostsListDto> searchPostList(Pageable pageable, String category, String keyword) {
 
-        if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
+//        if(keyword!=null&&keyword.length() == 1) throw new BadRequestException("검색어는 2글자 이상이어야 합니다.", keyword);
         Post.Category categoryEnum = Post.Category.pathToEnum(category);
         Page<Post> postList = postJpa.searchPostList(keyword, categoryEnum, pageable);
 
