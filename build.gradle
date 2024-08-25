@@ -90,7 +90,7 @@ dependencies {
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     // 태그 제거 라이브러리
-    implementation 'org.jsoup:jsoup:1.14.3'
+    implementation 'org.jsoup:jsoup:1.15.3'
 
 }
 // 소스 코드로 인식할 디렉토리에 경로에 Q-Class 파일을 추가
