@@ -1,7 +1,7 @@
-package github.com.jbabe.web.controller.gallery;
+package github.com.jbabe.web.controller.community;
 
 import github.com.jbabe.service.exception.BadRequestException;
-import github.com.jbabe.service.gallery.GalleryService;
+import github.com.jbabe.service.community.GalleryService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.SearchCriteriaEnum;
@@ -18,7 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/api/gallery")

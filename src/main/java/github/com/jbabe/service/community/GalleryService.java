@@ -1,4 +1,4 @@
-package github.com.jbabe.service.gallery;
+package github.com.jbabe.service.community;
 
 
 import github.com.jbabe.repository.gallery.Gallery;
@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service

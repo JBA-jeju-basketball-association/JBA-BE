@@ -1,4 +1,4 @@
-package github.com.jbabe.web.controller.gallery;
+package github.com.jbabe.web.controller.community;
 
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
