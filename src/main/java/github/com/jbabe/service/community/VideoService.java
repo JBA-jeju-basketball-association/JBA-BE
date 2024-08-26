@@ -47,15 +47,27 @@ public class VideoService {
 
     public Page<GetVideoResponse> getVideoList(boolean isOfficial, String keyword, Pageable pageable) {
         return videoJpa.findAllByVideoStatusAndIsOfficialWithKeyword(Video.VideoStatus.NORMAL, isOfficial, keyword, pageable);
-
-
     }
+
+    @Transactional
+    public GetVideoResponse getVideo(Integer videoId) {
+        Video video =  videoJpa.findById(videoId).orElseThrow(() -> new NotFoundException("게시물을 찾을 수 없습니다", videoId));
+        return GetVideoResponse.builder()
+                .videoId(video.getVideoId())
+                .author(video.getUser().getName())
+                .title(video.getTitle())
+                .url(video.getUrl())
+                .content(video.getContent())
+                .build();
+    }
+
 
     @Transactional
     public String updateVideo(UpdateVideoRequest request) {
         Video video = videoJpa.findById(request.getVideoId()).orElseThrow(() -> new NotFoundException("게시물을 찾을 수 없습니다,", request.getVideoId()));
 
         Video newVideo = Video.builder()
+                .videoId(video.getVideoId())
                 .user(video.getUser())
                 .title(request.getTitle())
                 .url(request.getUrl())

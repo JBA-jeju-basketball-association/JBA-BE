@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/api/video")
@@ -34,6 +33,12 @@ public class VideoController {
                                     @RequestParam(value = "keyword") String keyword,
                                     Pageable pageable) {
         Page<GetVideoResponse> res = videoService.getVideoList(isOfficial, keyword, pageable);
+        return new ResponseDto(res);
+    }
+
+    @GetMapping("/get")
+    public ResponseDto getVideo(@RequestParam(value = "id") Integer id) {
+        GetVideoResponse res = videoService.getVideo(id);
         return new ResponseDto(res);
     }
 
