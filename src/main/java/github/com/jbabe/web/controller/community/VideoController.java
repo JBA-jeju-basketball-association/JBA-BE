@@ -8,6 +8,8 @@ import github.com.jbabe.web.dto.video.PostVideoRequest;
 import github.com.jbabe.web.dto.video.UpdateVideoRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +30,10 @@ public class VideoController {
     }
 
     @GetMapping("/get/videoList")
-    public ResponseDto getVideoList(@RequestParam(value = "isOfficial") boolean isOfficial) {
-        List<GetVideoResponse> res = videoService.getVideoList(isOfficial);
+    public ResponseDto getVideoList(@RequestParam(value = "isOfficial") boolean isOfficial,
+                                    @RequestParam(value = "keyword") String keyword,
+                                    Pageable pageable) {
+        Page<GetVideoResponse> res = videoService.getVideoList(isOfficial, keyword, pageable);
         return new ResponseDto(res);
     }
 

@@ -5,6 +5,7 @@ import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.repository.video.Video;
 import github.com.jbabe.repository.video.VideoJpa;
 import github.com.jbabe.service.exception.BadRequestException;
+import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.video.GetVideoResponse;
@@ -12,11 +13,12 @@ import github.com.jbabe.web.dto.video.PostVideoRequest;
 import github.com.jbabe.web.dto.video.UpdateVideoRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +30,8 @@ public class VideoService {
     @Transactional
     public String postVideo(PostVideoRequest request, CustomUserDetails customUserDetails) {
         User user = userJpa.findByEmail(customUserDetails.getEmail()).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다,", ""));
-
+        if (videoJpa.existsByTitle(request.getTitle()))
+            throw new ConflictException("제목이 중복됩니다.", request.getTitle());
         Video newVideo = Video.builder()
                 .user(user)
                 .title(request.getTitle())
@@ -42,18 +45,8 @@ public class VideoService {
         return "OK";
     }
 
-    public List<GetVideoResponse> getVideoList(boolean isOfficial) {
-        List<Video> videos = videoJpa.findAllByVideoStatusAndIsOfficial(Video.VideoStatus.NORMAL, isOfficial);
-        return videos.stream().map((video) ->
-            GetVideoResponse.builder()
-                    .videoId(video.getVideoId())
-                    .author(video.getUser().getName())
-                    .title(video.getTitle())
-                    .url(video.getUrl())
-                    .content(video.getContent())
-                    .createAt(video.getCreateAt())
-                    .build()
-        ).toList();
+    public Page<GetVideoResponse> getVideoList(boolean isOfficial, String keyword, Pageable pageable) {
+        return videoJpa.findAllByVideoStatusAndIsOfficialWithKeyword(Video.VideoStatus.NORMAL, isOfficial, keyword, pageable);
 
 
     }
