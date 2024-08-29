@@ -15,6 +15,9 @@ import java.util.List;
 
 @Repository
 public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
+
+    boolean existsByCompetitionName(String competitionName);
+
     @Query(
             "SELECT new github.com.jbabe.web.dto.competition.CompetitionListResponse(c.competitionId, c.competitionName, " +
                     "CASE WHEN size(c.divisions) = 1 THEN d.divisionName" +
