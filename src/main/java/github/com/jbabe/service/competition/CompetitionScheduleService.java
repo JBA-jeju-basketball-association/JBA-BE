@@ -57,7 +57,7 @@ public class CompetitionScheduleService {
                     .floor(row.getFloor())
                     .place(row.getPlace())
                     .gameNumber(row.getGameNumber())
-                    .time(row.getStartDate().plusHours(9))
+                    .time(row.getStartDate())
                     .homeName(row.getHomeName())
                     .awayName(row.getAwayName())
                     .state5x5(row.isState5x5())
