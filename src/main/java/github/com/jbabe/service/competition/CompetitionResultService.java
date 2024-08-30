@@ -60,7 +60,7 @@ public class CompetitionResultService {
                                     .floor(row.getFloor())
                                     .place(row.getPlace())
                                     .gameNumber(row.getGameNumber())
-                                    .time(row.getStartDate().plusHours(9))
+                                    .time(row.getStartDate())
                                     .homeName(row.getHomeName())
                                     .homeScore(row.getHomeScore())
                                     .awayName(row.getAwayName())
