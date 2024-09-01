@@ -49,7 +49,7 @@ public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
                     "CASE " +
                     "           WHEN :status = 'ALL' THEN TRUE " +
                     "           WHEN :status = 'EXPECTED' THEN (c.startDate > CURRENT_DATE ) " +
-                    "           WHEN :status = 'PROCEEDING' THEN (c.startDate < CURRENT_DATE AND c.endDate > CURRENT_DATE ) " +
+                    "           WHEN :status = 'PROCEEDING' THEN (c.startDate <= CURRENT_DATE AND c.endDate >= CURRENT_DATE ) " +
                     "           WHEN :status = 'COMPLETE' THEN (c.endDate < CURRENT_DATE ) " +
                     "END " +
                     "GROUP BY c.competitionId " +
