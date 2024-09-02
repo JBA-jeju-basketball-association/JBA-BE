@@ -49,7 +49,7 @@ public class UserController {
 
     @PutMapping("/update/password")
     public ResponseDto updatePassword(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                      @RequestBody @Valid UpdatePasswordRequest request,
+                                      @RequestBody UpdatePasswordRequest request,
                                       HttpServletRequest httpServletRequest,
                                       HttpServletResponse httpServletResponse) {
         if (!User.isValidSpecialCharacterInPassword(request.getNewPW()))
