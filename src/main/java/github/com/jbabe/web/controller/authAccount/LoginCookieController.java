@@ -28,8 +28,8 @@ public class LoginCookieController {
     @PostMapping("/login-cookie")
     public ResponseDto LoginCookie(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
         AccessAndRefreshToken accessAndRefreshToken = loginCookieService.loginCookie(loginRequest.getEmail(), loginRequest.getPassword());
-        httpServletResponse.setHeader("Set-Cookie", accessAndRefreshToken.getResponseCookie().toString());
-        return new ResponseDto(accessAndRefreshToken.getAccessToken());
+//        httpServletResponse.setHeader("Set-Cookie", accessAndRefreshToken.getResponseCookie().toString());
+        return new ResponseDto(accessAndRefreshToken);
     }
 
     @PostMapping("/logout-cookie")
@@ -41,16 +41,18 @@ public class LoginCookieController {
     }
 
     @PostMapping("/refresh-token-cookie")
-    public ResponseDto refreshTokenCookie(HttpServletRequest request, HttpServletResponse response,
-                                          @CookieValue(name = "RefreshToken", required = false) String refreshToken) {
+    public ResponseDto refreshTokenCookie(HttpServletRequest request, HttpServletResponse response
+//                                          @CookieValue(name = "RefreshToken", required = false) String refreshToken
+    ) {
+        String refreshToken = request.getHeader("RefreshToken");
         if (refreshToken == null || refreshToken.isEmpty()) throw new ExpiredJwtException("쿠키에 리프레시 토큰이 없습니다.");
         String expiredAccessToken = request.getHeader("Authorization");
         if (expiredAccessToken == null || expiredAccessToken.isEmpty())
             throw new BadRequestException("Header에 AccessToken 이 없습니다.", "");
 
         AccessAndRefreshToken newTokens = loginCookieService.refreshTokenCookie(expiredAccessToken, refreshToken);
-        response.setHeader("Set-Cookie", newTokens.getResponseCookie().toString());
-        return new ResponseDto(newTokens.getAccessToken());
+//        response.setHeader("Set-Cookie", newTokens.getResponseCookie().toString());
+        return new ResponseDto(newTokens);
     }
 
 }
