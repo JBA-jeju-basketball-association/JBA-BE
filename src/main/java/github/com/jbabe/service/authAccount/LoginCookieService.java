@@ -47,17 +47,17 @@ public class LoginCookieService {
                 String userEmail = jwtTokenConfig.getUserEmail(redisRefreshToken);
                 String newAccessToken = jwtTokenConfig.createAccessToken(userEmail);
                 String newRefreshToken = jwtTokenConfig.regenerateRefreshToken(userEmail, requestRefreshToken);
-                ResponseCookie cookie = ResponseCookie.from("RefreshToken", newRefreshToken)
-                        .maxAge(cookieExpiredTime)
-                        .path("/")
-                        .secure(true)
-                        .sameSite("None")
-                        .httpOnly(true)
-                        .build();
+//                ResponseCookie cookie = ResponseCookie.from("RefreshToken", newRefreshToken)
+//                        .maxAge(cookieExpiredTime)
+//                        .path("/")
+//                        .secure(true)
+//                        .sameSite("None")
+//                        .httpOnly(true)
+//                        .build();
 
                 jwtTokenConfig.saveRedisTokens(newAccessToken, newRefreshToken);
                 redisUtil.deleteData(requestAccessToken);
-                return new AccessAndRefreshToken(newAccessToken, cookie);
+                return new AccessAndRefreshToken(newAccessToken, newRefreshToken);
             }else{
                 throw new ExpiredJwtException("refresh 토큰이 만료되었습니다.");
             }
@@ -79,15 +79,15 @@ public class LoginCookieService {
             String accessToken = jwtTokenConfig.createAccessToken(userEmail);
             String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Tokens 저장
-            ResponseCookie cookie = ResponseCookie
-                    .from("RefreshToken", refreshToken)
-                    .maxAge(jwtTokenConfig.getRefreshTokenValidMillisecond()/1000 + 60*60*9)
-                    .path("/")
-                    .secure(true)
-                    .sameSite("None")
-                    .httpOnly(true)
-                    .build();
-            return new AccessAndRefreshToken(accessToken, cookie);
+//            ResponseCookie cookie = ResponseCookie
+//                    .from("RefreshToken", refreshToken)
+//                    .maxAge(jwtTokenConfig.getRefreshTokenValidMillisecond()/1000 + 60*60*9)
+//                    .path("/")
+//                    .secure(true)
+//                    .sameSite("None")
+//                    .httpOnly(true)
+//                    .build();
+            return new AccessAndRefreshToken(accessToken, refreshToken);
 
             //⬇️ 리스너 or 유저디테일서비스에서  날린 익셉션 그대로 던지기
         }catch (CustomBadCredentialsException | InternalAuthenticationServiceException e){

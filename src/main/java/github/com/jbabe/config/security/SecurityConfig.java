@@ -65,6 +65,7 @@ public class SecurityConfig {
         corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://jba.co.kr", "https://jejubasketball.shop", "https://www.jejubasketball.shop", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.addExposedHeader("Authorization");
+        corsConfiguration.addExposedHeader("RefreshToken");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowedMethods(List.of("GET","PUT","POST","PATCH","DELETE","OPTIONS"));
         corsConfiguration.setMaxAge(1000L*60*60);
