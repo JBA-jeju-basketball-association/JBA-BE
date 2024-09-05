@@ -27,7 +27,8 @@ public class RedisUtil {
         valueOperations.set(key, value);
     }
 
-    public void setDataExpire(String key, String value, long duration) { // 지정된 key에 값을 지정하고, 지정된 시간 후에 데이터가 만료되도록 설정하는 메서드
+    public void setDataExpire(String key, String value, long duration) {
+        // 지정된 key에 값을 지정하고, 지정된 시간 후에 데이터가 만료되도록 설정하는 메서드
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
         Duration expireDuration = Duration.ofSeconds(duration);
         valueOperations.set(key, value, expireDuration);
