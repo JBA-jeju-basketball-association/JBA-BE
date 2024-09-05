@@ -28,21 +28,19 @@ public class LoginCookieController {
     @PostMapping("/login-cookie")
     public ResponseDto LoginCookie(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
         AccessAndRefreshToken accessAndRefreshToken = loginCookieService.loginCookie(loginRequest.getEmail(), loginRequest.getPassword());
-//        httpServletResponse.setHeader("Set-Cookie", accessAndRefreshToken.getResponseCookie().toString());
         return new ResponseDto(accessAndRefreshToken);
     }
 
     @PostMapping("/logout-cookie")
-    public ResponseDto logoutCookie(@AuthenticationPrincipal CustomUserDetails customUserDetails, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public ResponseDto logoutCookie(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                    HttpServletRequest httpServletRequest) {
         System.out.println(httpServletRequest.getHeader("Authorization"));
-        ResponseCookie cookie = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
-        httpServletResponse.setHeader("Set-Cookie", cookie.toString());
-        return new ResponseDto();
+        String res = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
+        return new ResponseDto(res);
     }
 
     @PostMapping("/refresh-token-cookie")
     public ResponseDto refreshTokenCookie(HttpServletRequest request, HttpServletResponse response
-//                                          @CookieValue(name = "RefreshToken", required = false) String refreshToken
     ) {
         String refreshToken = request.getHeader("RefreshToken");
         if (refreshToken == null || refreshToken.isEmpty()) throw new ExpiredJwtException("쿠키에 리프레시 토큰이 없습니다.");
@@ -51,7 +49,6 @@ public class LoginCookieController {
             throw new BadRequestException("Header에 AccessToken 이 없습니다.", "");
 
         AccessAndRefreshToken newTokens = loginCookieService.refreshTokenCookie(expiredAccessToken, refreshToken);
-//        response.setHeader("Set-Cookie", newTokens.getResponseCookie().toString());
         return new ResponseDto(newTokens);
     }
 

@@ -42,8 +42,8 @@ public class LoginCookieService {
 
             if (jwtTokenConfig.refreshTokenValidate(redisRefreshToken)) {
                 Date refreshTokenExpiredTime = jwtTokenConfig.getTokenValidity(requestRefreshToken);
-                long cookieExpiredTime = (refreshTokenExpiredTime.getTime() - System.currentTimeMillis()) / 1000 + (60*60*9);
-                System.out.println(cookieExpiredTime);
+//                long cookieExpiredTime = (refreshTokenExpiredTime.getTime() - System.currentTimeMillis()) / 1000 + (60*60*9);
+//                System.out.println(cookieExpiredTime);
                 String userEmail = jwtTokenConfig.getUserEmail(redisRefreshToken);
                 String newAccessToken = jwtTokenConfig.createAccessToken(userEmail);
                 String newRefreshToken = jwtTokenConfig.regenerateRefreshToken(userEmail, requestRefreshToken);
@@ -101,7 +101,7 @@ public class LoginCookieService {
 
 
     @Transactional
-    public ResponseCookie disableTokenCookie(String email, String accessToken) {
+    public String disableTokenCookie(String email, String accessToken) {
         try {
             String refreshToken = redisUtil.getData(accessToken);
             Date dataExp = jwtTokenConfig.getTokenValidity(accessToken);
@@ -116,9 +116,7 @@ public class LoginCookieService {
             redisTokenRepository.addBlacklistToken(email, tokens,
                     Duration.between(Instant.now(), dataExp.toInstant()));
 
-            return ResponseCookie.from("RefreshToken", "") // 클라이언트 refreshToken 삭제용 쿠키
-                    .maxAge(0)
-                    .build();
+            return "OK";
         } catch (BadRequestException e) {
             throw new BadRequestException("이미 로그아웃된 유저입니다.", accessToken);
         } catch (Exception e) {

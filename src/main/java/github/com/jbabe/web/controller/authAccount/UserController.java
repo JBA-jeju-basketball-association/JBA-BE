@@ -58,8 +58,7 @@ public class UserController {
             throw new BadRequestException("비밀번호와 비밀번호 확인이 같지 않습니다.", "");
 
         String response = userService.updatePassword(customUserDetails, request);
-        ResponseCookie cookie = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
-        httpServletResponse.setHeader("Set-Cookie", cookie.toString());
+        String res = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
         return new ResponseDto(response);
     }
 
