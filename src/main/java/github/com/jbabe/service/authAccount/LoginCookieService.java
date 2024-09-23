@@ -39,22 +39,10 @@ public class LoginCookieService {
         try {
             String redisRefreshToken = redisUtil.getData(requestAccessToken);
             if (!redisRefreshToken.equals(requestRefreshToken)) throw new ExpiredJwtException("RefreshToken 인증 오류");
-
             if (jwtTokenConfig.refreshTokenValidate(redisRefreshToken)) {
-                Date refreshTokenExpiredTime = jwtTokenConfig.getTokenValidity(requestRefreshToken);
-//                long cookieExpiredTime = (refreshTokenExpiredTime.getTime() - System.currentTimeMillis()) / 1000 + (60*60*9);
-//                System.out.println(cookieExpiredTime);
                 String userEmail = jwtTokenConfig.getUserEmail(redisRefreshToken);
                 String newAccessToken = jwtTokenConfig.createAccessToken(userEmail);
                 String newRefreshToken = jwtTokenConfig.regenerateRefreshToken(userEmail, requestRefreshToken);
-//                ResponseCookie cookie = ResponseCookie.from("RefreshToken", newRefreshToken)
-//                        .maxAge(cookieExpiredTime)
-//                        .path("/")
-//                        .secure(true)
-//                        .sameSite("None")
-//                        .httpOnly(true)
-//                        .build();
-
                 jwtTokenConfig.saveRedisTokens(newAccessToken, newRefreshToken);
                 redisUtil.deleteData(requestAccessToken);
                 return new AccessAndRefreshToken(newAccessToken, newRefreshToken);
@@ -79,14 +67,6 @@ public class LoginCookieService {
             String accessToken = jwtTokenConfig.createAccessToken(userEmail);
             String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Tokens 저장
-//            ResponseCookie cookie = ResponseCookie
-//                    .from("RefreshToken", refreshToken)
-//                    .maxAge(jwtTokenConfig.getRefreshTokenValidMillisecond()/1000 + 60*60*9)
-//                    .path("/")
-//                    .secure(true)
-//                    .sameSite("None")
-//                    .httpOnly(true)
-//                    .build();
             return new AccessAndRefreshToken(accessToken, refreshToken);
 
             //⬇️ 리스너 or 유저디테일서비스에서  날린 익셉션 그대로 던지기

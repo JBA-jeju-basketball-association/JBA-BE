@@ -26,7 +26,7 @@ public class LoginCookieController {
     private final LoginCookieService loginCookieService;
 
     @PostMapping("/login-cookie")
-    public ResponseDto LoginCookie(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
+    public ResponseDto LoginCookie(@RequestBody @Valid LoginRequest loginRequest) {
         AccessAndRefreshToken accessAndRefreshToken = loginCookieService.loginCookie(loginRequest.getEmail(), loginRequest.getPassword());
         return new ResponseDto(accessAndRefreshToken);
     }
@@ -34,7 +34,6 @@ public class LoginCookieController {
     @PostMapping("/logout-cookie")
     public ResponseDto logoutCookie(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                     HttpServletRequest httpServletRequest) {
-        System.out.println(httpServletRequest.getHeader("Authorization"));
         String res = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
         return new ResponseDto(res);
     }
