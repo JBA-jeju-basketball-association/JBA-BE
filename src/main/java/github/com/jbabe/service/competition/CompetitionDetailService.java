@@ -170,7 +170,7 @@ public class CompetitionDetailService {
         List<CompetitionImg> competitionImgs = competitionImgJpa.findAllByCompetition(competition);
         List<CompetitionAttachedFile> competitionAttachedFiles = competitionAttachedFileJpa.findAllByCompetition(competition);
         List<Division> divisions = divisionJpa.findAllByCompetition(competition);
-        if (competitionJpa.existsByCompetitionName(request.getTitle()))
+        if (!competition.getCompetitionName().equals(request.getTitle()) && competitionJpa.existsByCompetitionName(request.getTitle()))
             throw new ConflictException("Duplication CompetitionName", competition.getCompetitionName());
 
         //competition table update
