@@ -33,9 +33,6 @@ public class UserController {
     @PutMapping("/update")
     public ResponseDto updateAccount(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                      @RequestBody @Valid UpdateAccountRequest request) {
-        if (request.getBirth().length() != 8) {
-            throw new InvalidReqeustException("주민번호 유효성 검사 실패", request.getBirth());
-        }
         String response = userService.updateAccount(customUserDetails, request);
         return new ResponseDto(response);
     }

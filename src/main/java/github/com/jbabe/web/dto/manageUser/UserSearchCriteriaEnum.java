@@ -7,7 +7,7 @@ import java.util.EnumSet;
 
 @AllArgsConstructor
 public enum UserSearchCriteriaEnum {
-    USER_ID("id"), USER_NAME("name"), USER_EMAIL("email"), USER_TEAM("team");
+    USER_ID("id"), USER_NAME("name"), USER_EMAIL("email");
     private final String path;
     public static UserSearchCriteriaEnum pathToEnum(String path){
         for(UserSearchCriteriaEnum s: EnumSet.allOf(UserSearchCriteriaEnum.class)) if(s.path.equals(path)) return s;

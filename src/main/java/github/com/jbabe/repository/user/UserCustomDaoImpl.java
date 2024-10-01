@@ -27,7 +27,7 @@ public class UserCustomDaoImpl implements UserCustomDao{
                         case USER_EMAIL -> qUser.email.toLowerCase().startsWith(keyword.toLowerCase());
                         case USER_ID -> qUser.userId.eq(Integer.parseInt(keyword));
                         case USER_NAME -> qUser.name.containsIgnoreCase(keyword);
-                        case USER_TEAM -> qUser.team.eq(keyword);
+//                        case USER_TEAM -> qUser.team.eq(keyword);
             };
         }
         if(permissions!=null) predicate = predicate!=null? predicate.and(qUser.role.eq(permissions))
