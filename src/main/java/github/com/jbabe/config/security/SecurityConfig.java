@@ -44,7 +44,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/v1/api/post/*","/v1/api/gallery/register", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/v1/api/post/**", "/v1/api/gallery/*","v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/v1/api/post/*", "/v1/api/gallery/*", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
-                                .requestMatchers("v1/api/competition/admin/**").hasAnyRole("MASTER", "ADMIN")
+                                .requestMatchers("v1/api/competition/admin/**", "v1/api/video/post", "v1/api/video/delete", "v1/api/video/update").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers("/test","v1/api/user/**").hasAnyRole("MASTER", "ADMIN", "REFEREE", "REFEREE_LEADER", "TABLE_OFFICIAL", "TABLE_OFFICIAL_LEADER", "USER") // 회원이면 가능
 
                                 .requestMatchers("/v1/api/sign/logout-cookie").authenticated()
@@ -62,9 +62,10 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://jba.co.kr", "https://jejubasketball.shop", "https://www.jejubasketball.shop", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
+        corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://www.jba.co.kr", "https://jba.co.kr", "https://jejubasketball.shop", "https://www.jejubasketball.shop", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.addExposedHeader("Authorization");
+        corsConfiguration.addExposedHeader("RefreshToken");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowedMethods(List.of("GET","PUT","POST","PATCH","DELETE","OPTIONS"));
         corsConfiguration.setMaxAge(1000L*60*60);

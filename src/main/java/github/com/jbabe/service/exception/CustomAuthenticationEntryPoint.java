@@ -50,7 +50,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     private String[] checkExceptionAndMakeMessage(HttpServletRequest request, Object exception) {
 
         String[] makeStr = new String[3];
-        makeStr[0] = request.getHeader("AccessToken");
+        makeStr[0] = request.getHeader("authorization");
         makeStr[1] = exception==null?"Authentication failed":((RuntimeException) exception).getMessage();
         makeStr[2] = makeErrorMessage(exception);
 

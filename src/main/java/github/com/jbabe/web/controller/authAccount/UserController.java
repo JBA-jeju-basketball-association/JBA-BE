@@ -33,9 +33,6 @@ public class UserController {
     @PutMapping("/update")
     public ResponseDto updateAccount(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                      @RequestBody @Valid UpdateAccountRequest request) {
-        if (request.getBirth().length() != 8) {
-            throw new InvalidReqeustException("주민번호 유효성 검사 실패", request.getBirth());
-        }
         String response = userService.updateAccount(customUserDetails, request);
         return new ResponseDto(response);
     }
@@ -49,7 +46,7 @@ public class UserController {
 
     @PutMapping("/update/password")
     public ResponseDto updatePassword(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                      @RequestBody @Valid UpdatePasswordRequest request,
+                                      @RequestBody UpdatePasswordRequest request,
                                       HttpServletRequest httpServletRequest,
                                       HttpServletResponse httpServletResponse) {
         if (!User.isValidSpecialCharacterInPassword(request.getNewPW()))
@@ -58,8 +55,7 @@ public class UserController {
             throw new BadRequestException("비밀번호와 비밀번호 확인이 같지 않습니다.", "");
 
         String response = userService.updatePassword(customUserDetails, request);
-        ResponseCookie cookie = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("AccessToken"));
-        httpServletResponse.setHeader("Set-Cookie", cookie.toString());
+        String res = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
         return new ResponseDto(response);
     }
 

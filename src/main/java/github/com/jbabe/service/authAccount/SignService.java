@@ -8,14 +8,10 @@ import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.web.dto.authAccount.SignUpRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -33,11 +29,8 @@ public class SignService {
                 .password(pwd)
                 .name(signUpRequest.getName())
                 .phoneNum(signUpRequest.getPhoneNum())
-                .gender(User.transformGender(signUpRequest.getBirth()))
-                .dateOfBirth(User.getBirthByLocalDate(signUpRequest.getBirth()))
                 .userStatus(User.UserStatus.NORMAL)
                 .role(User.Role.ROLE_USER)
-                .team(signUpRequest.getTeam())
                 .failureCount(0)
                 .createAt(LocalDateTime.now())
                 .build();

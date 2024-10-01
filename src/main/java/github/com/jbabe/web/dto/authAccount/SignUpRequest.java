@@ -37,13 +37,6 @@ public class SignUpRequest {
     @Schema(description = "휴대폰번호", example = "010-1234-5678")
     private String phoneNum;
 
-    @Schema(description = "주민번호 앞 7자리", example = "9602161")
-    private String birth;
-
-    @NotEmpty
-    @Schema(description = "소속팀", example = "제농회")
-    private String team;
-
     public boolean equalsPasswordAndPasswordConfirm() {
         return password.equals(passwordConfirm);
     }

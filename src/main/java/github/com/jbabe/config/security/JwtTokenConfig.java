@@ -37,7 +37,7 @@ public class JwtTokenConfig {
     @Value("${jwt.jwt-password.source}")
     private String secretKey;
     private String key;
-    private final long accessTokenValidMillisecond = 1000*60*10L; // access token 유효기간 : 10분
+    private final long accessTokenValidMillisecond = 1000*60*30L; // access token 유효기간 : 30분
 
     @Getter
     private final long refreshTokenValidMillisecond = 1000*60*60*24*3L; // refresh token 유효기간 : 3일
@@ -59,6 +59,7 @@ public class JwtTokenConfig {
     public String createAccessToken(String email) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + accessTokenValidMillisecond);
+        System.out.println(new Date(now.getTime() + accessTokenValidMillisecond));
         User user = userJpa.findByEmail(email).orElseThrow(() -> new NotFoundException("해당 이메일로 유저를 찾을 수 없습니다.", email));
 
         Claims claims = Jwts.claims().setSubject(email);

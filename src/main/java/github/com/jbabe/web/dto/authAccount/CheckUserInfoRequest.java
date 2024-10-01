@@ -10,10 +10,6 @@ public class CheckUserInfoRequest {
     @Schema(description = "이름", example = "신한솔")
     private String name;
 
-    @Min(value = 10000000, message = "생년월일은 8자리입니다.")
-    @Max(value = 99999999, message = "생년월일은 8자리입니다.")
-    private Integer birth;
-
     @Email
     @NotEmpty
     private String email;

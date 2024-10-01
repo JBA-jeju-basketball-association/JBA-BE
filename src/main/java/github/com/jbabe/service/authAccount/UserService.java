@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -30,19 +32,13 @@ public class UserService {
     private final RedisUtil redisUtil;
 
     public Object getUserInfo(CustomUserDetails customUserDetails) {
-        Map<String, Object> userInfo = new HashMap<>();
-
         User user = userJpa.findById(customUserDetails.getUserId()).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", customUserDetails.getUserId()));
-        String birth = user.getDateOfBirth().format(DateTimeFormatter.ofPattern("yyMMdd"));
-
-        userInfo.put("name", user.getName());
-        userInfo.put("role", User.getRoleKorean(user.getRole()));
-        userInfo.put("email", user.getEmail());
-        userInfo.put("phoneNum", user.getPhoneNum());
-        userInfo.put("birth", birth);
-        userInfo.put("team", user.getTeam());
-        userInfo.put("gender", user.getGender());
-        return userInfo;
+        return UserInfoResponse.builder()
+                .name(user.getName())
+                .role(User.getRoleKorean(user.getRole()))
+                .email(user.getEmail())
+                .phoneNum(user.getPhoneNum())
+                .build();
     }
 
     @Transactional
@@ -50,15 +46,9 @@ public class UserService {
         User user = userJpa.findById(customUserDetails.getUserId()).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", customUserDetails.getUserId()));
         String name = request.getName();
         String phoneNum = request.getPhoneNum();
-        LocalDate birth = User.getBirthByLocalDate(request.getBirth());
-        User.Gender gender = User.transformGender(request.getBirth());
-        String team = request.getTeam();
 
         user.setName(name);
         user.setPhoneNum(phoneNum);
-        user.setDateOfBirth(birth);
-        user.setGender(gender);
-        user.setTeam(team);
         user.setUpdateAt(LocalDateTime.now());
         userJpa.save(user);
 
@@ -91,20 +81,13 @@ public class UserService {
     }
 
     public String findEmail(FindEmailRequest request) {
-        String dateString = String.valueOf(request.getBirth());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        LocalDate birth = LocalDate.parse(dateString, formatter);
-        User user = userJpa.findByNameAndPhoneNumAndDateOfBirth(request.getName(), request.getPhoneNum(), birth).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", ""));
-
+        User user = userJpa.findByNameAndPhoneNum(request.getName(), request.getPhoneNum()).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", ""));
         return user.emailMasking(user.getEmail());
 
     }
 
     public String checkUserInfo(CheckUserInfoRequest request) {
-        String dateString = String.valueOf(request.getBirth());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        LocalDate birth = LocalDate.parse(dateString, formatter);
-        boolean isCollect = userJpa.existsByEmailAndDateOfBirthAndName(request.getEmail(), birth, request.getName());
+        boolean isCollect = userJpa.existsByEmailAndName(request.getEmail(), request.getName());
         if (!isCollect) throw new NotFoundException("유저를 찾을 수 없습니다.", "");
         return "OK";
     }

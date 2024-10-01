@@ -41,13 +41,6 @@ public class User {
     @Column(name = "phone_num", nullable = false)
     private String phoneNum;
 
-    @Column(name = "gender", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
-    @Column(name = "date_of_birth", nullable = false)
-    private LocalDate dateOfBirth;
-
     @Column(name = "user_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
@@ -55,9 +48,6 @@ public class User {
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @Column(name = "team", nullable = false)
-    private String team;
 
     @Column(name = "failure_count", nullable = false)
     private Integer failureCount;
@@ -124,19 +114,6 @@ public class User {
         return count <= 0;
     }
 
-    public static boolean isValidGender(String gender) {
-        List<String> genders = new ArrayList<>();
-        genders.add("MALE");
-        genders.add("FEMALE");
-        return genders.contains(gender);
-    }
-
-    public static boolean isValidBirthday(Integer year, Integer month, Integer day) {
-        LocalDate dateOfBirth = LocalDate.of(year, month, day);
-        LocalDate now = LocalDate.now();
-        return dateOfBirth.isBefore(now);
-    }
-
     //login_extended
     public boolean isLocked(){
         return this.userStatus == UserStatus.LOCKED;
@@ -165,36 +142,6 @@ public class User {
         this.loginAt = failure ? this.loginAt : LocalDateTime.now();
     }
 
-    public static LocalDate getBirthByLocalDate(String birth) {
-
-        String dateStr = birth.substring(0, 6);
-        LocalDate date;
-
-        // 추출한 6자리 문자열을 yyMMdd 형식의 LocalDate로 변환
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
-        try {
-            date = LocalDate.parse(dateStr, formatter);
-        }catch (Exception e) {
-            throw new InvalidReqeustException("주민번호 유효성 검사 실패", birth);
-        }
-        int currentYear = LocalDate.now().getYear();
-        if (date.getYear() > currentYear) {
-            date = date.withYear(date.getYear() - 100);
-        }
-
-        return date;
-    }
-
-    public static User.Gender transformGender(String birth) {
-        String num = birth.substring(7, 8);
-        if (num.equals("1") || num.equals("3")) {
-            return User.Gender.MALE;
-        }else if (num.equals("2") || num.equals("4")){
-            return User.Gender.FEMALE;
-        }else {
-            throw new InvalidReqeustException("주민번호 유효성 검사 실패", birth);
-        }
-    }
     public static String getRoleKorean(User.Role role) {
         return switch (role) {
             case ROLE_MASTER -> "마스터";

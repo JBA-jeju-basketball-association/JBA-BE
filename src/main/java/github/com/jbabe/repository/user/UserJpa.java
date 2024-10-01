@@ -14,7 +14,7 @@ public interface UserJpa extends JpaRepository<User, Integer>, UserCustomDao {
 
     Optional<User> findByEmail(String email);
 
-    Optional<User> findByNameAndPhoneNumAndDateOfBirth(String name, String phoneNum, LocalDate dateOfBirth);
+    Optional<User> findByNameAndPhoneNum(String name, String phoneNum);
 
-    boolean existsByEmailAndDateOfBirthAndName(String email, LocalDate dateOfBirth, String name);
+    boolean existsByEmailAndName(String email, String name);
 }
