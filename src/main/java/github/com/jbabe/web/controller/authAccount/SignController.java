@@ -41,7 +41,6 @@ public class SignController {
                                     @ExampleObject(name = "비밀번호 유효성 검사1", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"비밀번호는 영문과 특수문자 숫자를 포함하며 8자 이상 20자 이하여야 합니다.\",\n \"request\": \"password\"\n}"),
                                     @ExampleObject(name = "비밀번호 유효성 검사2", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"비밀번호에 특수문자는 !@#$^*+=-만 사용 가능합니다.\",\n \"request\": \"password\"\n}"),
                                     @ExampleObject(name = "휴대폰번호 유효성 검사", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"휴대폰번호 유효성 검사 실패\",\n \"request\": \"phoneNum\"\n}"),
-                                    @ExampleObject(name = "주민번호 유효성 검사 실패", value = "{\n  \"code\": 400,\n  \"message\": \"Invalid_Request\",\n \"detailMessage\": \"주민번호 유효성 검사 실패\",\n \"request\": \"982739-1\"\n}"),
                             }
                     )),
             @ApiResponse(responseCode = "409", description = "이미 가입된 정보",
@@ -59,9 +58,6 @@ public class SignController {
             throw new BadRequestException("비밀번호와 비밀번호 확인이 같지 않습니다.", "");
         if (userJpa.existsByEmail(signUpRequest.getEmail()))
             throw new ConflictException("이미 가입된 이메일입니다.", signUpRequest.getEmail());
-        if (signUpRequest.getBirth().length() != 8) {
-            throw new InvalidReqeustException("주민번호 유효성 검사 실패", signUpRequest.getBirth());
-        }
         String name = signService.signUp(signUpRequest);
         return new ResponseDto(name);
     }
