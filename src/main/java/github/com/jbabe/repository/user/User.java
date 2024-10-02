@@ -29,6 +29,9 @@ public class User {
     @Column(name = "user_id")
     private Integer userId;
 
+    @Column(name = "social_id", unique = true)
+    private Long socialId;
+
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
@@ -78,7 +81,7 @@ public class User {
     @Getter
     @AllArgsConstructor
     public enum UserStatus{
-        NORMAL("normal"), HIDE("hide"), DELETE("delete"), LOCKED("locked");
+        NORMAL("normal"), HIDE("hide"), DELETE("delete"), LOCKED("locked"), TEMP("temp");
         private final String path;
     }
 
