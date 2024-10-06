@@ -5,7 +5,9 @@ import github.com.jbabe.repository.redis.RedisTokenRepository;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.*;
+import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
+import github.com.jbabe.web.dto.authAccount.SocialLoginResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +19,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.time.*;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -63,7 +67,9 @@ public class LoginCookieService {
 
         try {
             String userEmail = authentication.getName();
-
+            User user = userJpa.findByEmail(userEmail).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", userEmail));
+            user.setLoginAt(LocalDateTime.now());
+            userJpa.save(user);
             String accessToken = jwtTokenConfig.createAccessToken(userEmail);
             String refreshToken = jwtTokenConfig.createRefreshToken(userEmail);
             jwtTokenConfig.saveRedisTokens(accessToken, refreshToken); // redis에 Tokens 저장
@@ -105,4 +111,73 @@ public class LoginCookieService {
     }
 
 
+    public SocialLoginResponse socialLogin(String socialId, String email) {
+        User user;
+        if (userJpa.findBySocialId(socialId).isPresent()) {
+            user = userJpa.findBySocialId(socialId).get();
+            String accessToken = jwtTokenConfig.createAccessToken(user.getEmail());
+            String refreshToken = jwtTokenConfig.createRefreshToken(user.getEmail());
+            jwtTokenConfig.saveRedisTokens(accessToken, refreshToken);
+            user.setLoginAt(LocalDateTime.now());
+            userJpa.save(user);
+            return SocialLoginResponse.builder()
+                    .status(200)
+                    .message("소셜 로그인 성공")
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+        } else if (userJpa.findByEmail(email).isPresent()){
+            return SocialLoginResponse.builder()
+                    .status(409)
+                    .message(email)
+                    .build();
+        } else {
+            return SocialLoginResponse.builder()
+                    .status(404)
+                    .message("해당 소셜 아이디로 가입된 유저가 없습니다.")
+                    .build();
+        }
+
+    }
+
+    public SocialLoginResponse socialSignUp(String socialId, String email, String name, String phoneNum) {
+        if (userJpa.findByEmail(email).isPresent()) {
+            return SocialLoginResponse.builder()
+                    .status(409)
+                    .message(email)
+                    .build();
+        } else {
+            User user = User.builder()
+                    .socialId(socialId)
+                    .email(!Objects.equals(email, "null") ? email : "empty")
+                    .name(name)
+                    .phoneNum(!Objects.equals(phoneNum, "null") ? phoneNum : "010-0000-0000")
+                    .userStatus(User.UserStatus.NORMAL)
+                    .role(User.Role.ROLE_USER)
+                    .failureCount(0)
+                    .createAt(LocalDateTime.now())
+                    .build();
+            userJpa.save(user);
+            String accessToken = jwtTokenConfig.createAccessToken(user.getEmail());
+            String refreshToken = jwtTokenConfig.createRefreshToken(user.getEmail());
+            jwtTokenConfig.saveRedisTokens(accessToken, refreshToken);
+            user.setLoginAt(LocalDateTime.now());
+            userJpa.save(user);
+            return SocialLoginResponse.builder()
+                    .status(200)
+                    .message("소셜 회원가입 성공")
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+        }
+    }
+
+
+    @Transactional
+    public String linkEmailWithSocial(String socialId, String email) {
+        User user = userJpa.findByEmail(email).orElseThrow(() -> new NotFoundException("유저를 찾을 수 없습니다.", email));
+        user.setSocialId(socialId);
+        userJpa.save(user);
+        return "OK";
+    }
 }

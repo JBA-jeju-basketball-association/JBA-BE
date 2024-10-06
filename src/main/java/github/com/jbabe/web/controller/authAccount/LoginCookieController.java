@@ -8,6 +8,7 @@ import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
 import github.com.jbabe.web.dto.authAccount.LoginRequest;
+import github.com.jbabe.web.dto.authAccount.SocialLoginResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -51,4 +52,24 @@ public class LoginCookieController {
         return new ResponseDto(newTokens);
     }
 
+    @PostMapping("/social-login")
+    public SocialLoginResponse socialLogin(@RequestParam(value = "socialId") String socialId,
+                                           @RequestParam(value = "email") String email) {
+        return loginCookieService.socialLogin(socialId, email);
+    }
+
+    @PostMapping("/social-sign-up")
+    public SocialLoginResponse socialSignUp(@RequestParam(value = "socialId") String socialId,
+                                           @RequestParam(value = "email") String email,
+                                            @RequestParam(value = "name") String name,
+                                            @RequestParam(value = "phoneNum") String phoneNum) {
+        return loginCookieService.socialSignUp(socialId, email, name,phoneNum);
+    }
+
+    @PostMapping("/link-social")
+    public ResponseDto linkEmailWithSocial(@RequestParam(value = "socialId") String socialId,
+                                           @RequestParam(value = "email") String email) {
+        return new ResponseDto(loginCookieService.linkEmailWithSocial(socialId, email));
+
+    }
 }
