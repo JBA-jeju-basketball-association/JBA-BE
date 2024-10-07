@@ -54,7 +54,7 @@ public class LoginCookieController {
 
     @PostMapping("/social-login")
     public SocialLoginResponse socialLogin(@RequestParam(value = "socialId") String socialId,
-                                           @RequestParam(value = "email") String email) {
+                                           @RequestParam(value = "email", required = false) String email) {
         return loginCookieService.socialLogin(socialId, email);
     }
 

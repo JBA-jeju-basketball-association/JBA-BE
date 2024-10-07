@@ -12,4 +12,5 @@ public class UserInfoResponse {
     private String role;
     private String email;
     private String phoneNum;
+    private Boolean isSocial;
 }
