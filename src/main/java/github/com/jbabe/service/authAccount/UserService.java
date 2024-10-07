@@ -38,6 +38,7 @@ public class UserService {
                 .role(User.getRoleKorean(user.getRole()))
                 .email(user.getEmail())
                 .phoneNum(user.getPhoneNum())
+                .isSocial(user.getSocialId() != null)
                 .build();
     }
 
