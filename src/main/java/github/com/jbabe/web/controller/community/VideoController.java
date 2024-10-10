@@ -6,6 +6,7 @@ import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.video.GetVideoResponse;
 import github.com.jbabe.web.dto.video.PostVideoRequest;
 import github.com.jbabe.web.dto.video.UpdateVideoRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,14 +22,16 @@ public class VideoController {
 
     private final VideoService videoService;
 
-    @PostMapping("/post")
+    @PostMapping
+    @Operation(summary = "비디오 등록")
     public ResponseDto postVideo(@RequestBody @Valid PostVideoRequest request,
                                  @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         String res = videoService.postVideo(request, customUserDetails);
         return new ResponseDto(res);
     }
 
-    @GetMapping("/get/videoList")
+    @GetMapping()
+    @Operation(summary = "비디오 목록 불러오기")
     public ResponseDto getVideoList(@RequestParam(value = "isOfficial") boolean isOfficial,
                                     @RequestParam(value = "keyword") String keyword,
                                     Pageable pageable) {
@@ -36,19 +39,22 @@ public class VideoController {
         return new ResponseDto(res);
     }
 
-    @GetMapping("/get")
-    public ResponseDto getVideo(@RequestParam(value = "id") Integer id) {
-        GetVideoResponse res = videoService.getVideo(id);
+    @GetMapping("/{videoId}")
+    @Operation(summary = "비디오 아이디로 비디오 불러오기")
+    public ResponseDto getVideo(@PathVariable Integer videoId) {
+        GetVideoResponse res = videoService.getVideo(videoId);
         return new ResponseDto(res);
     }
 
-    @PutMapping("/update")
+    @PutMapping()
+    @Operation(summary = "비디오 수정")
     public ResponseDto updateVideo(@RequestBody @Valid UpdateVideoRequest request) {
         String res = videoService.updateVideo(request);
         return new ResponseDto(res);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping()
+    @Operation(summary = "비디오 삭제")
     public ResponseDto deleteVideo(@RequestParam(value = "id") Integer id) {
         String res = videoService.deleteVideo(id);
         return new ResponseDto(res);

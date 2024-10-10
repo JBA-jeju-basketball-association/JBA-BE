@@ -8,43 +8,46 @@ import github.com.jbabe.service.exception.InvalidReqeustException;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.authAccount.*;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/v1/api/user")
+@RequestMapping("/v1/api/account")
 @RequiredArgsConstructor
-public class UserController {
+public class AccountController {
     private final UserService userService;
     private final LoginCookieService loginCookieService;
-
-    @GetMapping("/get/user-info")
+    @GetMapping()
+    @Operation(summary = "로그인한 유저정보 조회")
     public ResponseDto getUserInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         return new ResponseDto(userService.getUserInfo(customUserDetails));
     }
 
-    @PutMapping("/update")
+    @PutMapping("")
+    @Operation(summary = "회원정보 수정")
     public ResponseDto updateAccount(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                      @RequestBody @Valid UpdateAccountRequest request) {
         String response = userService.updateAccount(customUserDetails, request);
         return new ResponseDto(response);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping()
+    @Operation(summary = "회원탈퇴")
     public ResponseDto deleteAccount(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Integer userId = customUserDetails.getUserId();
         String response = userService.deleteAccount(userId);
         return new ResponseDto(response);
     }
 
-    @PutMapping("/update/password")
+    @PutMapping("/password")
+    @Operation(summary = "비밀번호 수정")
     public ResponseDto updatePassword(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                       @RequestBody UpdatePasswordRequest request,
                                       HttpServletRequest httpServletRequest,
@@ -59,19 +62,22 @@ public class UserController {
     }
 
 
-    @PostMapping("/post/findEmail")
+    @PostMapping("/verify/email")
+    @Operation(summary = "이메일로 계정 정보 찾기")
     public ResponseDto findEmail(@RequestBody @Valid FindEmailRequest findEmailRequest) {
         String email = userService.findEmail(findEmailRequest);
         return new ResponseDto(email);
     }
 
-    @PostMapping("post/checkUserInfo")
+    @PostMapping("/verify")
+    @Operation(summary = "계정 정보(이메일이나 이름)로 계정 정보 찾기")
     public ResponseDto checkUserInfo(@RequestBody @Valid CheckUserInfoRequest request) {
         String res = userService.checkUserInfo(request);
         return new ResponseDto(res);
     }
 
-    @PutMapping("update/password-in-findPassword")
+    @PutMapping("/password/reset")
+    @Operation(summary = "비밀번호 찾기 (비밀번호 다시 설정)")
     public ResponseDto updatePwInFindPassword(@RequestBody @Valid UpdatePasswordInFindPasswordRequest request) {
         if (!User.isValidSpecialCharacterInPassword(request.getPassword()))
             throw new InvalidReqeustException("비밀번호에 특수문자는 !@#$^*+=-만 사용 가능합니다.", "password");

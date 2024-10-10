@@ -77,19 +77,7 @@ public class GalleryController implements GalleryControllerDocs{
         return new ResponseDto();
     }
 
-    @GetMapping("/manage")
-    public ResponseDto getManageGalleryList(@RequestParam(name = "page", defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "20") int size,
-                                            @RequestParam(required = false) String keyword,
-                                            @RequestParam(required = false)String searchCriteriaString,
-                                            @RequestParam(required = false) Boolean official,
-                                            @RequestParam(required = false) LocalDate startDate,
-                                            @RequestParam(required = false) LocalDate endDate) {
-        Pageable pageable = PageRequest.of(page, size);
-        SearchCriteriaEnum searchCriteria = keyword != null ? SearchCriteriaEnum.fromValue(searchCriteriaString) : null;
 
-        return new ResponseDto(galleryService.getManageGalleryList(pageable, official, keyword, searchCriteria,startDate, endDate));
-    }
 
 
 

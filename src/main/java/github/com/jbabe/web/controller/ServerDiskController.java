@@ -3,6 +3,7 @@ package github.com.jbabe.web.controller;
 import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.storage.FileDto;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -17,26 +18,30 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/v1/api/upload")
+@RequestMapping("/v1/api/disk")
 @RequiredArgsConstructor
 public class ServerDiskController {
 
     private final ServerDiskService serverDiskService;
 
-    @PostMapping("/uploadFiles")
+    @PostMapping("/files")
+    @Operation(summary = "서버디스크 파일 업로드")
+
     public ResponseDto uploadFil(@RequestPart("uploadFiles")List<MultipartFile> multipartFiles) {
         List<FileDto> response = serverDiskService.fileUploadAndGetUrl(multipartFiles);
         return new ResponseDto(response);
     }
 
-    @PostMapping("/ck-editor-upload")
+    @PostMapping("/ckeditor")
+    @Operation(summary = "CKEditor 이미지 업로드")
     public Map<String, Object> ckEditorImgUpload(//한개 업로드
                                                  @RequestPart("uploadFile") MultipartFile multipartFile
     ) {
         return serverDiskService.ckEditorImgUpload(multipartFile);
     }
 
-    @GetMapping("/getFile/{fileServerName}")
+    @GetMapping("/{fileServerName}")
+    @Operation(summary = "파일명으로 파일 다운로드")
     public ResponseEntity<Resource> getFile(@PathVariable("fileServerName") String fileServerName) {
         try {
             Resource resource = serverDiskService.loadFileAsResource(fileServerName);
