@@ -38,6 +38,7 @@ public class JwtTokenConfig {
     private String secretKey;
     private String key;
     private final long accessTokenValidMillisecond = 1000*60*30L; // access token 유효기간 : 30분
+//    private final long accessTokenValidMillisecond = 1000*10L; // access token 유효기간 : 10초
 
     @Getter
     private final long refreshTokenValidMillisecond = 1000*60*60*24*3L; // refresh token 유효기간 : 3일
@@ -53,7 +54,11 @@ public class JwtTokenConfig {
     public static final String EXCEPTION_HEADER_NAME = "AUTH_EXCEPTION";
 
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("Authorization");
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return null;
     }
 
     public String createAccessToken(String email) {

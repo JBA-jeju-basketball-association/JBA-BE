@@ -44,7 +44,7 @@ public class LoginCookieController {
     ) {
         String refreshToken = request.getHeader("RefreshToken");
         if (refreshToken == null || refreshToken.isEmpty()) throw new ExpiredJwtException("쿠키에 리프레시 토큰이 없습니다.");
-        String expiredAccessToken = request.getHeader("Authorization");
+        String expiredAccessToken = request.getHeader("Authorization").substring(7);
         if (expiredAccessToken == null || expiredAccessToken.isEmpty())
             throw new BadRequestException("Header에 AccessToken 이 없습니다.", "");
 
