@@ -171,30 +171,7 @@ public class GalleryService {
         return makeResponseListAndToMyPage(galleryPages, pageable);
     }
 
-    public MyPage<ManageGalleryDto> getManageGalleryList(Pageable pageable, Boolean official, String keyword, SearchCriteriaEnum searchCriteria, LocalDate startDate, LocalDate endDate){
-        SearchQueryParamUtil.validateAndAdjustDates(keyword, searchCriteria, startDate, endDate);
-        startDate = startDate == null ? LocalDate.of(2024,1,1) : startDate;
-        endDate = endDate == null ? LocalDate.now().plusDays(1) : endDate.plusDays(1);
 
-        Page<Gallery> galleries = galleryJpa.getGalleryManageList(pageable, official, keyword, searchCriteria, startDate, endDate);
-        return makeResponseListAndToMyPageForManage(galleries, pageable);
-    }
 
-    private MyPage<ManageGalleryDto> makeResponseListAndToMyPageForManage(Page<Gallery> galleries, Pageable pageable) {
-        if(pageable.getPageNumber()+1>galleries.getTotalPages()&&pageable.getPageNumber()!=0)
-            throw new NotFoundException("Page Not Found", pageable.getPageNumber());
-        List<ManageGalleryDto> responseList =  galleries.stream()
-                .map(gallery -> GalleryMapper.INSTANCE
-                        .GalleryToManageGalleryDto(gallery,
-                                gallery.getGalleryImgs().isEmpty()?"https://www.irisoele.com/img/noimage.png":
-                                        gallery.getGalleryImgs().get(0).getFileUrl()))
-                .toList();
 
-        return MyPage.<ManageGalleryDto>builder()
-                .type(ManageGalleryDto.class)
-                .content(responseList)
-                .totalElements(galleries.getTotalElements())
-                .totalPages(galleries.getTotalPages())
-                .build();
-    }
 }

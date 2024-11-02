@@ -68,34 +68,6 @@ public class CompetitionScheduleService {
         return "OK";
     }
 
-    public List<GetScheduleResponse> getCompetitionSchedule(Integer id) {
-        Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("대회를 찾을 수 없습니다.", id));
-        List<Division> divisions = divisionJpa.findAllByCompetition(competition);
-        List<GetScheduleResponse> getScheduleResponses = divisions.stream().map(division -> (
-                GetScheduleResponse.builder()
-                        .division(division.getDivisionName())
-                        .getScheduleRows(
-                                competitionRecordJpa.findAllByDivision(division).stream().map(record ->
-                                        GetScheduleRow.builder()
-                                                .competitionResultId(record.getCompetitionRecordId())
-                                                .gameNumber(record.getGameNumber())
-                                                .startDate(record.getTime())
-                                                .floor(record.getFloor())
-                                                .place(record.getPlace())
-                                                .homeName(record.getHomeName())
-                                                .awayName(record.getAwayName())
-                                                .state5x5(record.isState5x5())
-                                                .build()
-                                ).collect(Collectors.toList())
-                        )
-                        .build()
-        )).toList();
-        if (getScheduleResponses.isEmpty()) throw new NotFoundException("대회 일정을 찾을 수 없습니다.", id);
-
-        return getScheduleResponses;
-
-    }
-
     @Transactional
     public String updateCompetitionSchedule(Integer id, List<PostCompetitionScheduleRequest> requests) {
         Competition competition = competitionJpa.findById(id).orElseThrow(() -> new NotFoundException("대회를 찾을 수 없습니다.", id));

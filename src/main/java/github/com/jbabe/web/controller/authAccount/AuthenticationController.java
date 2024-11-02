@@ -2,36 +2,69 @@ package github.com.jbabe.web.controller.authAccount;
 
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
+import github.com.jbabe.service.authAccount.LoginCookieService;
 import github.com.jbabe.service.authAccount.SignService;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.ConflictException;
+import github.com.jbabe.service.exception.ExpiredJwtException;
 import github.com.jbabe.service.exception.InvalidReqeustException;
+import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
-import github.com.jbabe.web.dto.authAccount.EmailRequest;
+import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
+import github.com.jbabe.web.dto.authAccount.LoginRequest;
 import github.com.jbabe.web.dto.authAccount.SignUpRequest;
+import github.com.jbabe.web.dto.authAccount.SocialLoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSender;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/api/sign")
-public class SignController {
-
+@RequestMapping("/v1/api/auth")
+@Slf4j
+public class AuthenticationController {
+    private final LoginCookieService loginCookieService;
     private final SignService signService;
     public final UserJpa userJpa;
 
 
+    @PostMapping("/login")
+    public ResponseDto LoginCookie(@RequestBody @Valid LoginRequest loginRequest) {
+        AccessAndRefreshToken accessAndRefreshToken = loginCookieService.loginCookie(loginRequest.getEmail(), loginRequest.getPassword());
+        return new ResponseDto(accessAndRefreshToken);
+    }
+
+    @PostMapping("/logout")
+    public ResponseDto logoutCookie(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                    HttpServletRequest httpServletRequest) {
+        String res = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
+        return new ResponseDto(res);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseDto refreshTokenCookie(HttpServletRequest request, HttpServletResponse response
+    ) {
+        String refreshToken = request.getHeader("RefreshToken");
+        if (refreshToken == null || refreshToken.isEmpty()) throw new ExpiredJwtException("쿠키에 리프레시 토큰이 없습니다.");
+        String expiredAccessToken = request.getHeader("Authorization");
+        if (expiredAccessToken == null || expiredAccessToken.isEmpty())
+            throw new BadRequestException("Header에 AccessToken 이 없습니다.", "");
+
+        AccessAndRefreshToken newTokens = loginCookieService.refreshTokenCookie(expiredAccessToken, refreshToken);
+        return new ResponseDto(newTokens);
+    }
+
+
+    //회원가입
     @Operation(summary = "회원가입")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "유효성 검사 실패",
@@ -67,5 +100,25 @@ public class SignController {
         return new ResponseDto(signService.checkEmail(email));
     }
 
+    @PostMapping("/social-login")
+    public SocialLoginResponse socialLogin(@RequestParam(value = "socialId") String socialId,
+                                           @RequestParam(value = "email", required = false) String email) {
+        return loginCookieService.socialLogin(socialId, email);
+    }
+
+    @PostMapping("/social-sign-up")
+    public SocialLoginResponse socialSignUp(@RequestParam(value = "socialId") String socialId,
+                                            @RequestParam(value = "email") String email,
+                                            @RequestParam(value = "name") String name,
+                                            @RequestParam(value = "phoneNum") String phoneNum) {
+        return loginCookieService.socialSignUp(socialId, email, name,phoneNum);
+    }
+
+    @PutMapping("/link-social")
+    public ResponseDto linkEmailWithSocial(@RequestParam(value = "socialId") String socialId,
+                                           @RequestParam(value = "email") String email) {
+        return new ResponseDto(loginCookieService.linkEmailWithSocial(socialId, email));
+
+    }
 
 }

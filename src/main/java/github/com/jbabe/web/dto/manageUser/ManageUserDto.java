@@ -12,8 +12,6 @@ public class ManageUserDto {
     private String permission;
     private String email;
     private String phoneNum;
-    private String dateOfBirth;
-    private String gender;
     private String userStatus;
     private String loginAt;
     private String createAt;
@@ -21,4 +19,8 @@ public class ManageUserDto {
     private String deleteAt;
     private String lockAt;
     private Integer failureCount;
+
+
+//    private String dateOfBirth;
+//    private String gender;
 }

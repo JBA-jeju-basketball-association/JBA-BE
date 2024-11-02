@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/api/main/competition")
+@RequestMapping("/v1/api/competition")
 @RequiredArgsConstructor
 public class MainCompetitionController {
     private final MainCompetitionService mainCompetitionService;
 
-    @GetMapping()
+    @GetMapping("/main")
     public ResponseDto getCompetitionInfoInMain() {
          List<MainCompetitionResponse> responses = mainCompetitionService.getCompetitionInfoInMain();
          return new ResponseDto(responses);

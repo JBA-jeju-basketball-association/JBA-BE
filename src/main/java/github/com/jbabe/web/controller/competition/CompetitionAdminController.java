@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v1/api/competition")
+@RequestMapping("/v1/api/admin/competition")
 @RequiredArgsConstructor
 public class CompetitionAdminController {
     private final CompetitionAdminService competitionAdminService;
@@ -56,7 +56,7 @@ public class CompetitionAdminController {
                             }
                     ))
     })
-    @GetMapping("/admin/list")
+    @GetMapping
     public ResponseDto getCompetitionAdminList(@RequestParam(defaultValue = "title") String searchType,
                                                @RequestParam(required = false) String searchKey,
                                                @RequestParam(required = false) LocalDate filterStartDate,
@@ -83,35 +83,11 @@ public class CompetitionAdminController {
     }
 
     @Operation(summary = "등록된 대회 게시물 총 갯수 및 종별 목록 조회")
-    @GetMapping("/admin/total-competition-and-division-list")
+    @GetMapping("/competitions-with-divisions")
     public ResponseDto getTotalCompetitionAndDivisionList() {
         return new ResponseDto(competitionAdminService.getTotalCompetitionAndDivisionList());
     }
 
-    @Operation(summary = "대회 삭제", description = "대회 정보 및 일정(결과)까지 모두 삭제됨")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "404", description = "NOT_FOUND",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(name = "대회를 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"해당 id로 대회를 찾을 수 없습니다.\",\n \"request\": \"1\"\n}")
-                    ))
-    })
-    @DeleteMapping("/delete/{id}")
-    public ResponseDto deleteCompetition(@PathVariable Integer id) {
-        return new ResponseDto(competitionAdminService.deleteCompetition(id));
-    }
 
-    @Operation(summary = "대회일정(결과) 삭제", description = "대회 정보는 삭제되지 않고 일정(결과)만 삭제됨")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "404", description = "NOT_FOUND",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "대회를 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"대회를 찾을 수 없습니다.\",\n \"request\": \"1\"\n}"),
-                            }
-                    ))
-    })
-    @DeleteMapping("/delete/schedule/{id}")
-    public ResponseDto deleteCompetitionSchedule (@PathVariable Integer id) {
-        String res = competitionAdminService.deleteCompetitionSchedule(id);
-        return new ResponseDto(res);
-    }
+
 }

@@ -81,7 +81,7 @@ public class User {
     @Getter
     @AllArgsConstructor
     public enum UserStatus{
-        NORMAL("normal"), HIDE("hide"), DELETE("delete"), LOCKED("locked");
+        NORMAL("normal"), HIDE("hide"), DELETE("delete"), LOCKED("locked"), TEMP("temp");
         private final String path;
     }
 
