@@ -67,3 +67,11 @@ springdoc:
 
 upload:
   path: /mnt/files/
+
+oauth:
+  kakao:
+    client-id: ENC(5MUuoLUvmQUSGsMFaCETJ8IIEbg6H/4YRQMNA6M0KhM6L0l2KGjB7M9rkWYFx92Z)
+    secret: ENC(dTBZo8nNxXVm5BDTno4wNf8bkM2M+Bh6AEcM3ElkEqTO1RZ+JfU78l2D4TsZhwxj)
+    url:
+      auth: https://kauth.kakao.com
+      api: https://kapi.kakao.com

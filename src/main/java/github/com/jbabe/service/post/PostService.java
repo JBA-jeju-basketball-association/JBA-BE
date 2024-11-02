@@ -254,24 +254,4 @@ public class PostService {
         post.updateIsAnnouncement();
     }
 
-//    @Transactional(readOnly = true)
-    public MyPage<ManagePostsDto> getManagePostsList(Pageable pageable, String keyword, SearchCriteriaEnum searchCriteria, Post.Category categoryEnum, LocalDate startDate, LocalDate endDate) {
-        SearchQueryParamUtil.validateAndAdjustDates(keyword, searchCriteria, startDate, endDate);
-        startDate = startDate == null ? LocalDate.of(2024,1,1) : startDate;
-        endDate = endDate == null ? LocalDate.now().plusDays(1) : endDate.plusDays(1);
-
-
-        Page<Post> postList = postJpa.getPostsListFileFetch(pageable, keyword, searchCriteria, categoryEnum, startDate, endDate);
-        if(!(pageable.getPageNumber() ==0) && pageable.getPageNumber()+1>postList.getTotalPages()) throw new NotFoundException("Page Not Found", pageable.getPageNumber());
-        return MyPage.<ManagePostsDto>builder()
-                .type(ManagePostsDto.class)
-                .content(postList.stream()
-                        .map(PostMapper.INSTANCE::PostToManagePostsDto)
-                        .toList())
-                .totalElements(postList.getTotalElements())
-                .totalPages( postList.getTotalPages())
-                .build();
-
-
-    }
 }

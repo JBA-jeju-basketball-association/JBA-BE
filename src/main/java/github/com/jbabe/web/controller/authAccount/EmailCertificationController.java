@@ -38,7 +38,7 @@ public class EmailCertificationController {
                             examples = @ExampleObject(name = "이미 가입된 이메일", value = "{\n  \"code\": 409,\n  \"message\": \"CONFLICT\",\n \"detailMessage\": \"이미 가입된 이메일입니다.\",\n \"request\": \"hansol@gmail.com\"\n}")
                     ))
     })
-    @PostMapping("/sign-up-send-mail")
+    @PostMapping("/sign-up")
     public ResponseDto signUpSendEmail(@RequestBody @Valid EmailRequest emailRequest) {
 
         System.out.println("이메일 인증 이메일 : " + emailRequest.getEmail());
@@ -46,7 +46,8 @@ public class EmailCertificationController {
         return new ResponseDto();
     }
 
-    @PostMapping("/find-password-send-mail")
+    @PostMapping("/reset-password")
+    @Operation(summary = "비밀번호 찾기 인증메일 보내기")
     public ResponseDto findPasswordSendEmail(@RequestBody @Valid EmailRequest emailRequest) {
 
         System.out.println("이메일 인증 이메일 : " + emailRequest.getEmail());
@@ -66,7 +67,7 @@ public class EmailCertificationController {
                             }
                     ))
     })
-    @PostMapping("/check-auth-num")
+    @PostMapping("/verify")
     public ResponseDto checkAuthNum(@RequestBody @Valid EmailCheckRequest emailCheckRequest) {
         Boolean checked = emailCertificationService.checkAuthNum(emailCheckRequest.getEmail(), emailCheckRequest.getAuthNum());
         if (checked) {
