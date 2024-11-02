@@ -13,6 +13,7 @@ import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
 import github.com.jbabe.web.dto.authAccount.LoginRequest;
 import github.com.jbabe.web.dto.authAccount.SignUpRequest;
+import github.com.jbabe.web.dto.authAccount.SocialLoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -99,5 +100,25 @@ public class AuthenticationController {
         return new ResponseDto(signService.checkEmail(email));
     }
 
+    @PostMapping("/social-login")
+    public SocialLoginResponse socialLogin(@RequestParam(value = "socialId") String socialId,
+                                           @RequestParam(value = "email", required = false) String email) {
+        return loginCookieService.socialLogin(socialId, email);
+    }
+
+    @PostMapping("/social-sign-up")
+    public SocialLoginResponse socialSignUp(@RequestParam(value = "socialId") String socialId,
+                                            @RequestParam(value = "email") String email,
+                                            @RequestParam(value = "name") String name,
+                                            @RequestParam(value = "phoneNum") String phoneNum) {
+        return loginCookieService.socialSignUp(socialId, email, name,phoneNum);
+    }
+
+    @PostMapping("/link-social")
+    public ResponseDto linkEmailWithSocial(@RequestParam(value = "socialId") String socialId,
+                                           @RequestParam(value = "email") String email) {
+        return new ResponseDto(loginCookieService.linkEmailWithSocial(socialId, email));
+
+    }
 
 }

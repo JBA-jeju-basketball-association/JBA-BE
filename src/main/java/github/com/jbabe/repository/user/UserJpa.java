@@ -2,7 +2,6 @@ package github.com.jbabe.repository.user;
 
 import org.joda.time.DateTime;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -19,6 +18,5 @@ public interface UserJpa extends JpaRepository<User, Integer>, UserCustomDao {
 
     boolean existsByEmailAndName(String email, String name);
 
-    User findBySocialId(Long socialId);
-
+    Optional<User> findBySocialId(String socialId);
 }

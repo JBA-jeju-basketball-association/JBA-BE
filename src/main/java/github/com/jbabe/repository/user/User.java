@@ -30,12 +30,12 @@ public class User {
     private Integer userId;
 
     @Column(name = "social_id", unique = true)
-    private Long socialId;
+    private String socialId;
 
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
 
     @Column(name = "name", nullable = false)
