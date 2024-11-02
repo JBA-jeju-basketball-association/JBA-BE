@@ -1,7 +1,6 @@
 package github.com.jbabe.web.controller.authAccount;
 
 import github.com.jbabe.repository.user.User;
-import github.com.jbabe.service.authAccount.LoginCookieService;
 import github.com.jbabe.service.authAccount.UserService;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.InvalidReqeustException;
@@ -23,7 +22,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AccountController {
     private final UserService userService;
-    private final LoginCookieService loginCookieService;
     @GetMapping()
     @Operation(summary = "로그인한 유저정보 조회")
     public ResponseDto getUserInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails) {

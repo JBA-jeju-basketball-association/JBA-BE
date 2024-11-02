@@ -2,29 +2,20 @@ package github.com.jbabe.web.controller.competition;
 
 import github.com.jbabe.service.competition.CompetitionDetailService;
 import github.com.jbabe.service.competition.CompetitionResultService;
-import github.com.jbabe.service.competition.CompetitionScheduleService;
 import github.com.jbabe.service.competition.CompetitionService;
 import github.com.jbabe.service.exception.BadRequestException;
-import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
-import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.competition.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/api/competition")
@@ -34,8 +25,6 @@ public class CompetitionController {
     private final CompetitionService competitionService;
     private final CompetitionDetailService competitionDetailService;
     private final CompetitionResultService competitionResultService;
-    private final CompetitionScheduleService competitionScheduleService;
-
 
     //목록조회
     @Operation(summary = "대회정보 목록 조회")
@@ -95,23 +84,6 @@ public class CompetitionController {
     public ResponseDto getCompetitionDetail(@PathVariable Integer id) {
         CompetitionDetailResponse data = competitionDetailService.getCompetitionDetail(id);
         return new ResponseDto(data);
-    }
-
-
-    @Operation(summary = "대회일정 조회")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "404", description = "NOT_FOUND",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(name = "대회를 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"대회를 찾을 수 없습니다.\",\n \"request\": \"1\"\n}"),
-                                    @ExampleObject(name = "대회일정을 찾을 수 없음", value = "{\n  \"code\": 404,\n  \"message\": \"NOT_FOUND\",\n \"detailMessage\": \"대회일정을 찾을 수 없습니다.\",\n \"request\": \"1\"\n}")
-                            }
-                    ))
-    })
-    @GetMapping("/{id}/schedule")
-    public ResponseDto getCompetitionSchedule (@PathVariable Integer id) {
-        List<GetScheduleResponse> res = competitionScheduleService.getCompetitionSchedule(id);
-        return new ResponseDto(res);
     }
 
     @Operation(summary = "대회결과 조회")

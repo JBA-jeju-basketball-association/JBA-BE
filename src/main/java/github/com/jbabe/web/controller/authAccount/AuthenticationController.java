@@ -114,7 +114,7 @@ public class AuthenticationController {
         return loginCookieService.socialSignUp(socialId, email, name,phoneNum);
     }
 
-    @PostMapping("/link-social")
+    @PutMapping("/link-social")
     public ResponseDto linkEmailWithSocial(@RequestParam(value = "socialId") String socialId,
                                            @RequestParam(value = "email") String email) {
         return new ResponseDto(loginCookieService.linkEmailWithSocial(socialId, email));

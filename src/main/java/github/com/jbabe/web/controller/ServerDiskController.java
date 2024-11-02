@@ -26,7 +26,6 @@ public class ServerDiskController {
 
     @PostMapping("/files")
     @Operation(summary = "서버디스크 파일 업로드")
-
     public ResponseDto uploadFil(@RequestPart("uploadFiles")List<MultipartFile> multipartFiles) {
         List<FileDto> response = serverDiskService.fileUploadAndGetUrl(multipartFiles);
         return new ResponseDto(response);
