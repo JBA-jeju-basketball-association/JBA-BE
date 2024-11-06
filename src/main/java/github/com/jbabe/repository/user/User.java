@@ -171,6 +171,10 @@ public class User {
         return modified;
     }
 
+    public User (Integer userId){
+        this.userId = userId;
+    }
+
 }
 
 

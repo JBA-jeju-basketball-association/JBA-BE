@@ -2,6 +2,7 @@ package github.com.jbabe.repository.division;
 
 import github.com.jbabe.repository.competition.Competition;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
+import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,8 +31,15 @@ public class Division {
     @OneToMany(mappedBy = "division", fetch = FetchType.LAZY)
     private List<CompetitionRecord> competitionRecords;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "division_enum_id")
     private DivisionEnum divisionEnum;
+
+    @OneToMany(mappedBy = "division", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ParticipationCompetition> participationCompetitions;
+
+    public Division(Long divisionId) {
+        this.divisionId = divisionId.intValue();
+    }
 
 }

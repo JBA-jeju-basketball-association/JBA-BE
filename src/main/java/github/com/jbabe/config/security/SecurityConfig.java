@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfig()))
                 .authorizeHttpRequests(a ->
                         a
+                                .requestMatchers("/v1/api/competition/*/participate").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/v1/api/post/*","/v1/api/gallery/register", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/v1/api/post/**", "/v1/api/gallery/*","v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/v1/api/post/*", "/v1/api/gallery/*", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
@@ -61,10 +62,13 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000", "http://localhost:3000", "https://www.jba.co.kr", "https://jba.co.kr", "https://jejubasketball.shop", "https://www.jejubasketball.shop", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://www.jba.co.kr", "https://jba.co.kr", "https://jejubasketball.shop", "https://www.jejubasketball.shop", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
+        //요청에 인증정보를 같이 보내야 하는지
         corsConfiguration.setAllowCredentials(true);
+        //클라이언트가 응답을 볼 수 잇는 헤더
         corsConfiguration.addExposedHeader("Authorization");
         corsConfiguration.addExposedHeader("RefreshToken");
+        //클라이언트가 요청을 보낼 수 있는 헤더
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowedMethods(List.of("GET","PUT","POST","PATCH","DELETE","OPTIONS"));
         corsConfiguration.setMaxAge(1000L*60*60);
