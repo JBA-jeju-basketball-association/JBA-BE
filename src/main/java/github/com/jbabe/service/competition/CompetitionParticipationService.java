@@ -1,17 +1,21 @@
 package github.com.jbabe.service.competition;
 
 import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
+import github.com.jbabe.repository.competitionuser.ParticipationCompetitionFile;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionRepository;
+import github.com.jbabe.repository.competitionuser.ParticipationFileRepository;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.CompetitionMapper;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
+import github.com.jbabe.web.dto.competition.participate.ParticipateDetail;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
-import github.com.jbabe.web.dto.competition.participate.ParticipateResponse;
+import github.com.jbabe.web.dto.competition.participate.SimplyParticipateResponse;
+import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CompetitionParticipationService {
     private final ParticipationCompetitionRepository participationCompetitionRepository;
+    private final ParticipationFileRepository participationFileRepository;
 
     @Transactional
     public long applicationForParticipationInCompetition(Long divisionId, ParticipateRequest participateRequest, CustomUserDetails customUserDetails) {
@@ -37,19 +42,67 @@ public class CompetitionParticipationService {
     }
 
     private <T> Object createDivisionOrUserById(T divisionIdOrUserId) {
-        if(divisionIdOrUserId instanceof Long) {
+        if(divisionIdOrUserId instanceof Long)
             return new Division((Long) divisionIdOrUserId);
-        } else if(divisionIdOrUserId instanceof Integer) {
-            return new User((Integer) divisionIdOrUserId );
+        else if (divisionIdOrUserId instanceof Integer)
+            return new User((Integer) divisionIdOrUserId);
+        else {
+            throw new BadRequestException("잘못된 요청", divisionIdOrUserId);
         }
-        return null;
     }
 
-    public List<ParticipateResponse> getMyParticipate(CustomUserDetails customUserDetails, boolean isAll) {
+    public ParticipateDetail getMyParticipateById(Long participationCompetitionId) {
 
         List<ParticipationCompetition> entity = participationCompetitionRepository
-                .findParticipationCompetitionsByUserId(customUserDetails.getUserId(), isAll);
+                .findParticipationCompetitionsByUserIdOrPId(participationCompetitionId);
+        if(entity.isEmpty())
+            throw new NotFoundException("참가신청번호가 잘못되었습니다.", participationCompetitionId);
+
+        return CompetitionMapper.INSTANCE.participationCompetitionToParticipateDetail(entity.get(0));
+    }
+
+    public List<SimplyParticipateResponse> getMyParticipate(CustomUserDetails customUserDetails) {
+
+        List<ParticipationCompetition> entity = participationCompetitionRepository
+                .findParticipationCompetitionsByUserIdOrPId(customUserDetails.getUserId());
 
         return CompetitionMapper.INSTANCE.participationCompetitionsToParticipateResponse(entity);
+    }
+
+    @Transactional
+    public void deleteParticipate(Long participationCompetitionId, CustomUserDetails customUserDetails) {
+        verifyRequestChangePermissions(participationCompetitionId, customUserDetails);
+        participationCompetitionRepository.deleteByIdCustom(participationCompetitionId);
+    }
+    @Transactional
+    public void updateParticipate(Long participationCompetitionId, CustomUserDetails customUserDetails, ParticipateRequest participateRequest) {
+        verifyRequestChangePermissions(participationCompetitionId, customUserDetails);
+        participationCompetitionRepository.updateParticipate(participationCompetitionId, participateRequest);
+        updateParticipateFiles(participationCompetitionId, participateRequest.getFiles());
+    }
+
+    private void updateParticipateFiles(Long participationCompetitionId, List<FileDto> requestFiles){
+        List<String> oldFileUrls = participationFileRepository.findUrlsByParticipationIdCustom(participationCompetitionId);
+        List<String> newFileUrls = requestFiles.stream().map(file-> file.getFileUrl()).toList();
+
+        oldFileUrls.stream().filter(url -> !newFileUrls.contains(url))
+                .forEach(url -> participationFileRepository.deleteByUrlCustom(url));
+
+        requestFiles.stream()
+                .filter(file-> !oldFileUrls.contains(file.getFileUrl()))
+                .forEach(file -> makeParticipationFileEntity(file, participationCompetitionId));
+    }
+    private void makeParticipationFileEntity(FileDto newFile, Long participationCompetitionId) {
+        ParticipationCompetitionFile entity = CompetitionMapper.INSTANCE.fileDtoToParticipationCompetitionFile(newFile);
+        entity.setParticipationCompetition(new ParticipationCompetition(participationCompetitionId));
+        participationFileRepository.save(entity);
+    }
+    private void verifyRequestChangePermissions(Long participationCompetitionId, CustomUserDetails customUserDetails) {
+        Integer authorId = participationCompetitionRepository
+                .findParticipationCompetitionTheUserIdOfById(participationCompetitionId)
+                .orElseThrow(() -> new NotFoundException("참가신청번호가 잘못되었습니다.", participationCompetitionId));
+
+        if( !authorId.equals(customUserDetails.getUserId()) )
+            throw new NotFoundException("수정 권한이 없습니다.", "로그인한 유저 id : "+customUserDetails.getUserId()+" 작성자 id : "+authorId);
     }
 }

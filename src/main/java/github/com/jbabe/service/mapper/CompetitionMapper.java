@@ -1,17 +1,14 @@
 package github.com.jbabe.service.mapper;
 
-import github.com.jbabe.repository.competition.Competition;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionFile;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.web.dto.competition.participate.ParticipateDetail;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
-import github.com.jbabe.web.dto.competition.participate.ParticipateResponse;
+import github.com.jbabe.web.dto.competition.participate.SimplyParticipateResponse;
 import github.com.jbabe.web.dto.storage.FileDto;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -42,23 +39,28 @@ public interface CompetitionMapper {
         }
     }
 
+    @Named("simply")
     @Mapping(target = "competitionName", source = "division.competition.competitionName")
     @Mapping(target = "divisionName", source = "division.divisionName")
-    @Mapping(target = "applicantName", source = "name")
-    @Mapping(target = "applicantPhoneNum", source = "phoneNum")
-    @Mapping(target = "applicantEmail", source = "email")
     @Mapping(target = "applicantDate", source = "createdAt")
-    @Mapping(target = "competitionStartDate", source = "division.competition.startDate")
-    @Mapping(target = "competitionEndDate", source = "division.competition.endDate")
     @Mapping(target = "participationStartDate", source = "division.competition.participationStartDate")
     @Mapping(target = "participationEndDate", source = "division.competition.participationEndDate")
-    @Mapping(target = "fileDtos", source = "participationCompetitionFiles")
-    ParticipateResponse participationCompetitionToParticipateResponse(ParticipationCompetition participationCompetition);
+    SimplyParticipateResponse participationCompetitionToParticipateResponse(ParticipationCompetition participationCompetition);
 
     @Mapping(target = "fileUrl", source = "filePath")
     @Mapping(target = "fileName", source = "fileName")
     FileDto participationCompetitionFileToFileDto(ParticipationCompetitionFile participationCompetitionFile);
 
-    List<ParticipateResponse> participationCompetitionsToParticipateResponse(List<ParticipationCompetition> entity);
+    @IterableMapping(qualifiedByName = "simply")
+    List<SimplyParticipateResponse> participationCompetitionsToParticipateResponse(List<ParticipationCompetition> entity);
 
+    @Mapping(target = "competitionName", source = "division.competition.competitionName")
+    @Mapping(target = "divisionName", source = "division.divisionName")
+    @Mapping(target = "applicantDate", source = "createdAt")
+    @Mapping(target = "participationStartDate", source = "division.competition.participationStartDate")
+    @Mapping(target = "participationEndDate", source = "division.competition.participationEndDate")
+    @Mapping(target = "files", source = "participationCompetitionFiles")
+    @Mapping(target = "competitionStartDate", source = "division.competition.startDate")
+    @Mapping(target = "competitionEndDate", source = "division.competition.endDate")
+    ParticipateDetail participationCompetitionToParticipateDetail(ParticipationCompetition participationCompetition);
 }

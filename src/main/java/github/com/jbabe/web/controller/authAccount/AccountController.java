@@ -3,6 +3,7 @@ package github.com.jbabe.web.controller.authAccount;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.authAccount.LoginCookieService;
 import github.com.jbabe.service.authAccount.UserService;
+import github.com.jbabe.service.competition.CompetitionParticipationService;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.InvalidReqeustException;
 import github.com.jbabe.service.userDetails.CustomUserDetails;

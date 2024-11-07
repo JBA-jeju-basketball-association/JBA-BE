@@ -1,6 +1,5 @@
 package github.com.jbabe.repository.competitionuser;
 
-import github.com.jbabe.repository.competition.Competition;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

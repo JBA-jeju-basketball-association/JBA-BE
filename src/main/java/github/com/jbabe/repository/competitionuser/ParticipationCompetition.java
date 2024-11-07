@@ -40,6 +40,8 @@ public class ParticipationCompetition {
     private String email;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
 
     @OneToMany(mappedBy = "participationCompetition", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -51,5 +53,9 @@ public class ParticipationCompetition {
         this.email = participateRequest.getEmail();
         this.participationCompetitionFiles = CompetitionMapper.INSTANCE.fileDtoListToParticipationCompetitionFileList(participateRequest.getFiles());
         this.createdAt = LocalDateTime.now();
+    }
+
+    public ParticipationCompetition(Long id){
+        this.participationCompetitionId = id;
     }
 }

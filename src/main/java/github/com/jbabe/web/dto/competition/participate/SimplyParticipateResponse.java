@@ -12,17 +12,13 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ParticipateResponse {
+public class SimplyParticipateResponse {
+    private Long participationCompetitionId;
     private String competitionName;
     private String divisionName;
-    private String applicantName;
-    private String applicantPhoneNum;
-    private String applicantEmail;
     private LocalDateTime applicantDate;
-    private LocalDate competitionStartDate;
-    private LocalDate competitionEndDate;
+    private LocalDateTime updatedAt;
     private LocalDate participationStartDate;
     private LocalDate participationEndDate;
-    private List<FileDto> fileDtos;
 
 }

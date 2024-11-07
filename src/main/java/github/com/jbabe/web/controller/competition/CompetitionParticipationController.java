@@ -5,6 +5,7 @@ import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +26,30 @@ public class CompetitionParticipationController {
                                               @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         return new ResponseDto(HttpStatus.CREATED).setCreateData(competitionParticipationService.applicationForParticipationInCompetition(divisionId, participateRequest, customUserDetails));
     }
-    @Operation(summary = "내가 참가한 대회 조회(신청 기록 조회)", description = "내가 참가한 대회를 조회합니다. <br>" +
-            "isAll이 true일 경우 참가신청한 기록을 전부 조회합니다. false거나 값이 쿼리파라미터가 없을경우 컴페티션테이블의 participationStartDate와 participationEndDate 사이에 있는 요청기록만 보여줍니다.")
+
+    @Operation(summary = "내가 참가한 대회 조회(신청 기록 조회)", description = "내가 참가한 대회를 조회합니다.")
     @GetMapping("/my-participate")
-    public ResponseDto getMyParticipate(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestParam(required = false) boolean isAll) {
-        return new ResponseDto(competitionParticipationService.getMyParticipate(customUserDetails, isAll));
+    public ResponseDto getMyParticipate(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return new ResponseDto(competitionParticipationService.getMyParticipate(customUserDetails));
     }
+    @Operation(summary = "대회 참가 신청 취소(삭제)", description = "대회 참가 신청을 취소합니다.")
+    @DeleteMapping("/{participationCompetitionId}/participate")
+    public ResponseDto deleteParticipate(@PathVariable Long participationCompetitionId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        competitionParticipationService.deleteParticipate(participationCompetitionId, customUserDetails);
+        return new ResponseDto();
+    }
+
+    @Operation(summary = "대회 참가 신청 수정", description = "대회 참가 신청을 수정합니다.")
+    @PutMapping("/{participationCompetitionId}/participate")
+    public ResponseDto updateParticipate(@PathVariable Long participationCompetitionId, @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                         @RequestBody @Valid ParticipateRequest participateRequest) {
+        competitionParticipationService.updateParticipate(participationCompetitionId, customUserDetails, participateRequest);
+        return new ResponseDto(participationCompetitionId);
+    }
+    @Operation(summary = "대회 참가 신청 상세 조회", description = "대회 참가 신청 상세 정보를 조회합니다.")
+    @GetMapping("/{participationCompetitionId}/participate")
+    public ResponseDto getParticipateDetail(@PathVariable Long participationCompetitionId) {
+        return new ResponseDto(competitionParticipationService.getMyParticipateById(participationCompetitionId));
+    }
+
 }
