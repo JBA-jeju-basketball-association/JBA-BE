@@ -4,8 +4,8 @@ import github.com.jbabe.service.competition.CompetitionParticipationService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
+import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +29,12 @@ public class CompetitionParticipationController {
 
     @Operation(summary = "내가 참가한 대회 조회(신청 기록 조회)", description = "내가 참가한 대회를 조회합니다.")
     @GetMapping("/my-participate")
-    public ResponseDto getMyParticipate(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return new ResponseDto(competitionParticipationService.getMyParticipate(customUserDetails));
+    public ResponseDto getMyParticipate(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                        @RequestParam(defaultValue = "10") int size,
+                                        @RequestParam(required = false) String cursor,
+                                        @RequestParam(required = false) Long idCursor) {
+        SearchRequest searchRequest = SearchRequest.fromSize(size);
+        return new ResponseDto(competitionParticipationService.getMyParticipate(customUserDetails, searchRequest.withIdAndCursor(idCursor, cursor)));
     }
     @Operation(summary = "대회 참가 신청 취소(삭제)", description = "대회 참가 신청을 취소합니다.")
     @DeleteMapping("/{participationCompetitionId}/participate")

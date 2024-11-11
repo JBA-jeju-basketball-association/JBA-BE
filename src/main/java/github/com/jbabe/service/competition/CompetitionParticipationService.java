@@ -13,6 +13,9 @@ import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.competition.participate.ParticipateDetail;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import github.com.jbabe.web.dto.competition.participate.SimplyParticipateResponse;
+import github.com.jbabe.web.dto.infinitescrolling.InfiniteScrollingCollection;
+import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchCriteria;
+import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -54,19 +57,27 @@ public class CompetitionParticipationService {
     public ParticipateDetail getMyParticipateById(Long participationCompetitionId) {
 
         List<ParticipationCompetition> entity = participationCompetitionRepository
-                .findParticipationCompetitionsByUserIdOrPId(participationCompetitionId);
+                .findParticipationCompetitionsByUserIdOrPId(participationCompetitionId, null);
         if(entity.isEmpty())
             throw new NotFoundException("참가신청번호가 잘못되었습니다.", participationCompetitionId);
 
         return CompetitionMapper.INSTANCE.participationCompetitionToParticipateDetail(entity.get(0));
     }
 
-    public List<SimplyParticipateResponse> getMyParticipate(CustomUserDetails customUserDetails) {
-
+    public InfiniteScrollingCollection<SimplyParticipateResponse, SearchCriteria> getMyParticipate(CustomUserDetails customUserDetails, SearchRequest searchRequest) {
+        if(searchRequest.getIdCursor()!=null) searchRequest.makeCursorHolder();
         List<ParticipationCompetition> entity = participationCompetitionRepository
-                .findParticipationCompetitionsByUserIdOrPId(customUserDetails.getUserId());
+                .findParticipationCompetitionsByUserIdOrPId(customUserDetails.getUserId(), searchRequest);
 
-        return CompetitionMapper.INSTANCE.participationCompetitionsToParticipateResponse(entity);
+        List<SimplyParticipateResponse> response = CompetitionMapper.INSTANCE.participationCompetitionsToParticipateResponse(entity);
+        validParticipateList(response.get(0), searchRequest);
+
+        return InfiniteScrollingCollection.of(response, searchRequest.getSize(), searchRequest.getSearchCriteria());
+    }
+    private void validParticipateList(SimplyParticipateResponse firstResponse, SearchRequest request){
+        if (request.getIdCursor()==null) return;
+        if(!firstResponse.valueValidity(request))
+            throw new BadRequestException("커서의 값, 커서 아이디가 이 전 응답과 일치하지 않습니다.", request);
     }
 
     @Transactional

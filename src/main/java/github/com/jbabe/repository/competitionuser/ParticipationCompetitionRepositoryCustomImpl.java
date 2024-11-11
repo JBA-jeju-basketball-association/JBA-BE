@@ -1,6 +1,7 @@
 package github.com.jbabe.repository.competitionuser;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -11,6 +12,8 @@ import github.com.jbabe.repository.user.QUser;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
+import github.com.jbabe.web.dto.infinitescrolling.criteria.CursorHolder;
+import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
@@ -27,20 +30,29 @@ public class ParticipationCompetitionRepositoryCustomImpl implements Participati
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public <T> List<ParticipationCompetition> findParticipationCompetitionsByUserIdOrPId(T userOrParticipateId) {
-
-
-        QCompetition competition = QCompetition.competition;
+    public <T> List<ParticipationCompetition> findParticipationCompetitionsByUserIdOrPId(T userOrParticipateId, SearchRequest searchRequest) {
+        boolean isListRequest = userOrParticipateId instanceof Integer;
+        BooleanExpression expression = mySearchConditions(userOrParticipateId);
+        if (isListRequest && searchRequest.getIdCursor()!=null)
+            expression = expression.and(addConditionForScrolling(searchRequest));
 
         JPAQuery<ParticipationCompetition> query = queryFactory.selectFrom(QPARTICIPATIONCOMPETITION)
                 .join(QPARTICIPATIONCOMPETITION.division, QDivision.division).fetchJoin()
-                .join(QDivision.division.competition, competition).fetchJoin();
-        if (userOrParticipateId instanceof Long) {
+                .join(QDivision.division.competition, QCompetition.competition).fetchJoin();
+        if (!isListRequest)
             query.leftJoin(QPARTICIPATIONCOMPETITION.participationCompetitionFiles, QParticipationCompetitionFile.participationCompetitionFile).fetchJoin();
-        }
-        return query.where(mySearchConditions(userOrParticipateId))
-                .fetch();
+        query.where(expression);
+        if (isListRequest)
+            query.orderBy(QPARTICIPATIONCOMPETITION.createdAt.desc(), QPARTICIPATIONCOMPETITION.participationCompetitionId.desc());
+        return query.fetch();
 
+    }
+
+    private BooleanExpression addConditionForScrolling(SearchRequest request) {
+        CursorHolder holder = request.getCursorHolder();
+        return QPARTICIPATIONCOMPETITION.createdAt.before(holder.getCreatedAtCursor())
+                .or(QPARTICIPATIONCOMPETITION.createdAt.eq(holder.getCreatedAtCursor())
+                        .and(QPARTICIPATIONCOMPETITION.participationCompetitionId.loe(holder.getIdCursor())));
     }
 
     @Override

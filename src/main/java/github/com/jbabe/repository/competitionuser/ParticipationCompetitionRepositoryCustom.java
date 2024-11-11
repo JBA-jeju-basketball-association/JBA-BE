@@ -1,12 +1,13 @@
 package github.com.jbabe.repository.competitionuser;
 
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
+import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ParticipationCompetitionRepositoryCustom {
-    <T> List<ParticipationCompetition> findParticipationCompetitionsByUserIdOrPId(T userId);
+    <T> List<ParticipationCompetition> findParticipationCompetitionsByUserIdOrPId(T userId, SearchRequest searchRequest);
 
     Optional<Integer> findParticipationCompetitionTheUserIdOfById(Long participationCompetitionId);
 
