@@ -39,15 +39,19 @@ public class SecurityConfig {
                 .cors(c-> c.configurationSource(corsConfig()))
                 .authorizeHttpRequests(a ->
                         a
-                                .requestMatchers("/v1/api/competition/*/participate").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/v1/api/post/*","/v1/api/gallery/register", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
-                                .requestMatchers(HttpMethod.PUT, "/v1/api/post/**", "/v1/api/gallery/*","v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/v1/api/post/*", "/v1/api/gallery/*", "v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")
-                                .requestMatchers("v1/api/competition/admin/**", "v1/api/video/post", "v1/api/video/delete", "v1/api/video/update").hasAnyRole("MASTER", "ADMIN")
-                                .requestMatchers("/test","v1/api/user/**").hasAnyRole("MASTER", "ADMIN", "REFEREE", "REFEREE_LEADER", "TABLE_OFFICIAL", "TABLE_OFFICIAL_LEADER", "USER") // 회원이면 가능
+                                .requestMatchers("/v1/api/auth/logout").authenticated() // 로그인 상태에서만 가능
 
-                                .requestMatchers("/v1/api/sign/logout-cookie").authenticated()
-                                .anyRequest().permitAll()
+                                /*로그인 안된 상태에서만 가능,  /auth 경로의 check-email 은 get 요청이라 아래에서 permitAll 적용*/
+                                .requestMatchers(HttpMethod.PUT, "/v1/api/account/password/reset").anonymous()
+                                .requestMatchers(HttpMethod.POST, "/v1/api/auth/*", "/v1/api/account/**").anonymous()
+
+                                .requestMatchers("/test","/v1/api/account/*", "/v1/api/competition/participate/*").authenticated() // 회원이면 가능
+
+                                .requestMatchers("/v1/api/admin/**").hasAnyRole("MASTER", "ADMIN") // 겟요청 포함 관리자 기능
+                                .requestMatchers(HttpMethod.GET, "/**" ).permitAll()//여기까지 설정 안된 겟 요청은 전부 허용
+                                .requestMatchers( "/v1/api/video", "/v1/api/gallery/*", "/v1/api/post/**", "/v1/api/competition/**").hasAnyRole("MASTER", "ADMIN")//겟요청 제외 관리자 기능
+
+                                .anyRequest().permitAll()// 기본값은 전체 허용
 
 
                 )
