@@ -37,11 +37,12 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/v1/api/post")
 @RequiredArgsConstructor
-public class PostController implements PostControllerDocs{
+public class PostController implements PostControllerDocs {
     private final PostService postService;
     private final ServerDiskService serverDiskService;
     private final StorageService storageService;
     private final JPAConfig jpaConfig;
+
     @Override
     @GetMapping("/{category}")//게시물 목록 전체조회
     public ResponseDto getAllPostsList(@RequestParam(name = "page", defaultValue = "0") int page,
@@ -49,8 +50,8 @@ public class PostController implements PostControllerDocs{
                                        @RequestParam(required = false) String keyword,
                                        @PathVariable String category) {
         MyPage<PostsListDto> contents = postService.searchPostList(
-                        PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
-                        , category, keyword);
+                PageRequest.of(page, size, Sort.by(Sort.Order.desc("createAt")))
+                , category, keyword);
 
         return new ResponseDto(contents);
 
@@ -60,50 +61,47 @@ public class PostController implements PostControllerDocs{
     @GetMapping("/{category}/{postId}")
     public ResponseDto getPostDetails(
             @PathVariable String category,
-            @PathVariable Integer postId){
+            @PathVariable Integer postId) {
         return new ResponseDto(postService.getPostByPostId(category, postId));
     }
 
     @Override
     @PostMapping(value = "/{category}",
-    consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDto regPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable String category,
             @RequestParam(required = false) boolean isOfficial,
-            @RequestPart (value = "body") @Valid PostReqDto postReqDto,
+            @RequestPart(value = "body") @Valid PostReqDto postReqDto,
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> multipartFiles,
-            @RequestParam(required = false) Optional<SaveFileType> type){
+            @RequestParam(required = false) Optional<SaveFileType> type) {
 
-        if(multipartFiles != null && !multipartFiles.isEmpty()){
+        if (multipartFiles != null && !multipartFiles.isEmpty()) {
             List<FileDto> files = serverDiskService.fileUploadAndGetUrl(multipartFiles);
             boolean response = postService.createPost(postReqDto, category, files, isOfficial, customUserDetails);
-            if(response) return new ResponseDto();
+            if (response) return new ResponseDto();
         }
         boolean response = postService.createPost(postReqDto, category, null, isOfficial, customUserDetails);
-        if(response) return new ResponseDto();
+        if (response) return new ResponseDto();
         else throw new BadRequestException("BRE", postReqDto);
     }
 
-    @PutMapping(value = "/{category}/{postId}",
+    @PostMapping(value = "/{category}/{postId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDto updatePost(
 //            @PathVariable String category,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable Integer postId,
             @RequestParam(required = false) Boolean isOfficial,
-            @RequestPart (value = "body")@Valid PostModifyDto postModifyDto,
+            @RequestPart(value = "body") @Valid PostModifyDto postModifyDto,
             @RequestPart(value = "uploadFiles", required = false) List<MultipartFile> multipartFiles,
-            @RequestParam(required = false) Optional<SaveFileType> type){
+            @RequestParam(required = false) Optional<SaveFileType> type) {
 
-//        Integer userId = Optional.ofNullable(customUserDetails)
-//                .map(CustomUserDetails::getUserId)
-//                .orElse(5);
         List<FileDto> files = null;
         if (multipartFiles != null && !multipartFiles.isEmpty()) {
-            files = jpaConfig.getActiveProfile().equals("dev")?
+            files = jpaConfig.getActiveProfile().equals("dev") ?
                     storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(() -> SaveFileType.small))
-            :serverDiskService.fileUploadAndGetUrl(multipartFiles);
+                    : serverDiskService.fileUploadAndGetUrl(multipartFiles);
         }
         try {
             boolean response = postService.updatePost(postModifyDto, postId, files, isOfficial, customUserDetails);
@@ -114,19 +112,19 @@ public class PostController implements PostControllerDocs{
             }
 //        }catch (DataIntegrityViolationException sqlException){
 //            throw new ConflictException("Title Duplication",postModifyDto.getTitle());
-        }catch (JpaSystemException jpaSystemException){
+        } catch (JpaSystemException jpaSystemException) {
             throw new BadRequestException("Missing A Required Value", postModifyDto);
         }
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseDto deletePost(@PathVariable int postId){
+    public ResponseDto deletePost(@PathVariable int postId) {
         postService.deletePost(postId);
         return new ResponseDto();
     }
 
     @PutMapping("/{postId}/is-announcement")
-    public ResponseDto updateIsAnnouncement(@PathVariable int postId){
+    public ResponseDto updateIsAnnouncement(@PathVariable int postId) {
         postService.updateIsAnnouncement(postId);
         return new ResponseDto(HttpStatus.NO_CONTENT);
     }
