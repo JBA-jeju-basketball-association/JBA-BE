@@ -1,11 +1,13 @@
 package github.com.jbabe.repository.competition;
 
 import github.com.jbabe.repository.competitionAttachedFile.CompetitionAttachedFile;
+import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,7 +27,7 @@ public class Competition {
     private Integer competitionId;
 
     @JoinColumn(name = "user_id", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(name = "competition_name", nullable = false, unique = true)
@@ -36,6 +38,11 @@ public class Competition {
 
     @Column(name = "end_date", nullable = false)
     private Date endDate; // 대회 종료일
+
+    @Column(name = "participation_start_date")
+    private LocalDate participationStartDate; // 참가 신청 시작일
+    @Column(name = "participation_end_date")
+    private LocalDate participationEndDate; // 참가 신청 종료일
 
     @Column(name = "related_url")
     private String relatedUrl; // 대회 관련 URL
@@ -65,6 +72,7 @@ public class Competition {
 
     @OneToMany(mappedBy = "competition", fetch = FetchType.LAZY)
     private List<CompetitionAttachedFile> competitionAttachedFiles;
+
 
 
     @Getter

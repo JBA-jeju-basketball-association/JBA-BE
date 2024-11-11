@@ -57,7 +57,7 @@ public class ServerDiskService {
                     }
 
                     return FileDto.builder()
-                            .fileUrl("https://jbaserver.shop/v1/api/upload/getFile/" + saveFileName)
+                            .fileUrl("https://jbaserver.shop/v1/api/disk/" + saveFileName)
                             .fileName(originalFilename)
                             .build();
                 }
@@ -74,7 +74,7 @@ public class ServerDiskService {
         try {
             file.transferTo(new File(getFullPath(saveFileName)));
             response.put("uploaded", true);
-            response.put("url", "https://jbaserver.shop/v1/api/upload/getFile/" + saveFileName);
+            response.put("url", "https://jbaserver.shop/v1/api/disk/" + saveFileName);
             response.put("fileName", file.getOriginalFilename());
         } catch (IOException e) {
             throw new RuntimeException(e);

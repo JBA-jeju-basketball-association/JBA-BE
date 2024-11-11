@@ -30,6 +30,10 @@ public class ResponseDto {
         this.code = httpStatus.value();
         this.message = httpStatus.name();
     }
+    public ResponseDto setCreateData(Object data) {
+        this.data = data;
+        return this;
+    }
 
     public ResponseDto(Object data) {
         this.code = HttpStatus.OK.value();

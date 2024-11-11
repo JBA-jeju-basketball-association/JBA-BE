@@ -84,7 +84,7 @@ public class CompetitionAdminCUDController {
                             examples = @ExampleObject(name = "이미 결과에 입력된 종별이라 삭제 불가", value = "{\n  \"code\": 409,\n  \"message\": \"CONFLICT\",\n \"detailMessage\": \"해당 종별은 결과가 이미 입력되어 있어 삭제가 불가능합니다.\",\n \"request\": \"element\"\n}")
                     ))
     })
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     public ResponseDto updateCompetition(@PathVariable Integer id,
                                          @RequestPart("requestData") @Valid UpdateCompetitionRequest updateCompetitionRequest,
                                          @RequestPart(value = "requestFiles",required = false)List<MultipartFile> files,
