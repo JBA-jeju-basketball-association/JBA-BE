@@ -66,7 +66,7 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfig() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://www.jba.co.kr", "https://jba.co.kr", "https://jejubasketball.shop", "https://www.jejubasketball.shop", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000","https://localhost:3000", "https://www.jba.co.kr", "https://jba.co.kr", "https://jejubasketball.shop", "https://www.jejubasketball.shop", swaggerConfig.getServerUrl() ,swaggerConfig.getNewServerUrl()));
         //요청에 인증정보를 같이 보내야 하는지
         corsConfiguration.setAllowCredentials(true);
         //클라이언트가 응답을 볼 수 잇는 헤더
