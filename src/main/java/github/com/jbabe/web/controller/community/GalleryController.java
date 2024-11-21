@@ -67,7 +67,8 @@ public class GalleryController implements GalleryControllerDocs{
     }
     @Override
     @PutMapping("/{galleryId}")
-    public ResponseDto modifyGalleryPost(@PathVariable int galleryId, @RequestBody @Valid GalleryDetailsDto requestModify,
+    public ResponseDto modifyGalleryPost(@PathVariable int galleryId,
+                                         @RequestBody @Valid GalleryDetailsDto requestModify,
                                          @RequestParam(name = "official", required = false) Boolean isOfficial){
         try {
             galleryService.modifyGalleryPost(galleryId, requestModify, isOfficial);
