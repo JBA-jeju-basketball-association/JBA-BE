@@ -64,7 +64,7 @@ public class StorageController implements StorageControllerDocs{
         storageService.uploadCancel(fileUrls);
         return new ResponseDto();
     }
-    @PostMapping(value = "/multipart-files",
+    @PutMapping(value = "/multipart-files",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDto modifyMultipleFiles(@RequestParam(value = "file-url") List<String> deleteFileUrls,
                                            @RequestPart("uploadFiles") List<MultipartFile> multipartFiles,
