@@ -45,7 +45,8 @@ public class CompetitionParticipationController {
 
     @Operation(summary = "대회 참가 신청 수정", description = "대회 참가 신청을 수정합니다.")
     @PutMapping("/{participationCompetitionId}")
-    public ResponseDto updateParticipate(@PathVariable Long participationCompetitionId, @AuthenticationPrincipal CustomUserDetails customUserDetails,
+    public ResponseDto updateParticipate(@PathVariable Long participationCompetitionId,
+                                         @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                          @RequestBody @Valid ParticipateRequest participateRequest) {
         competitionParticipationService.updateParticipate(participationCompetitionId, customUserDetails, participateRequest);
         return new ResponseDto(participationCompetitionId);
