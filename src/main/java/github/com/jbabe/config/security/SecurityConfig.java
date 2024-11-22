@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a ->
                         a
                                 .requestMatchers("/v1/api/auth/logout").authenticated() // 로그인 상태에서만 가능
+                                .requestMatchers("/v1/api/auth/refresh-token").permitAll() // 리프레쉬토큰 모두 가능
 
                                 /*로그인 안된 상태에서만 가능,  /auth 경로의 check-email 은 get 요청이라 아래에서 permitAll 적용*/
                                 .requestMatchers(HttpMethod.PUT, "/v1/api/account/password/reset").anonymous()

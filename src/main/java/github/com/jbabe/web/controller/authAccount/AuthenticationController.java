@@ -2,7 +2,7 @@ package github.com.jbabe.web.controller.authAccount;
 
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.repository.user.UserJpa;
-import github.com.jbabe.service.authAccount.LoginCookieService;
+import github.com.jbabe.service.authAccount.LoginService;
 import github.com.jbabe.service.authAccount.SignService;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.ConflictException;
@@ -10,10 +10,7 @@ import github.com.jbabe.service.exception.ExpiredJwtException;
 import github.com.jbabe.service.exception.InvalidReqeustException;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
-import github.com.jbabe.web.dto.authAccount.AccessAndRefreshToken;
-import github.com.jbabe.web.dto.authAccount.LoginRequest;
-import github.com.jbabe.web.dto.authAccount.SignUpRequest;
-import github.com.jbabe.web.dto.authAccount.SocialLoginResponse;
+import github.com.jbabe.web.dto.authAccount.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -32,21 +29,22 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/api/auth")
 @Slf4j
 public class AuthenticationController {
-    private final LoginCookieService loginCookieService;
+    private final LoginService loginService;
     private final SignService signService;
     public final UserJpa userJpa;
 
 
     @PostMapping("/login")
-    public ResponseDto LoginCookie(@RequestBody @Valid LoginRequest loginRequest) {
-        AccessAndRefreshToken accessAndRefreshToken = loginCookieService.loginCookie(loginRequest.getEmail(), loginRequest.getPassword());
-        return new ResponseDto(accessAndRefreshToken);
+    public ResponseDto Login(@RequestBody @Valid LoginRequest loginRequest) {
+        LoginResponse loginRes = loginService.login(loginRequest.getEmail(), loginRequest.getPassword());
+        return new ResponseDto(loginRes);
     }
 
     @PostMapping("/logout")
-    public ResponseDto logoutCookie(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                    HttpServletRequest httpServletRequest) {
-        String res = loginCookieService.disableTokenCookie(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
+    public ResponseDto logout(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                              HttpServletRequest httpServletRequest) {
+        String res = loginService.disableToken(customUserDetails.getUsername(), httpServletRequest.getHeader("Authorization"));
+        System.out.println(res);
         return new ResponseDto(res);
     }
 
@@ -59,7 +57,7 @@ public class AuthenticationController {
         if (expiredAccessToken == null || expiredAccessToken.isEmpty())
             throw new BadRequestException("Header에 AccessToken 이 없습니다.", "");
 
-        AccessAndRefreshToken newTokens = loginCookieService.refreshTokenCookie(expiredAccessToken, refreshToken);
+        AccessAndRefreshToken newTokens = loginService.refreshToken(expiredAccessToken.substring(7), refreshToken);
         return new ResponseDto(newTokens);
     }
 
@@ -103,7 +101,7 @@ public class AuthenticationController {
     @PostMapping("/social-login")
     public SocialLoginResponse socialLogin(@RequestParam(value = "socialId") String socialId,
                                            @RequestParam(value = "email", required = false) String email) {
-        return loginCookieService.socialLogin(socialId, email);
+        return loginService.socialLogin(socialId, email);
     }
 
     @PostMapping("/social-sign-up")
@@ -111,13 +109,13 @@ public class AuthenticationController {
                                             @RequestParam(value = "email") String email,
                                             @RequestParam(value = "name") String name,
                                             @RequestParam(value = "phoneNum") String phoneNum) {
-        return loginCookieService.socialSignUp(socialId, email, name,phoneNum);
+        return loginService.socialSignUp(socialId, email, name,phoneNum);
     }
 
     @PutMapping("/link-social")
     public ResponseDto linkEmailWithSocial(@RequestParam(value = "socialId") String socialId,
                                            @RequestParam(value = "email") String email) {
-        return new ResponseDto(loginCookieService.linkEmailWithSocial(socialId, email));
+        return new ResponseDto(loginService.linkEmailWithSocial(socialId, email));
 
     }
 
