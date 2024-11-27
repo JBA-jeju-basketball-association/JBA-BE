@@ -3,6 +3,7 @@ package github.com.jbabe.web.dto.competition;
 import github.com.jbabe.repository.competition.Competition;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -14,8 +15,8 @@ import java.util.List;
 public class CompetitionDetailResponse {
     private Integer competitionId;
     private String title;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String relatedUrl;
     private String content;
     private Competition.Phase phase;

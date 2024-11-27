@@ -2,6 +2,7 @@ package github.com.jbabe.web.dto.competition;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class MainCompetitionResponse {
     private Integer competitionId;
     private String title;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private List<String> places;
 }

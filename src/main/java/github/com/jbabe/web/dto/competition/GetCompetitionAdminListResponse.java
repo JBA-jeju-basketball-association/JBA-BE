@@ -4,10 +4,9 @@ import github.com.jbabe.repository.competition.Competition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @Setter
@@ -21,8 +20,8 @@ public class GetCompetitionAdminListResponse {
     private Competition.Phase phase;
     private List<String> divisions;
     private String competitionName;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String content;
     private String link;
     private List<CompetitionDetailAttachedFile> files;
@@ -31,7 +30,7 @@ public class GetCompetitionAdminListResponse {
     private LocalDateTime updateAt;
     private LocalDateTime deleteAt;
 
-    public GetCompetitionAdminListResponse(Integer competitionId, String userEmail, String situation, Competition.Phase phase, String competitionName, Date startDate, Date endDate, String content, String link, Competition.CompetitionStatus status, LocalDateTime createAt, LocalDateTime updateAt, LocalDateTime deleteAt) {
+    public GetCompetitionAdminListResponse(Integer competitionId, String userEmail, String situation, Competition.Phase phase, String competitionName, LocalDate startDate, LocalDate endDate, String content, String link, Competition.CompetitionStatus status, LocalDateTime createAt, LocalDateTime updateAt, LocalDateTime deleteAt) {
         this.competitionId = competitionId;
         this.userEmail = userEmail;
         this.situation = situation;

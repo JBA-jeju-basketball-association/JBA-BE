@@ -67,9 +67,9 @@ public class CompetitionService {
         if (competitions.isEmpty()) throw new NotFoundException("대회를 찾을 수 없습니다.", null);
         List<Integer> yearList = new ArrayList<>();
         competitions.forEach((c) -> {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(c.getStartDate());
-                    int year = calendar.get(Calendar.YEAR);
+//                    Calendar calendar = Calendar.getInstance();
+//                    calendar.setTime(c.getStartDate());
+                    int year = c.getStartDate().getYear();
                     if (!yearList.contains(year)) yearList.add(year);
                 }
         );

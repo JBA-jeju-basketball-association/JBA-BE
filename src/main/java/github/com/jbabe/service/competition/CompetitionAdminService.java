@@ -15,10 +15,13 @@ import github.com.jbabe.repository.division.DivisionEnum;
 import github.com.jbabe.repository.division.DivisionEnumJpa;
 import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.service.exception.NotFoundException;
+import github.com.jbabe.service.mapper.CompetitionMapper;
 import github.com.jbabe.service.storage.StorageService;
+import github.com.jbabe.web.dto.competition.CompetitionAdminListRequest;
 import github.com.jbabe.web.dto.competition.CompetitionDetailAttachedFile;
 import github.com.jbabe.web.dto.competition.GetCompetitionAdminListResponse;
 import github.com.jbabe.web.dto.competition.GetTotalCompetitionAndDivisionList;
+import github.com.jbabe.web.dto.competition.tempDto.ListAndTotalElements;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
@@ -29,10 +32,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,14 +73,14 @@ public class CompetitionAdminService {
 
         responses.getContent().forEach(item -> {
             if (item.getContent() != null) item.setContent(Jsoup.parse(item.getContent()).text().replace("\u00A0", " "));
-            item.setDivisions(divisionJpa.findAllByCompetitionCompetitionId(item.getCompetitionId()).stream().map(Division::getDivisionName).collect(Collectors.toList()));
+            item.setDivisions(divisionJpa.findAllByCompetitionCompetitionId(item.getCompetitionId()).stream().map(Division::getDivisionName).toList());
             item.setFiles(competitionAttachedFileJpa.findAllByCompetitionCompetitionId(item.getCompetitionId()).stream().map(a ->
                             CompetitionDetailAttachedFile.builder()
                                     .competitionAttachedFileId(a.getCompetitionAttachedFileId())
                                     .filePath(a.getFilePath())
                                     .fileName(a.getFileName())
                                     .build()
-                    ).collect(Collectors.toList())
+                    ).toList()
             );
         });
 
@@ -156,5 +156,20 @@ public class CompetitionAdminService {
                 competitionRecordJpa.deleteAll(competitionRecordJpa.findAllByDivision(division))
         ));
         return "OK";
+    }
+
+
+    public Page<GetCompetitionAdminListResponse> getAListOfCompetitionsForAdmin(CompetitionAdminListRequest request) {
+        Page<GetCompetitionAdminListResponse>  queryResult = competitionJpa.findAListOfCompetitionsForAdmin(request);
+        List<Integer> ids = queryResult.stream().map(GetCompetitionAdminListResponse::getCompetitionId).toList();
+        Map<Integer, List<CompetitionDetailAttachedFile>> files = competitionJpa.getCompetitionFiles(ids);
+        Map<Integer, List<String>> divisionNames = competitionJpa.getDivisionNames(ids);
+
+        queryResult.forEach(item ->{
+            item.setFiles(files.get(item.getCompetitionId()));
+            item.setDivisions(divisionNames.get(item.getCompetitionId()));
+        });
+
+        return queryResult;
     }
 }

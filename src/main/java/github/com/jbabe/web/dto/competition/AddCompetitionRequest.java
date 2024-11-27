@@ -8,7 +8,9 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -24,10 +26,10 @@ public class AddCompetitionRequest {
     @Schema(description = "종별", example = "element")
     private List<String> divisions;
     @NotNull(message = "시작일을 입력해주세요.")
-    private Date startDate;
+    private LocalDate startDate;
 
     @NotNull(message = "종료일을 입력해주세요.")
-    private Date endDate;
+    private LocalDate endDate;
 
     @NotEmpty(message = "장소를 등록해주세요.")
     private List<Place> places;

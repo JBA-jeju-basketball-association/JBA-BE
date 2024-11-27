@@ -81,7 +81,7 @@ public class User {
     @Getter
     @AllArgsConstructor
     public enum UserStatus{
-        NORMAL("normal"), HIDE("hide"), DELETE("delete"), LOCKED("locked"), TEMP("temp");
+        NORMAL("normal"), HIDE("hide"), DELETE("delete"), LOCKED("locked");
         private final String path;
     }
 
@@ -173,6 +173,9 @@ public class User {
 
     public User (Integer userId){
         this.userId = userId;
+    }
+    public User (String email){
+        this.email = email;
     }
 
 }
