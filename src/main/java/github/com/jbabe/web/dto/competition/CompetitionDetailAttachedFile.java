@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(of = "competitionAttachedFileId")
 public class CompetitionDetailAttachedFile {
     private Integer competitionAttachedFileId;
     private String filePath;

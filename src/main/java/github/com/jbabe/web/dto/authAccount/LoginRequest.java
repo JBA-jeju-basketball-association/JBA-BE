@@ -13,6 +13,6 @@ public class LoginRequest {
     @Schema(description = "이메일", example = "hansol@gmail.com")
     private String email;
 
-    @Schema(description = "패스워드", example = "abc12341234!")
+    @Schema(description = "패스워드", example = "abc123123!")
     private String password;
 }

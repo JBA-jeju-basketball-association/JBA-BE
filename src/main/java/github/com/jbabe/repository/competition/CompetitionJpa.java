@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface CompetitionJpa extends JpaRepository<Competition, Integer> {
+public interface CompetitionJpa extends JpaRepository<Competition, Integer>, CompetitionJpaCustom {
 
     boolean existsByCompetitionName(String competitionName);
 

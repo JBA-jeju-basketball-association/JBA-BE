@@ -4,6 +4,7 @@ import github.com.jbabe.repository.competitionAttachedFile.CompetitionAttachedFi
 import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.web.dto.competition.CompetitionAdminListRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "competition")
@@ -34,10 +36,10 @@ public class Competition {
     private String competitionName;
 
     @Column(name = "start_date", nullable = false)
-    private Date startDate; // 대회 시작일
+    private LocalDate startDate; // 대회 시작일
 
     @Column(name = "end_date", nullable = false)
-    private Date endDate; // 대회 종료일
+    private LocalDate endDate; // 대회 종료일
 
     @Column(name = "participation_start_date")
     private LocalDate participationStartDate; // 참가 신청 시작일
@@ -84,6 +86,19 @@ public class Competition {
     public enum Phase {
         INFO, SCHEDULE, ASSIGN_REGISTRATION, ASSIGN_APPLICATION, ASSIGN_COMPLETE, FINISH
     }
+
+
+    public CompetitionAdminListRequest.Situation getSituation() {
+        LocalDate now = LocalDate.now();
+        if (now.isBefore(startDate)) {
+            return CompetitionAdminListRequest.Situation.READY;
+        } else if (now.isAfter(endDate)) {
+            return CompetitionAdminListRequest.Situation.END;
+        } else {
+            return CompetitionAdminListRequest.Situation.PROGRESS;
+        }
+    }
+
 
     public static Date getStartTimeThisYear(String year) {
         Calendar calendar = Calendar.getInstance();
