@@ -1,8 +1,10 @@
 package github.com.jbabe.web.dto.competition;
 
 import github.com.jbabe.repository.competition.Competition;
+import github.com.jbabe.web.dto.division.DivisionDto;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -14,13 +16,15 @@ import java.util.List;
 public class CompetitionDetailResponse {
     private Integer competitionId;
     private String title;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String relatedUrl;
     private String content;
     private Competition.Phase phase;
+    private LocalDate participationStartDate;
+    private LocalDate participationEndDate;
     private List<CompetitionDetailPlace> places;
     private List<CompetitionDetailAttachedFile> competitionDetailAttachedFiles;
-    private List<String> divisions;
+    private List<DivisionDto> divisions;
     private List<String> ckImgUrls;
 }

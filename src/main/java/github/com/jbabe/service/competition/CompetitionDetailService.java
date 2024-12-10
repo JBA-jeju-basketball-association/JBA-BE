@@ -22,6 +22,7 @@ import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.competition.*;
+import github.com.jbabe.web.dto.division.DivisionDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -62,6 +60,8 @@ public class CompetitionDetailService {
                 .competitionName(addCompetitionRequest.getTitle())
                 .startDate(addCompetitionRequest.getStartDate())
                 .endDate(addCompetitionRequest.getEndDate())
+                .participationStartDate(addCompetitionRequest.getParticipationStartDate())
+                .participationEndDate(addCompetitionRequest.getParticipationEndDate())
                 .relatedUrl(addCompetitionRequest.getRelatedURL())
                 .content(addCompetitionRequest.getCkData())
                 .phase(Competition.Phase.INFO)
@@ -143,8 +143,11 @@ public class CompetitionDetailService {
                         .build()
         ).toList();
 
-        List<String> divisionList = new ArrayList<>();
-        divisions.forEach((d)-> divisionList.add(d.getDivisionName()));
+        List<DivisionDto> divisionList = new ArrayList<>();
+        divisions.forEach((d) -> divisionList.add(DivisionDto.builder()
+                .divisionId(d.getDivisionId())
+                .divisionName(d.getDivisionName())
+                .build()));
 
         List<CompetitionImg> competitionImgs = competitionImgJpa.findAllByCompetition(competition);
 
@@ -157,6 +160,8 @@ public class CompetitionDetailService {
                 .relatedUrl(competition.getRelatedUrl())
                 .content(competition.getContent())
                 .phase(competition.getPhase())
+                .participationStartDate(competition.getParticipationStartDate())
+                .participationEndDate(competition.getParticipationEndDate())
                 .places(competitionDetailPlaces)
                 .competitionDetailAttachedFiles(competitionDetailAttachedFiles)
                 .divisions(divisionList)
@@ -181,6 +186,8 @@ public class CompetitionDetailService {
                 .phase(competition.getPhase())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
+                .participationStartDate(request.getParticipationStartDate())
+                .participationEndDate(request.getParticipationEndDate())
                 .relatedUrl(request.getRelatedURL())
                 .content(request.getCkData())
                 .competitionStatus(competition.getCompetitionStatus())
