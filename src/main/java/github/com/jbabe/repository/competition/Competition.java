@@ -34,10 +34,10 @@ public class Competition {
     private String competitionName;
 
     @Column(name = "start_date", nullable = false)
-    private Date startDate; // 대회 시작일
+    private LocalDate startDate; // 대회 시작일
 
     @Column(name = "end_date", nullable = false)
-    private Date endDate; // 대회 종료일
+    private LocalDate endDate; // 대회 종료일
 
     @Column(name = "participation_start_date")
     private LocalDate participationStartDate; // 참가 신청 시작일

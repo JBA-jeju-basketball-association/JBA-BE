@@ -1,7 +1,9 @@
 package github.com.jbabe.web.dto.competition;
 
 import lombok.*;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +16,6 @@ public class CompetitionListResponse {
     private Integer competitionId;
     private String title;
     private String division;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 }

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -25,10 +26,14 @@ public class UpdateCompetitionRequest {
     private List<String> divisions;
 
     @NotNull(message = "시작일을 입력해주세요.")
-    private Date startDate;
+    private LocalDate startDate;
 
     @NotNull(message = "종료일을 입력해주세요.")
-    private Date endDate;
+    private LocalDate endDate;
+
+    private LocalDate participationStartDate;
+
+    private LocalDate participationEndDate;
 
     @NotEmpty(message = "장소를 등록해주세요.")
     private List<UpdatePlace> updatePlaces;
