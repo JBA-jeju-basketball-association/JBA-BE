@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface DivisionJpa extends JpaRepository<Division, Integer> {
+public interface DivisionJpa extends JpaRepository<Division, Integer>, DivisionJpaCustom {
     List<Division> findAllByCompetition(Competition competition);
 
     List<Division> findAllByCompetitionCompetitionId(Integer id);

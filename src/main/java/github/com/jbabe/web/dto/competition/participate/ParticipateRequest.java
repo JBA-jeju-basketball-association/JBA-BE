@@ -1,5 +1,6 @@
 package github.com.jbabe.web.dto.competition.participate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import github.com.jbabe.web.dto.storage.FileDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -8,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -24,29 +26,8 @@ public class ParticipateRequest {
     @Email(message = "이메일 형식이 아닙니다.")
     @Schema(description = "이메일", example = "abc@abc.com")
     private String email;
-    @Schema(name = "files",description = "첨부파일들", example = "[\n" +
-            "    {\n" +
-            "        \"fileName\": \"참여신청서.hwp\",\n" +
-            "        \"fileUrl\": \"url~~~\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "        \"fileName\": \"2222.png\",\n" +
-            "        \"fileUrl\": \"2222.url\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "        \"fileName\": \"3333.png\",\n" +
-            "        \"fileUrl\": \"3333.url\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "        \"fileName\": \"4444.png\",\n" +
-            "        \"fileUrl\": \"4444.url\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "        \"fileName\": \"5555.png\",\n" +
-            "        \"fileUrl\": \"5555.url\"\n" +
-            "    }\n" +
-            "]"
-    )
-    @NotNull(message = "적어도 한개의 imgs는 필수입니다.")
+    @JsonIgnore
+    @Setter
     private List<FileDto> files;
+
 }

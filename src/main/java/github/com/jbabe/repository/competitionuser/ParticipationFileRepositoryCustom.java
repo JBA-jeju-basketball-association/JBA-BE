@@ -9,5 +9,7 @@ public interface ParticipationFileRepositoryCustom {
 
     void deleteByUrlCustom(String url);
 
+    void deleteByUrlListCustom(List<String> urls);
+
     void saveCustom(FileDto file, Long participationCompetitionId);
 }
