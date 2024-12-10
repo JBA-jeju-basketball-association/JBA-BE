@@ -31,6 +31,10 @@ public class UpdateCompetitionRequest {
     @NotNull(message = "종료일을 입력해주세요.")
     private LocalDate endDate;
 
+    private LocalDate participationStartDate;
+
+    private LocalDate participationEndDate;
+
     @NotEmpty(message = "장소를 등록해주세요.")
     private List<UpdatePlace> updatePlaces;
 
