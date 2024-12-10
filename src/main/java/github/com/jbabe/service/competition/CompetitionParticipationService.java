@@ -5,6 +5,7 @@ import github.com.jbabe.repository.competitionuser.ParticipationCompetitionFile;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionRepository;
 import github.com.jbabe.repository.competitionuser.ParticipationFileRepository;
 import github.com.jbabe.repository.division.Division;
+import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
@@ -23,13 +24,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 public class CompetitionParticipationService {
     private final ParticipationCompetitionRepository participationCompetitionRepository;
     private final ParticipationFileRepository participationFileRepository;
-
+    private final DivisionJpa divisionJpa;
     @Transactional
     public long applicationForParticipationInCompetition(Long divisionId, ParticipateRequest participateRequest, CustomUserDetails customUserDetails) {
         Division division = (Division) createDivisionOrUserById(divisionId);
@@ -40,6 +42,7 @@ public class CompetitionParticipationService {
         try {
             return participationCompetitionRepository.save(entity).getParticipationCompetitionId();
         }catch (DataIntegrityViolationException e) {
+
             throw new NotFoundException("divisionId가 잘못되었습니다.",  divisionId);
         }
     }

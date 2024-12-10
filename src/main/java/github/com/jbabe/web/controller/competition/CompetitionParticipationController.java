@@ -1,10 +1,14 @@
 package github.com.jbabe.web.controller.competition;
 
 import github.com.jbabe.service.competition.CompetitionParticipationService;
+import github.com.jbabe.service.storage.ServerDiskService;
+import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
+import github.com.jbabe.web.dto.competition.participate.ModifyParticipateRequest;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
+import github.com.jbabe.web.dto.storage.FileDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -12,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/api/competition/participate")
@@ -19,11 +26,15 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "대회 참가 관련 API", description = "대회 참가 관련 API")
 public class CompetitionParticipationController {
     private final CompetitionParticipationService competitionParticipationService;
+    private final ServerDiskService serverDiskService;
 
     @Operation(summary = "대회 참가 신청", description = "대회 참가 신청을 합니다. 요청 성공후 반환값의 data는 새로 만들어진 로우값의 pk(고유번호) 입니다.")
     @PostMapping("/{divisionId}")
     public ResponseDto participateCompetition(@PathVariable Long divisionId, @RequestBody @Valid ParticipateRequest participateRequest,
+                                              @RequestPart("files") List<MultipartFile> files,
                                               @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<FileDto> fileDtoList = serverDiskService.fileUploadAndGetUrl(files);
+        participateRequest.setFiles(fileDtoList);
         return new ResponseDto(HttpStatus.CREATED).setCreateData(competitionParticipationService.applicationForParticipationInCompetition(divisionId, participateRequest, customUserDetails));
     }
 
@@ -47,8 +58,11 @@ public class CompetitionParticipationController {
     @PutMapping("/{participationCompetitionId}")
     public ResponseDto updateParticipate(@PathVariable Long participationCompetitionId,
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                         @RequestBody @Valid ParticipateRequest participateRequest) {
-        competitionParticipationService.updateParticipate(participationCompetitionId, customUserDetails, participateRequest);
+                                         @RequestPart("files") List<MultipartFile> files,
+                                         @RequestBody @Valid ModifyParticipateRequest modifyParticipateRequest) {
+
+        List<FileDto> fileDtoList = serverDiskService.fileUploadAndGetUrl(files);
+        competitionParticipationService.updateParticipate(participationCompetitionId, customUserDetails, modifyParticipateRequest);
         return new ResponseDto(participationCompetitionId);
     }
     @Operation(summary = "대회 참가 신청 상세 조회", description = "대회 참가 신청 상세 정보를 조회합니다.")
