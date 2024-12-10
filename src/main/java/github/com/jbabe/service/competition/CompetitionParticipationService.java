@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -92,19 +93,21 @@ public class CompetitionParticipationService {
     public void updateParticipate(Long participationCompetitionId, CustomUserDetails customUserDetails, ParticipateRequest participateRequest) {
         verifyRequestChangePermissions(participationCompetitionId, customUserDetails);
         participationCompetitionRepository.updateParticipate(participationCompetitionId, participateRequest);
-        updateParticipateFiles(participationCompetitionId, participateRequest.getFiles());
+        List<String> deleteUrls = updateParticipateFilesAndGetDeleteUrls(participationCompetitionId, participateRequest.getFiles());
     }
 
-    private void updateParticipateFiles(Long participationCompetitionId, List<FileDto> requestFiles){
+    private List<String> updateParticipateFilesAndGetDeleteUrls(Long participationCompetitionId, List<FileDto> requestFiles){
         List<String> oldFileUrls = participationFileRepository.findUrlsByParticipationIdCustom(participationCompetitionId);
         List<String> newFileUrls = requestFiles.stream().map(file-> file.getFileUrl()).toList();
 
-        oldFileUrls.stream().filter(url -> !newFileUrls.contains(url))
-                .forEach(url -> participationFileRepository.deleteByUrlCustom(url));
+        List<String> deleteUrls = oldFileUrls.stream().filter(url -> !newFileUrls.contains(url)).toList();
+
+        participationFileRepository.deleteByUrlListCustom(deleteUrls);
 
         requestFiles.stream()
                 .filter(file-> !oldFileUrls.contains(file.getFileUrl()))
                 .forEach(file -> makeParticipationFileEntity(file, participationCompetitionId));
+        return deleteUrls;
     }
     private void makeParticipationFileEntity(FileDto newFile, Long participationCompetitionId) {
         ParticipationCompetitionFile entity = CompetitionMapper.INSTANCE.fileDtoToParticipationCompetitionFile(newFile);
