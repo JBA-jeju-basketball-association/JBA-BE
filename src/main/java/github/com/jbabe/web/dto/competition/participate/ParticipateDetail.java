@@ -16,6 +16,7 @@ public class ParticipateDetail extends SimplyParticipateResponse{
     private String email;
     private String name;
     private String phoneNum;
+    private Integer competitionId;
     private LocalDate competitionStartDate;
     private LocalDate competitionEndDate;
     private List<FileDto> files;
