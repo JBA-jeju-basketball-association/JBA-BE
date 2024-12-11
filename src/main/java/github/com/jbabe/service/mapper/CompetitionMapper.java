@@ -66,6 +66,7 @@ public interface CompetitionMapper {
     @Mapping(target = "files", source = "participationCompetitionFiles")
     @Mapping(target = "competitionStartDate", source = "division.competition.startDate")
     @Mapping(target = "competitionEndDate", source = "division.competition.endDate")
+    @Mapping(target = "competitionId", source = "division.competition.competitionId")
     ParticipateDetail participationCompetitionToParticipateDetail(ParticipationCompetition participationCompetition);
 
     @Mapping(target = "userEmail", source = "user.email")

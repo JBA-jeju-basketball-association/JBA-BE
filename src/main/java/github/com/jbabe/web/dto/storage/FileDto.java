@@ -16,7 +16,7 @@ public class FileDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "첨부파일 ID", example = "1")
-    private int fileId;
+    private Integer fileId;
 
     @NotBlank(message = "파일명은 필수입니다.")
     @Schema(description = "첨부파일 원본 파일명", example = "코딩과 탈모의 인과관계.jpg")
