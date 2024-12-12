@@ -34,8 +34,11 @@ public class CompetitionParticipationController {
     public ResponseDto participateCompetition(@PathVariable Long divisionId, @RequestPart("body") @Valid ParticipateRequest participateRequest,
                                               @RequestPart(value = "files", required = false) List<MultipartFile> files,
                                               @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        List<FileDto> fileDtoList = serverDiskService.fileUploadAndGetUrl(files);
-        participateRequest.setFiles(fileDtoList);
+        if (files != null && !files.isEmpty()) {
+            List<FileDto> fileDtoList = serverDiskService.fileUploadAndGetUrl(files);
+            participateRequest.setFiles(fileDtoList);
+        }
+
         return new ResponseDto(HttpStatus.CREATED).setCreateData(competitionParticipationService.applicationForParticipationInCompetition(divisionId, participateRequest, customUserDetails));
     }
 
@@ -62,14 +65,16 @@ public class CompetitionParticipationController {
                                          @RequestPart(value = "files", required = false) List<MultipartFile> files,
                                          @RequestPart("body") @Valid ModifyParticipateRequest modifyParticipateRequest) {
 
-        List<FileDto> newFileDtoList = serverDiskService.fileUploadAndGetUrl(files);
-        newFileDtoList.addAll(modifyParticipateRequest.getRemainingFiles());
-        modifyParticipateRequest.setFiles(newFileDtoList);
+        if (files != null && !files.isEmpty()) {
+            List<FileDto> newFileDtoList = serverDiskService.fileUploadAndGetUrl(files);
+            newFileDtoList.addAll(modifyParticipateRequest.getRemainingFiles());
+            modifyParticipateRequest.setFiles(newFileDtoList);
+        }
         competitionParticipationService.updateParticipate(participationCompetitionId, customUserDetails, modifyParticipateRequest);
         return new ResponseDto(participationCompetitionId);
     }
     @Operation(summary = "대회 참가 신청 상세 조회", description = "대회 참가 신청 상세 정보를 조회합니다.")
-    @GetMapping(value = "/{participationCompetitionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{participationCompetitionId}")
     public ResponseDto getParticipateDetail(@PathVariable Long participationCompetitionId) {
         return new ResponseDto(competitionParticipationService.getMyParticipateById(participationCompetitionId));
     }
