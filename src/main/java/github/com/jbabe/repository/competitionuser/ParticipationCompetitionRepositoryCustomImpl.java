@@ -5,12 +5,14 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import github.com.jbabe.repository.competition.QCompetition;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.division.QDivision;
 import github.com.jbabe.repository.user.QUser;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.exception.BadRequestException;
+import github.com.jbabe.web.dto.competition.participate.ModifyParticipateRequest;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.CursorHolder;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
@@ -81,13 +83,17 @@ public class ParticipationCompetitionRepositoryCustomImpl implements Participati
     }
 
     @Override
-    public void updateParticipate(Long participationCompetitionId, ParticipateRequest participateRequest) {
-        queryFactory.update(QPARTICIPATIONCOMPETITION)
+    public void updateParticipate(Long participationCompetitionId, ModifyParticipateRequest participateRequest) {
+        JPAUpdateClause updateClause = queryFactory.update(QPARTICIPATIONCOMPETITION)
                 .set(QPARTICIPATIONCOMPETITION.name, participateRequest.getName())
                 .set(QPARTICIPATIONCOMPETITION.phoneNum, participateRequest.getPhoneNum())
                 .set(QPARTICIPATIONCOMPETITION.email, participateRequest.getEmail())
-                .set(QPARTICIPATIONCOMPETITION.updatedAt, LocalDateTime.now())
-                .where(QPARTICIPATIONCOMPETITION.participationCompetitionId.eq(participationCompetitionId))
+                .set(QPARTICIPATIONCOMPETITION.updatedAt, LocalDateTime.now());
+        if (participateRequest.getDivisionId() != null) {
+            updateClause.set(QPARTICIPATIONCOMPETITION.division, new Division(participateRequest.getDivisionId()));
+        }
+
+        updateClause.where(QPARTICIPATIONCOMPETITION.participationCompetitionId.eq(participationCompetitionId))
                 .execute();
     }
 

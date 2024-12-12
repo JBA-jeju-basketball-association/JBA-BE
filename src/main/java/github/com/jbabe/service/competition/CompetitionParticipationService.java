@@ -1,5 +1,7 @@
 package github.com.jbabe.service.competition;
 
+import github.com.jbabe.repository.competition.Competition;
+import github.com.jbabe.repository.competition.CompetitionJpa;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionFile;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionRepository;
@@ -11,6 +13,7 @@ import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.CompetitionMapper;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
+import github.com.jbabe.web.dto.competition.participate.ModifyParticipateRequest;
 import github.com.jbabe.web.dto.competition.participate.ParticipateDetail;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import github.com.jbabe.web.dto.competition.participate.SimplyParticipateResponse;
@@ -33,6 +36,12 @@ public class CompetitionParticipationService {
     private final ParticipationCompetitionRepository participationCompetitionRepository;
     private final ParticipationFileRepository participationFileRepository;
     private final DivisionJpa divisionJpa;
+
+    public boolean checkTheApplicationPeriod(Long divisionId){
+        Competition competitionEntryDate = divisionJpa.getCompetitionEntryDateByDivisionId(divisionId);
+        return false;
+    }
+
     @Transactional
     public long applicationForParticipationInCompetition(Long divisionId, ParticipateRequest participateRequest, CustomUserDetails customUserDetails) {
         Division division = (Division) createDivisionOrUserById(divisionId);
@@ -90,7 +99,7 @@ public class CompetitionParticipationService {
         participationCompetitionRepository.deleteByIdCustom(participationCompetitionId);
     }
     @Transactional
-    public void updateParticipate(Long participationCompetitionId, CustomUserDetails customUserDetails, ParticipateRequest participateRequest) {
+    public void updateParticipate(Long participationCompetitionId, CustomUserDetails customUserDetails, ModifyParticipateRequest participateRequest) {
         verifyRequestChangePermissions(participationCompetitionId, customUserDetails);
         participationCompetitionRepository.updateParticipate(participationCompetitionId, participateRequest);
         List<String> deleteUrls = updateParticipateFilesAndGetDeleteUrls(participationCompetitionId, participateRequest.getFiles());

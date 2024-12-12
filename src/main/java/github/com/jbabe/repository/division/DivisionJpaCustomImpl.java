@@ -1,6 +1,7 @@
 package github.com.jbabe.repository.division;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import github.com.jbabe.repository.competition.Competition;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -15,5 +16,10 @@ public class DivisionJpaCustomImpl implements DivisionJpaCustom {
                 .from(QDivision.division)
                 .where(QDivision.division.divisionName.eq(divisionName))
                 .fetchOne());
+    }
+
+    @Override
+    public Competition getCompetitionEntryDateByDivisionId(Long divisionId) {
+        return null;
     }
 }
