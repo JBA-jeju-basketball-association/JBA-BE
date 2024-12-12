@@ -11,7 +11,7 @@ java {
     sourceCompatibility = '17'
 }
 
-def queryDslVersion = "5.1.0"
+def queryDslVersion = "6.9"
 def generatedDir = "./src/main/generated"
 def buildDir = "./building"
 
@@ -84,25 +84,24 @@ dependencies {
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
     //QueryDsl
-    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
-    annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta"
-    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:$queryDslVersion"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:$queryDslVersion:jpa"
+
 
     // 태그 제거 라이브러리
     implementation 'org.jsoup:jsoup:1.15.3'
+
 
 }
 // 소스 코드로 인식할 디렉토리에 경로에 Q-Class 파일을 추가
 // 이렇게 하면 Q-Class가 일반 Java 클래스처럼 취급되어 컴파일과 실행 시 클래스패스에 포함됨
 sourceSets {
-    main.java.srcDirs += [generatedDir+"/queryDsl"]
+    main.java.srcDirs += [generatedDir + "/queryDsl"]
 }
-
 tasks.named('test') {
     useJUnitPlatform()
 }
-tasks.named('bootJar'){
+tasks.named('bootJar') {
     mainClass = 'github.com.jbabe.JbaBeApplication'
     destinationDirectory = file(buildDir)
     archivesBaseName = 'jba_ver'

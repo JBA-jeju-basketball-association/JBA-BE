@@ -26,6 +26,13 @@ public class ParticipationFileRepositoryCustomImpl implements ParticipationFileR
     }
 
     @Override
+    public void deleteByUrlListCustom(List<String> urls) {
+        queryFactory.delete(FILE)
+                .where(FILE.filePath.in(urls))
+                .execute();
+    }
+
+    @Override
     public void saveCustom(FileDto file, Long participationCompetitionId) {
         queryFactory.insert(FILE)
                 .columns(FILE.filePath, FILE.fileName, FILE.participationCompetition)

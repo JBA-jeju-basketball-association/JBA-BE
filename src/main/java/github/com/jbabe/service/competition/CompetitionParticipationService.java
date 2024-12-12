@@ -5,6 +5,7 @@ import github.com.jbabe.repository.competitionuser.ParticipationCompetitionFile;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionRepository;
 import github.com.jbabe.repository.competitionuser.ParticipationFileRepository;
 import github.com.jbabe.repository.division.Division;
+import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
@@ -23,13 +24,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class CompetitionParticipationService {
     private final ParticipationCompetitionRepository participationCompetitionRepository;
     private final ParticipationFileRepository participationFileRepository;
-
+    private final DivisionJpa divisionJpa;
     @Transactional
     public long applicationForParticipationInCompetition(Long divisionId, ParticipateRequest participateRequest, CustomUserDetails customUserDetails) {
         Division division = (Division) createDivisionOrUserById(divisionId);
@@ -40,6 +43,7 @@ public class CompetitionParticipationService {
         try {
             return participationCompetitionRepository.save(entity).getParticipationCompetitionId();
         }catch (DataIntegrityViolationException e) {
+
             throw new NotFoundException("divisionId가 잘못되었습니다.",  divisionId);
         }
     }
@@ -89,19 +93,21 @@ public class CompetitionParticipationService {
     public void updateParticipate(Long participationCompetitionId, CustomUserDetails customUserDetails, ParticipateRequest participateRequest) {
         verifyRequestChangePermissions(participationCompetitionId, customUserDetails);
         participationCompetitionRepository.updateParticipate(participationCompetitionId, participateRequest);
-        updateParticipateFiles(participationCompetitionId, participateRequest.getFiles());
+        List<String> deleteUrls = updateParticipateFilesAndGetDeleteUrls(participationCompetitionId, participateRequest.getFiles());
     }
 
-    private void updateParticipateFiles(Long participationCompetitionId, List<FileDto> requestFiles){
+    private List<String> updateParticipateFilesAndGetDeleteUrls(Long participationCompetitionId, List<FileDto> requestFiles){
         List<String> oldFileUrls = participationFileRepository.findUrlsByParticipationIdCustom(participationCompetitionId);
         List<String> newFileUrls = requestFiles.stream().map(file-> file.getFileUrl()).toList();
 
-        oldFileUrls.stream().filter(url -> !newFileUrls.contains(url))
-                .forEach(url -> participationFileRepository.deleteByUrlCustom(url));
+        List<String> deleteUrls = oldFileUrls.stream().filter(url -> !newFileUrls.contains(url)).toList();
+
+        participationFileRepository.deleteByUrlListCustom(deleteUrls);
 
         requestFiles.stream()
                 .filter(file-> !oldFileUrls.contains(file.getFileUrl()))
                 .forEach(file -> makeParticipationFileEntity(file, participationCompetitionId));
+        return deleteUrls;
     }
     private void makeParticipationFileEntity(FileDto newFile, Long participationCompetitionId) {
         ParticipationCompetitionFile entity = CompetitionMapper.INSTANCE.fileDtoToParticipationCompetitionFile(newFile);

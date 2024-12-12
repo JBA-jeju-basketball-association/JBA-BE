@@ -5,10 +5,13 @@ import github.com.jbabe.repository.division.DivisionEnumJpa;
 import github.com.jbabe.service.competition.CompetitionAdminService;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.web.dto.ResponseDto;
+import github.com.jbabe.web.dto.competition.CompetitionAdminListRequest;
 import github.com.jbabe.web.dto.competition.GetCompetitionAdminListResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -81,6 +84,28 @@ public class CompetitionAdminController {
         Page<GetCompetitionAdminListResponse> responses = competitionAdminService.getCompetitionAdminList(searchType, searchKey, filterStartDate, filterEndDate, division, situation, pageable);
         return new ResponseDto(responses);
     }
+
+    @Operation(summary = "대회목록 불러오기 (어드민)")
+    @GetMapping("/list")
+    public ResponseDto getAListOfCompetitionsForAdmin(
+            @Parameter(schema = @Schema(allowableValues = {"title", "email", "id"}))
+            @RequestParam(defaultValue = "TITLE") CompetitionAdminListRequest.SearchType searchType,
+                                                   @RequestParam(required = false) String searchKey,
+                                                   @RequestParam(required = false) LocalDate filterStartDate,
+                                                   @RequestParam(required = false) LocalDate filterEndDate,
+                                                   @RequestParam(defaultValue = "전체") String division,
+            @Parameter(schema = @Schema(allowableValues = {"전체", "진행중", "종료","예정"}))
+            @RequestParam(defaultValue = "ALL") CompetitionAdminListRequest.Situation situation,
+                                                   @RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "20") int size) {
+
+        CompetitionAdminListRequest request = CompetitionAdminListRequest.of(searchType, searchKey, filterStartDate, filterEndDate, division, situation, page, size);
+
+        return new ResponseDto(competitionAdminService.getAListOfCompetitionsForAdmin(request));
+
+    }
+
+
 
     @Operation(summary = "등록된 대회 게시물 총 갯수 및 종별 목록 조회")
     @GetMapping("/competitions-with-divisions")

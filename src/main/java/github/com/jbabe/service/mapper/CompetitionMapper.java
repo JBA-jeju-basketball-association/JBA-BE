@@ -1,17 +1,21 @@
 package github.com.jbabe.service.mapper;
 
+import github.com.jbabe.repository.competition.Competition;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionFile;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.user.User;
+import github.com.jbabe.web.dto.competition.GetCompetitionAdminListResponse;
 import github.com.jbabe.web.dto.competition.participate.ParticipateDetail;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import github.com.jbabe.web.dto.competition.participate.SimplyParticipateResponse;
 import github.com.jbabe.web.dto.storage.FileDto;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Set;
 
 @Mapper
 public interface CompetitionMapper {
@@ -62,5 +66,14 @@ public interface CompetitionMapper {
     @Mapping(target = "files", source = "participationCompetitionFiles")
     @Mapping(target = "competitionStartDate", source = "division.competition.startDate")
     @Mapping(target = "competitionEndDate", source = "division.competition.endDate")
+    @Mapping(target = "competitionId", source = "division.competition.competitionId")
     ParticipateDetail participationCompetitionToParticipateDetail(ParticipationCompetition participationCompetition);
+
+    @Mapping(target = "userEmail", source = "user.email")
+    GetCompetitionAdminListResponse competitionToCompetitionAdminList(Competition competition);
+
+    List<GetCompetitionAdminListResponse> competitionListToCompetitionListForAdminList(List<Competition> responses);
+
+    @Mapping(target = ".", source = "divisionName")
+    String divisionToDivisionName(Division division);
 }
