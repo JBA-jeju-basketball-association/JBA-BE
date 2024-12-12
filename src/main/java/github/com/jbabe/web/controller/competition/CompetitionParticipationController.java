@@ -69,7 +69,7 @@ public class CompetitionParticipationController {
         return new ResponseDto(participationCompetitionId);
     }
     @Operation(summary = "대회 참가 신청 상세 조회", description = "대회 참가 신청 상세 정보를 조회합니다.")
-    @GetMapping(value = "/{participationCompetitionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{participationCompetitionId}")
     public ResponseDto getParticipateDetail(@PathVariable Long participationCompetitionId) {
         return new ResponseDto(competitionParticipationService.getMyParticipateById(participationCompetitionId));
     }
