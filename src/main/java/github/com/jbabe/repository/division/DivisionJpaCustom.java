@@ -7,5 +7,7 @@ import java.util.Optional;
 public interface DivisionJpaCustom {
     Optional<Integer> getDivisionIdByDivisionName(String divisionName);
 
-    Competition getCompetitionEntryDateByDivisionId(Long divisionId);
-}
+    Optional<Competition> getCompetitionEntryDate(Integer divisionId);
+    Optional<Competition> getCompetitionEntryDate(Long participationId);
+
+    }

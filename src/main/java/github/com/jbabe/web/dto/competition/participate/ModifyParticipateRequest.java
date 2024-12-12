@@ -12,7 +12,7 @@ import java.util.List;
 public class ModifyParticipateRequest extends ParticipateRequest{
 
     @Schema(description = "수정될 종별 ID")
-    private Long divisionId;
+    private Integer divisionId;
 
     @Schema(description = "신청서 수정 시 남길 파일들의 id 리스트",
             example = """
