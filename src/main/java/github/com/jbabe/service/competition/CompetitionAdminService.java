@@ -16,6 +16,7 @@ import github.com.jbabe.repository.division.DivisionEnumJpa;
 import github.com.jbabe.repository.division.DivisionJpa;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.CompetitionMapper;
+import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.web.dto.competition.CompetitionAdminListRequest;
 import github.com.jbabe.web.dto.competition.CompetitionDetailAttachedFile;
@@ -44,9 +45,9 @@ public class CompetitionAdminService {
     private final CompetitionAttachedFileJpa competitionAttachedFileJpa;
     private final DivisionEnumJpa divisionEnumJpa;
     private final CompetitionRecordJpa competitionRecordJpa;
-    private final StorageService storageService;
     private final CompetitionImgJpa competitionImgJpa;
     private final CompetitionPlaceJpa competitionPlaceJpa;
+    private final ServerDiskService serverDiskService;
 
 
     public Page<GetCompetitionAdminListResponse> getCompetitionAdminList(String searchType, String searchKey, LocalDate filterStartDate, LocalDate filterEndDate, String division, String situation, Pageable pageable) {
@@ -121,7 +122,7 @@ public class CompetitionAdminService {
 
         );
         if (!deleteFiles.isEmpty()) {
-            storageService.uploadCancel(deleteFiles);
+            serverDiskService.fileDelete(deleteFiles);
         }
         divisionJpa.deleteAll(divisions);
         competitionImgJpa.deleteAll(competitionImgs);

@@ -107,6 +107,7 @@ public class CompetitionParticipationService {
 
     private List<String> updateParticipateFilesAndGetDeleteUrls(Long participationCompetitionId, List<FileDto> requestFiles){
         List<String> oldFileUrls = participationFileRepository.findUrlsByParticipationIdCustom(participationCompetitionId);
+        System.out.println(requestFiles);
         List<String> newFileUrls = requestFiles.stream().map(file-> file.getFileUrl()).toList();
 
         List<String> deleteUrls = oldFileUrls.stream().filter(url -> !newFileUrls.contains(url)).toList();

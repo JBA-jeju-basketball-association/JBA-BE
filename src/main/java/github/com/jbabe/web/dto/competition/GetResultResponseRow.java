@@ -41,7 +41,7 @@ public class GetResultResponseRow {
     private String fileName;
 
     @Schema(description = "기록지URL", example = "~~~~~~~~~")
-    private String filePath;
+    private String fileUrl;
 
     @Schema(description = "5대5 경기 여부", example = "true")
     private boolean state5x5;
