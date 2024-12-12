@@ -65,7 +65,7 @@ public class CompetitionResultService {
                                     .homeScore(row.getHomeScore())
                                     .awayName(row.getAwayName())
                                     .awayScore(row.getAwayScore())
-                                    .filePath(row.getFilePath())
+                                    .filePath(row.getFileUrl())
                                     .fileName(row.getFileName())
                                     .state5x5(row.isState5x5())
                                     .build());
@@ -82,7 +82,7 @@ public class CompetitionResultService {
                                     .homeScore(row.getHomeScore())
                                     .awayName(row.getAwayName())
                                     .awayScore(row.getAwayScore())
-                                    .filePath(row.getFilePath())
+                                    .filePath(row.getFileUrl())
                                     .fileName(row.getFileName())
                                     .state5x5(row.isState5x5())
                                     .build());
@@ -112,7 +112,7 @@ public class CompetitionResultService {
                                                 .homeScore(record.getHomeScore())
                                                 .awayName(record.getAwayName())
                                                 .awayScore(record.getAwayScore())
-                                                .filePath(record.getFilePath())
+                                                .fileUrl(record.getFilePath())
                                                 .fileName(record.getFileName())
                                                 .state5x5(record.isState5x5())
                                                 .build()
