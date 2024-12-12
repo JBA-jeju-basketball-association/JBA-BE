@@ -19,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -64,12 +65,16 @@ public class CompetitionParticipationController {
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                          @RequestPart(value = "files", required = false) List<MultipartFile> files,
                                          @RequestPart("body") @Valid ModifyParticipateRequest modifyParticipateRequest) {
-
+        List<FileDto> newFileDtoList;
         if (files != null && !files.isEmpty()) {
-            List<FileDto> newFileDtoList = serverDiskService.fileUploadAndGetUrl(files);
-            newFileDtoList.addAll(modifyParticipateRequest.getRemainingFiles());
-            modifyParticipateRequest.setFiles(newFileDtoList);
+            newFileDtoList = serverDiskService.fileUploadAndGetUrl(files);
+        } else {
+            newFileDtoList = new ArrayList<>();
         }
+
+        newFileDtoList.addAll(modifyParticipateRequest.getRemainingFiles());
+        modifyParticipateRequest.setFiles(newFileDtoList);
+
         competitionParticipationService.updateParticipate(participationCompetitionId, customUserDetails, modifyParticipateRequest);
         return new ResponseDto(participationCompetitionId);
     }
