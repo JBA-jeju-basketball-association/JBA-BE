@@ -2,6 +2,7 @@ package github.com.jbabe.web.dto.competition;
 
 import github.com.jbabe.repository.competition.Competition;
 import github.com.jbabe.web.dto.division.DivisionDto;
+import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -24,7 +25,7 @@ public class CompetitionDetailResponse {
     private LocalDate participationStartDate;
     private LocalDate participationEndDate;
     private List<CompetitionDetailPlace> places;
-    private List<CompetitionDetailAttachedFile> competitionDetailAttachedFiles;
+    private List<FileDto> competitionDetailAttachedFiles;
     private List<DivisionDto> divisions;
     private List<String> ckImgUrls;
 }

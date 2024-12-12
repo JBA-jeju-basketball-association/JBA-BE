@@ -63,7 +63,7 @@ public class PostResultRequestRow {
     private String fileName;
 
     @Schema(description = "기록지URL", example = "~~~~~~~~~")
-    private String filePath;
+    private String fileUrl;
 
     @NotNull(message = "5대5 경기여부를 입력해주세요.")
     @Schema(description = "5대5 경기 여부", example = "true")
