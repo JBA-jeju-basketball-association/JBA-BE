@@ -10,6 +10,10 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class ModifyParticipateRequest extends ParticipateRequest{
+
+    @Schema(description = "수정될 종별 ID")
+    private Integer divisionId;
+
     @Schema(description = "신청서 수정 시 남길 파일들의 id 리스트",
             example = """
             [

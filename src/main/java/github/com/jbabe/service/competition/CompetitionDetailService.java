@@ -53,7 +53,8 @@ public class CompetitionDetailService {
     public String addCompetitionInfo(AddCompetitionRequest addCompetitionRequest, List<MultipartFile> files, Optional<SaveFileType> type, CustomUserDetails customUserDetails) {
         User user = userJpa.findById(customUserDetails.getUserId())
                 .orElseThrow(()-> new NotFoundException("user을 찾을 수 없습니다.", customUserDetails.getUserId()));
-
+        if (competitionJpa.existsByCompetitionName(addCompetitionRequest.getTitle()))
+            throw new ConflictException("Duplication CompetitionName", addCompetitionRequest.getTitle());
         // competition table save
         Competition competition = Competition.builder()
                 .user(user)
@@ -135,10 +136,10 @@ public class CompetitionDetailService {
                         .build()
         ).toList();
 
-        List<CompetitionDetailAttachedFile> competitionDetailAttachedFiles = competitionAttachedFiles.stream().map((f)->
-                CompetitionDetailAttachedFile.builder()
-                        .competitionAttachedFileId(f.getCompetitionAttachedFileId())
-                        .filePath(f.getFilePath())
+        List<FileDto> competitionDetailAttachedFiles = competitionAttachedFiles.stream().map((f)->
+                FileDto.builder()
+                        .fileId(f.getCompetitionAttachedFileId())
+                        .fileUrl(f.getFilePath())
                         .fileName(f.getFileName())
                         .build()
         ).toList();

@@ -1,5 +1,6 @@
 package github.com.jbabe.repository.competitionuser;
 
+import github.com.jbabe.web.dto.competition.participate.ModifyParticipateRequest;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
 
@@ -13,5 +14,5 @@ public interface ParticipationCompetitionRepositoryCustom {
 
     void deleteByIdCustom(Long participationCompetitionId);
 
-    void updateParticipate(Long participationCompetitionId, ParticipateRequest participateRequest);
+    void updateParticipate(Long participationCompetitionId, ModifyParticipateRequest participateRequest);
 }
