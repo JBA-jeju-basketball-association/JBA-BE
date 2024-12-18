@@ -10,6 +10,7 @@ import github.com.jbabe.service.SearchQueryParamUtil;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.GalleryMapper;
+import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.SearchCriteriaEnum;
@@ -39,7 +40,7 @@ public class GalleryService {
     private final GalleryJpaDao galleryJpa;
     private final GalleryImgJpa galleryImgJpa;
     private final UserJpa userJpa;
-
+    private final ServerDiskService serverDiskService;
 
 
     @Transactional(readOnly = true)
@@ -108,9 +109,8 @@ public class GalleryService {
 
     }
     public void deleteGalleryAssociatedData(int galleryId){
-        List<GalleryImg> imagesToDelete = galleryImgJpa.findAllByGalleryGalleryId(galleryId);
-        if (!imagesToDelete.isEmpty()) storageService.uploadCancel(imagesToDelete.stream()
-                .map(GalleryImg::getFileUrl).toList());
+        List<String> imagesToDelete = galleryImgJpa.findAllByGalleryGalleryId(galleryId).stream().map(GalleryImg::getFileUrl).toList();
+        if (!imagesToDelete.isEmpty()) serverDiskService.fileDelete(imagesToDelete);
     }
 
     @Transactional
