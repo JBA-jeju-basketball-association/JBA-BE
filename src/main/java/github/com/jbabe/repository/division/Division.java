@@ -38,8 +38,8 @@ public class Division {
     @OneToMany(mappedBy = "division", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ParticipationCompetition> participationCompetitions;
 
-    public Division(Long divisionId) {
-        this.divisionId = divisionId.intValue();
+    public Division(Integer divisionId) {
+        this.divisionId = divisionId;
     }
 
 }

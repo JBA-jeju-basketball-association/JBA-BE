@@ -1,5 +1,7 @@
 package github.com.jbabe.service.competition;
 
+import github.com.jbabe.repository.competition.Competition;
+import github.com.jbabe.repository.competition.CompetitionJpa;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionFile;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionRepository;
@@ -11,6 +13,7 @@ import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.CompetitionMapper;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
+import github.com.jbabe.web.dto.competition.participate.ModifyParticipateRequest;
 import github.com.jbabe.web.dto.competition.participate.ParticipateDetail;
 import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import github.com.jbabe.web.dto.competition.participate.SimplyParticipateResponse;
@@ -23,7 +26,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
@@ -33,9 +39,39 @@ public class CompetitionParticipationService {
     private final ParticipationCompetitionRepository participationCompetitionRepository;
     private final ParticipationFileRepository participationFileRepository;
     private final DivisionJpa divisionJpa;
+
+
+    private <T> Competition getCompetitionEntryDate(T requestId) {
+        if (requestId instanceof Long) {
+            return divisionJpa.getCompetitionEntryDate((Long) requestId)
+                    .orElseThrow(() -> new NotFoundException("신청 기록의 대회를 찾을 수 없습니다.", requestId));
+        } else if (requestId instanceof Integer) {
+            return divisionJpa.getCompetitionEntryDate((Integer) requestId)
+                    .orElseThrow(() -> new NotFoundException("종별을 찾을 수 없습니다.", requestId));
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 ID 타입: " + requestId.getClass().getSimpleName());
+        }
+    }
+
+    public <T> void checkTheApplicationPeriod(T requestId) {
+        Competition competitionEntryDate = getCompetitionEntryDate(requestId);
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = competitionEntryDate.getParticipationStartDate();
+        LocalDate endDate = competitionEntryDate.getParticipationEndDate();
+
+        Map<String, LocalDate> response = new HashMap<>();
+        response.put("startDate", startDate);
+        response.put("endDate", endDate);
+        if(startDate==null||endDate==null) throw new BadRequestException("참가 신청 기간이 미정인 상태 입니다.", response);
+
+        if(now.isBefore(startDate) || now.isAfter(endDate)) throw new BadRequestException("참가 신청 기간이 아닙니다.", response);
+
+    }
+
     @Transactional
-    public long applicationForParticipationInCompetition(Long divisionId, ParticipateRequest participateRequest, CustomUserDetails customUserDetails) {
-        Division division = (Division) createDivisionOrUserById(divisionId);
+    public long applicationForParticipationInCompetition(Integer divisionId, ParticipateRequest participateRequest, CustomUserDetails customUserDetails) {
+
+        Division division = (Division) createDivisionOrUserById(divisionId.longValue());
         User user = (User) createDivisionOrUserById(customUserDetails.getUserId());
 
         ParticipationCompetition entity = CompetitionMapper.INSTANCE
@@ -50,7 +86,7 @@ public class CompetitionParticipationService {
 
     private <T> Object createDivisionOrUserById(T divisionIdOrUserId) {
         if(divisionIdOrUserId instanceof Long)
-            return new Division((Long) divisionIdOrUserId);
+            return new Division(((Long) divisionIdOrUserId).intValue());
         else if (divisionIdOrUserId instanceof Integer)
             return new User((Integer) divisionIdOrUserId);
         else {
@@ -90,7 +126,7 @@ public class CompetitionParticipationService {
         participationCompetitionRepository.deleteByIdCustom(participationCompetitionId);
     }
     @Transactional
-    public void updateParticipate(Long participationCompetitionId, CustomUserDetails customUserDetails, ParticipateRequest participateRequest) {
+    public void updateParticipate(Long participationCompetitionId, CustomUserDetails customUserDetails, ModifyParticipateRequest participateRequest) {
         verifyRequestChangePermissions(participationCompetitionId, customUserDetails);
         participationCompetitionRepository.updateParticipate(participationCompetitionId, participateRequest);
         List<String> deleteUrls = updateParticipateFilesAndGetDeleteUrls(participationCompetitionId, participateRequest.getFiles());
