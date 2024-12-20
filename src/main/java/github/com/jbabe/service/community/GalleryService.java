@@ -6,17 +6,13 @@ import github.com.jbabe.repository.gallery.GalleryJpaDao;
 import github.com.jbabe.repository.galleryImg.GalleryImg;
 import github.com.jbabe.repository.galleryImg.GalleryImgJpa;
 import github.com.jbabe.repository.user.UserJpa;
-import github.com.jbabe.service.SearchQueryParamUtil;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.GalleryMapper;
 import github.com.jbabe.service.storage.ServerDiskService;
-import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
-import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import github.com.jbabe.web.dto.gallery.GalleryDetailsDto;
 import github.com.jbabe.web.dto.gallery.GalleryListDto;
-import github.com.jbabe.web.dto.gallery.ManageGalleryDto;
 import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +24,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,11 +31,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GalleryService {
-    private final StorageService storageService;
+    private final ServerDiskService storageService;
     private final GalleryJpaDao galleryJpa;
     private final GalleryImgJpa galleryImgJpa;
     private final UserJpa userJpa;
-    private final ServerDiskService serverDiskService;
+
 
 
     @Transactional(readOnly = true)
@@ -109,8 +104,9 @@ public class GalleryService {
 
     }
     public void deleteGalleryAssociatedData(int galleryId){
-        List<String> imagesToDelete = galleryImgJpa.findAllByGalleryGalleryId(galleryId).stream().map(GalleryImg::getFileUrl).toList();
-        if (!imagesToDelete.isEmpty()) serverDiskService.fileDelete(imagesToDelete);
+        List<GalleryImg> imagesToDelete = galleryImgJpa.findAllByGalleryGalleryId(galleryId);
+        if (!imagesToDelete.isEmpty()) storageService.fileDelete(imagesToDelete.stream()
+                .map(GalleryImg::getFileUrl).toList());
     }
 
     @Transactional
@@ -158,7 +154,7 @@ public class GalleryService {
                 imagesToBeErased.add(img);
             }
         }
-        if(!imagesToBeErased.isEmpty()) storageService.uploadCancel(imagesToBeErased.stream()
+        if(!imagesToBeErased.isEmpty()) storageService.fileDelete(imagesToBeErased.stream()
                 .map(GalleryImg::getFileUrl).toList());
         return imagesToBeErased;
     }

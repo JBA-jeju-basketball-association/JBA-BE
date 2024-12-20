@@ -1,9 +1,10 @@
 package github.com.jbabe.config.converter;
 
 import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 import java.util.EnumSet;
-
+@Converter
 public abstract class StringToEnumConverter<T extends Enum<T> & ConvertibleEnum> implements AttributeConverter<T, String> {
 
 

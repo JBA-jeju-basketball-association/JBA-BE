@@ -2,40 +2,18 @@ package github.com.jbabe.service.competition;
 
 import github.com.jbabe.repository.competition.Competition;
 import github.com.jbabe.repository.competition.CompetitionJpa;
-import github.com.jbabe.repository.competitionAttachedFile.CompetitionAttachedFile;
-import github.com.jbabe.repository.competitionAttachedFile.CompetitionAttachedFileJpa;
-import github.com.jbabe.repository.competitionImg.CompetitionImg;
-import github.com.jbabe.repository.competitionImg.CompetitionImgJpa;
-import github.com.jbabe.repository.competitionPlace.CompetitionPlace;
-import github.com.jbabe.repository.competitionPlace.CompetitionPlaceJpa;
-import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
-import github.com.jbabe.repository.competitionRecord.CompetitionRecordJpa;
-import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.division.DivisionEnum;
 import github.com.jbabe.repository.division.DivisionEnumJpa;
-import github.com.jbabe.repository.division.DivisionJpa;
-import github.com.jbabe.repository.user.User;
-import github.com.jbabe.repository.user.UserJpa;
-import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.exception.NotFoundException;
-import github.com.jbabe.service.storage.StorageService;
-import github.com.jbabe.service.userDetails.CustomUserDetails;
-import github.com.jbabe.web.dto.awsTest2.SaveFileType;
-import github.com.jbabe.web.dto.competition.*;
-import github.com.jbabe.web.dto.storage.FileDto;
-import jakarta.transaction.Transactional;
+import github.com.jbabe.web.dto.competition.CompetitionListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
