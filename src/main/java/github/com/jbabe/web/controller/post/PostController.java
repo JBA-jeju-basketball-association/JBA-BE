@@ -1,15 +1,11 @@
 package github.com.jbabe.web.controller.post;
 
 import github.com.jbabe.config.JPAConfig;
-import github.com.jbabe.repository.post.Post;
 import github.com.jbabe.service.exception.BadRequestException;
-import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.post.PostService;
 import github.com.jbabe.service.storage.ServerDiskService;
-import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
-import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.myPage.MyPage;
 import github.com.jbabe.web.dto.post.PostModifyDto;
@@ -18,9 +14,7 @@ import github.com.jbabe.web.dto.post.PostsListDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,7 +23,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +33,6 @@ import java.util.Optional;
 public class PostController implements PostControllerDocs {
     private final PostService postService;
     private final ServerDiskService serverDiskService;
-    private final StorageService storageService;
     private final JPAConfig jpaConfig;
 
     @Override
@@ -99,9 +91,7 @@ public class PostController implements PostControllerDocs {
 
         List<FileDto> files = null;
         if (multipartFiles != null && !multipartFiles.isEmpty()) {
-            files = jpaConfig.getActiveProfile().equals("dev") ?
-                    storageService.fileUploadAndGetUrl(multipartFiles, type.orElseGet(() -> SaveFileType.small))
-                    : serverDiskService.fileUploadAndGetUrl(multipartFiles);
+            files = serverDiskService.fileUploadAndGetUrl(multipartFiles);
         }
         try {
             boolean response = postService.updatePost(postModifyDto, postId, files, isOfficial, customUserDetails);

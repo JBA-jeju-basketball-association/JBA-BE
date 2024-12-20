@@ -1,9 +1,7 @@
 package github.com.jbabe.web.controller.competition;
 
 import github.com.jbabe.service.competition.CompetitionParticipationService;
-import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.storage.ServerDiskService;
-import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.ResponseDto;
 import github.com.jbabe.web.dto.competition.participate.ModifyParticipateRequest;

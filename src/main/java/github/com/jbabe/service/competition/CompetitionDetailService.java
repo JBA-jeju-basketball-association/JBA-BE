@@ -8,7 +8,6 @@ import github.com.jbabe.repository.competitionImg.CompetitionImg;
 import github.com.jbabe.repository.competitionImg.CompetitionImgJpa;
 import github.com.jbabe.repository.competitionPlace.CompetitionPlace;
 import github.com.jbabe.repository.competitionPlace.CompetitionPlaceJpa;
-import github.com.jbabe.repository.competitionRecord.CompetitionRecord;
 import github.com.jbabe.repository.competitionRecord.CompetitionRecordJpa;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.division.DivisionEnumJpa;
@@ -18,7 +17,6 @@ import github.com.jbabe.repository.user.UserJpa;
 import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.storage.ServerDiskService;
-import github.com.jbabe.service.storage.StorageService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
 import github.com.jbabe.web.dto.awsTest2.SaveFileType;
 import github.com.jbabe.web.dto.competition.*;
@@ -30,8 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

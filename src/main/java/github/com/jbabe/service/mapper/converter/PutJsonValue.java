@@ -3,6 +3,7 @@ package github.com.jbabe.service.mapper.converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public interface PutJsonValue {
+
     @JsonValue
     String getValue();
     static <T extends PutJsonValue> T fromValue(Class<T> enumType, String value) {

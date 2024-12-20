@@ -7,28 +7,27 @@ import github.com.jbabe.repository.postAttachedFile.PostAttachedFileJpa;
 import github.com.jbabe.repository.postImg.PostImg;
 import github.com.jbabe.repository.postImg.PostImgJpa;
 import github.com.jbabe.repository.user.UserJpa;
-import github.com.jbabe.service.SearchQueryParamUtil;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.service.exception.ConflictException;
 import github.com.jbabe.service.exception.NotFoundException;
 import github.com.jbabe.service.mapper.PostMapper;
-import github.com.jbabe.service.storage.StorageService;
+import github.com.jbabe.service.storage.ServerDiskService;
 import github.com.jbabe.service.userDetails.CustomUserDetails;
-import github.com.jbabe.web.dto.SearchCriteriaEnum;
 import github.com.jbabe.web.dto.myPage.MyPage;
-import github.com.jbabe.web.dto.post.*;
+import github.com.jbabe.web.dto.post.PostModifyDto;
+import github.com.jbabe.web.dto.post.PostReqDto;
+import github.com.jbabe.web.dto.post.PostResponseDto;
+import github.com.jbabe.web.dto.post.PostsListDto;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -40,7 +39,7 @@ public class PostService {
     private final UserJpa userJpa;
     private final PostImgJpa postImgJpa;
     private final PostAttachedFileJpa postAttachedFileJpa;
-    private final StorageService storageService;
+    private final ServerDiskService storageService;
 
 /* 키워드검색이랑 통합
     public MyPage<PostsListDto> getAllPostsList(Pageable pageable, String category) {
@@ -145,7 +144,7 @@ public class PostService {
         else if(!CollectionUtils.isEmpty(originPostPostAttachedFiles)){
             originPost.getPostAttachedFiles().clear();
             postAttachedFileJpa.deleteAll(originPostPostAttachedFiles);
-            storageService.uploadCancel(originPostPostAttachedFiles.stream()
+            storageService.fileDelete(originPostPostAttachedFiles.stream()
                     .map(PostAttachedFile::getFilePath).toList());
         }
     }
@@ -161,7 +160,7 @@ public class PostService {
         else if(!CollectionUtils.isEmpty(originImgs)){
             originPost.getPostImgs().clear();
             postImgJpa.deleteAll(originImgs);
-            storageService.uploadCancel(originImgs.stream()
+            storageService.fileDelete(originImgs.stream()
                     .map(PostImg::getImgUrl).toList());
         }
     }
@@ -173,7 +172,7 @@ public class PostService {
 //                imgsToBeDeleted.add(postImg);
 //            }
 //        }
-        if(!imgsToBeDeleted.isEmpty()) storageService.uploadCancel(imgsToBeDeleted.stream()
+        if(!imgsToBeDeleted.isEmpty()) storageService.fileDelete(imgsToBeDeleted.stream()
                 .map(PostImg::getImgUrl).toList());
         return imgsToBeDeleted;
     }
@@ -185,7 +184,7 @@ public class PostService {
                 filesToBeDeleted.add(postAttachedFile);
             }
         }
-        if(!filesToBeDeleted.isEmpty()) storageService.uploadCancel(filesToBeDeleted.stream()
+        if(!filesToBeDeleted.isEmpty()) storageService.fileDelete(filesToBeDeleted.stream()
                 .map(PostAttachedFile::getFilePath).toList());
         return filesToBeDeleted;
     }
@@ -202,9 +201,9 @@ public class PostService {
     public void deletePostAssociatedData(Integer postId) {
         List<PostImg> imagesToDelete = postImgJpa.findAllByPostPostId(postId);
         List<PostAttachedFile> filesToDelete = postAttachedFileJpa.findAllByPostPostId(postId);
-        if(!imagesToDelete.isEmpty()) storageService.uploadCancel(imagesToDelete.stream()
+        if(!imagesToDelete.isEmpty()) storageService.fileDelete(imagesToDelete.stream()
                 .map(PostImg::getImgUrl).toList());
-        if(!filesToDelete.isEmpty()) storageService.uploadCancel(filesToDelete.stream()
+        if(!filesToDelete.isEmpty()) storageService.fileDelete(filesToDelete.stream()
                 .map(PostAttachedFile::getFilePath).toList());
     }
 
