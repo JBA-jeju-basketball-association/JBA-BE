@@ -1,7 +1,6 @@
 package github.com.jbabe.service.competition;
 
 import github.com.jbabe.repository.competition.Competition;
-import github.com.jbabe.repository.competition.CompetitionJpa;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionFile;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionRepository;
@@ -30,8 +29,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -110,7 +107,7 @@ public class CompetitionParticipationService {
                 .findParticipationCompetitionsByUserIdOrPId(customUserDetails.getUserId(), searchRequest);
 
         List<SimplyParticipateResponse> response = CompetitionMapper.INSTANCE.participationCompetitionsToParticipateResponse(entity);
-        validParticipateList(response.get(0), searchRequest);
+        if(!response.isEmpty()) validParticipateList(response.get(0), searchRequest);
 
         return InfiniteScrollingCollection.of(response, searchRequest.getSize(), searchRequest.getSearchCriteria());
     }

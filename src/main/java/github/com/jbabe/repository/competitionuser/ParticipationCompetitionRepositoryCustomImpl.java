@@ -1,7 +1,6 @@
 package github.com.jbabe.repository.competitionuser;
 
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -9,16 +8,13 @@ import com.querydsl.jpa.impl.JPAUpdateClause;
 import github.com.jbabe.repository.competition.QCompetition;
 import github.com.jbabe.repository.division.Division;
 import github.com.jbabe.repository.division.QDivision;
-import github.com.jbabe.repository.user.QUser;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.web.dto.competition.participate.ModifyParticipateRequest;
-import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.CursorHolder;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +40,12 @@ public class ParticipationCompetitionRepositoryCustomImpl implements Participati
         if (!isListRequest)
             query.leftJoin(QPARTICIPATIONCOMPETITION.participationCompetitionFiles, QParticipationCompetitionFile.participationCompetitionFile).fetchJoin();
         query.where(expression);
-        if (isListRequest)
+        if (isListRequest){
             query.orderBy(QPARTICIPATIONCOMPETITION.createdAt.desc(), QPARTICIPATIONCOMPETITION.participationCompetitionId.desc());
+            query.limit(searchRequest.getSize()+1);
+        }
+
+
         return query.fetch();
 
     }
