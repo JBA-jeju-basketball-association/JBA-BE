@@ -87,5 +87,11 @@ public class CompetitionParticipationController {
     public ResponseDto getParticipateDetail(@PathVariable Long participationCompetitionId) {
         return new ResponseDto(competitionParticipationService.getMyParticipateById(participationCompetitionId));
     }
+    @Operation(summary = "대회의 참가 신청 리스트 조회", description = "대회 참가 신청 리스트를 조회합니다.")
+    @GetMapping("/list/{competitionId}")
+    public ResponseDto getParticipateList(@PathVariable Integer competitionId) {
+        return new ResponseDto(competitionParticipationService.getParticipateListByCompetitionId(competitionId));
+    }
+
 
 }

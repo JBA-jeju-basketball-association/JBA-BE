@@ -19,6 +19,7 @@ import github.com.jbabe.web.dto.competition.participate.SimplyParticipateRespons
 import github.com.jbabe.web.dto.infinitescrolling.InfiniteScrollingCollection;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchCriteria;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
+import github.com.jbabe.web.dto.participation.ParticipationResponse;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,9 +27,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -148,12 +151,65 @@ public class CompetitionParticipationService {
         entity.setParticipationCompetition(new ParticipationCompetition(participationCompetitionId));
         participationFileRepository.save(entity);
     }
-    private void verifyRequestChangePermissions(Long participationCompetitionId, CustomUserDetails customUserDetails) {
-        Integer authorId = participationCompetitionRepository
-                .findParticipationCompetitionTheUserIdOfById(participationCompetitionId)
-                .orElseThrow(() -> new NotFoundException("참가신청번호가 잘못되었습니다.", participationCompetitionId));
 
-        if( !authorId.equals(customUserDetails.getUserId()) )
-            throw new NotFoundException("수정 권한이 없습니다.", "로그인한 유저 id : "+customUserDetails.getUserId()+" 작성자 id : "+authorId);
+    private void verifyRequestChangePermissions(Long participationCompetitionId, CustomUserDetails customUserDetails) {
+
+    }
+
+    public List<ParticipationResponse> getParticipateListByCompetitionId(Integer competitionId) {
+        List<ParticipationResponse> result = participationCompetitionRepository.findParticipationListByCompetitionId(competitionId);
+        return  test(result);
+    }
+
+    private List<ParticipationResponse> test(List<ParticipationResponse> result){
+
+        for(ParticipationResponse r:result){
+            List<ParticipationResponse.ParticipationDto> list = r.getParticipationList();
+            Map<Long, Integer> participationIdsAndIndex = new HashMap<>();
+
+            for(int i=0; i<list.size(); i++){
+                ParticipationResponse.ParticipationDto dto = list.get(i);
+                Long participationId = dto.getParticipationId();
+
+                if (dto.getFile().getFilePath()==null) {
+                    list.get(i).setFiles(null);
+                    continue;
+                }
+                if (participationIdsAndIndex.containsKey(participationId)) {
+                    Integer mainIndex = participationIdsAndIndex.get(participationId);
+                    list.get(mainIndex).getFiles().add(dto.getFile());
+                    list.remove(i);
+                    i--;
+                    continue;
+                }
+                list.get(i).setFiles(new ArrayList<>());
+                dto.getFiles().add(list.get(i).getFile());
+                participationIdsAndIndex.put(participationId, i);
+
+            }
+
+        }
+        return result;
+    }
+
+    private List<ParticipationResponse> groupFilesByParticipationIdTest(List<ParticipationResponse> result) {
+        for(ParticipationResponse response: result){
+            Map<Long, List<ParticipationResponse.ParticipationDto>> grouped = response.getParticipationList().stream()
+                    .collect(Collectors.groupingBy(ParticipationResponse.ParticipationDto::getParticipationId));
+
+            grouped.values().stream()
+                    .map(dtos->{
+                        ParticipationResponse.ParticipationDto main = dtos.get(0);
+                        main.setFiles(
+                                dtos.stream()
+                                        .map(ParticipationResponse.ParticipationDto::getFile)
+                                        .toList()
+                        );
+                        return grouped;
+                    });
+
+        }
+        return result;
+
     }
 }
