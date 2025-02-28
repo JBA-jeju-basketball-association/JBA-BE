@@ -157,39 +157,38 @@ public class CompetitionParticipationService {
     }
 
     public List<ParticipationResponse> getParticipateListByCompetitionId(Integer competitionId) {
-        List<ParticipationResponse> result = participationCompetitionRepository.findParticipationListByCompetitionId(competitionId);
-        return  test(result);
+        List<ParticipationResponse> results = participationCompetitionRepository.findParticipationListByCompetitionId(competitionId);
+        return  groupFilesByParticipationId(results);
     }
 
-    private List<ParticipationResponse> test(List<ParticipationResponse> result){
+    private List<ParticipationResponse> groupFilesByParticipationId(List<ParticipationResponse> results){
 
-        for(ParticipationResponse r:result){
-            List<ParticipationResponse.ParticipationDto> list = r.getParticipationList();
-            Map<Long, Integer> participationIdsAndIndex = new HashMap<>();
+        for(ParticipationResponse result:results){// 리스트 분해
+            List<ParticipationResponse.ParticipationDto> participationList = result.getParticipationList();//for 문 안 현재 대회의 리스트
+            Map<Long, Integer> mainIdsAndIndices  = new HashMap<>();//메인이될 아이디와 그 객체의 인덱스번호
 
-            for(int i=0; i<list.size(); i++){
-                ParticipationResponse.ParticipationDto dto = list.get(i);
-                Long participationId = dto.getParticipationId();
+            for(int i=0; i<participationList.size(); i++){//현재 대회의 요청 리스트를 돔 i는 index 번호
+                ParticipationResponse.ParticipationDto participation = participationList.get(i);
+                Long participationId = participation.getParticipationId();//for 문 안 현재 요청의 아이디
 
-                if (dto.getFile().getFilePath()==null) {
-                    list.get(i).setFiles(null);
+                if (participation.getFile().getFilePath()==null) {// 파일주소가 null 이라면 파일이 없는 요청이므로 다음 요청으로 넘어감
+                    participationList.get(i).setFiles(null);
+                    continue;// 파일이 없으므로 중복값도 없으므로 그냥 넘어감
+                } else if (mainIdsAndIndices.containsKey(participationId)) {// 이미 중복된 값이 있다면
+                    Integer mainIndex = mainIdsAndIndices.get(participationId);//메인이될 객체의 index 넘버
+                    participationList.get(mainIndex).getFiles().add(participation.getFile());//메인객체에 파일을 추가
+                    participationList.remove(i);//현재 객체 제거
+                    i--;//한개가 제거되었으므로 인덱스 넘버 보정
                     continue;
                 }
-                if (participationIdsAndIndex.containsKey(participationId)) {
-                    Integer mainIndex = participationIdsAndIndex.get(participationId);
-                    list.get(mainIndex).getFiles().add(dto.getFile());
-                    list.remove(i);
-                    i--;
-                    continue;
-                }
-                list.get(i).setFiles(new ArrayList<>());
-                dto.getFiles().add(list.get(i).getFile());
-                participationIdsAndIndex.put(participationId, i);
+                //파일은 있는데 첫번째로 나온 요청 id 라면
+                participation.getFiles().add(participationList.get(i).getFile());//new Array List 필요없음 transform 할때 생성되었음
+                mainIdsAndIndices.put(participationId, i);//추후 반복문에서 확인을위해 메인의 id와 index 번호 저장
 
             }
 
         }
-        return result;
+        return results;
     }
 
     private List<ParticipationResponse> groupFilesByParticipationIdTest(List<ParticipationResponse> result) {
