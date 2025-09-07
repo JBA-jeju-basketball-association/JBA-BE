@@ -1,7 +1,8 @@
 package github.com.jbabe.repository.competitionuser;
 
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Predicate;
+import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,17 +14,18 @@ import github.com.jbabe.repository.user.QUser;
 import github.com.jbabe.repository.user.User;
 import github.com.jbabe.service.exception.BadRequestException;
 import github.com.jbabe.web.dto.competition.participate.ModifyParticipateRequest;
-import github.com.jbabe.web.dto.competition.participate.ParticipateRequest;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.CursorHolder;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
+import github.com.jbabe.web.dto.participation.ParticipationResponse;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.querydsl.core.group.GroupBy.groupBy;
 
 @RequiredArgsConstructor
 public class ParticipationCompetitionRepositoryCustomImpl implements ParticipationCompetitionRepositoryCustom {
@@ -35,7 +37,7 @@ public class ParticipationCompetitionRepositoryCustomImpl implements Participati
     public <T> List<ParticipationCompetition> findParticipationCompetitionsByUserIdOrPId(T userOrParticipateId, SearchRequest searchRequest) {
         boolean isListRequest = userOrParticipateId instanceof Integer;
         BooleanExpression expression = mySearchConditions(userOrParticipateId);
-        if (isListRequest && searchRequest.getIdCursor()!=null)
+        if (isListRequest && searchRequest.getIdCursor() != null)
             expression = expression.and(addConditionForScrolling(searchRequest));
 
         JPAQuery<ParticipationCompetition> query = queryFactory.selectFrom(QPARTICIPATIONCOMPETITION)
@@ -44,8 +46,12 @@ public class ParticipationCompetitionRepositoryCustomImpl implements Participati
         if (!isListRequest)
             query.leftJoin(QPARTICIPATIONCOMPETITION.participationCompetitionFiles, QParticipationCompetitionFile.participationCompetitionFile).fetchJoin();
         query.where(expression);
-        if (isListRequest)
+        if (isListRequest) {
             query.orderBy(QPARTICIPATIONCOMPETITION.createdAt.desc(), QPARTICIPATIONCOMPETITION.participationCompetitionId.desc());
+            query.limit(searchRequest.getSize() + 1);
+        }
+
+
         return query.fetch();
 
     }
@@ -59,7 +65,7 @@ public class ParticipationCompetitionRepositoryCustomImpl implements Participati
 
     @Override
     public Optional<Integer> findParticipationCompetitionTheUserIdOfById(Long participationCompetitionId) {
-       return Optional.ofNullable(queryFactory.select(QPARTICIPATIONCOMPETITION.user.userId)
+        return Optional.ofNullable(queryFactory.select(QPARTICIPATIONCOMPETITION.user.userId)
                 .from(QPARTICIPATIONCOMPETITION)
                 .where(QPARTICIPATIONCOMPETITION.participationCompetitionId.eq(participationCompetitionId))
                 .fetchOne());
@@ -97,6 +103,51 @@ public class ParticipationCompetitionRepositoryCustomImpl implements Participati
                 .execute();
     }
 
+
+    @Override
+    public List<ParticipationResponse> findParticipationListByCompetitionId(Integer competitionId) {
+
+        return queryFactory.select(QDivision.division.divisionId,
+                        QDivision.division.divisionName,
+                        QDivision.division.participationCompetitions,
+                        QPARTICIPATIONCOMPETITION.user,
+                        QParticipationCompetitionFile.participationCompetitionFile
+
+                )
+                .from(QDivision.division)
+                .join(QDivision.division.participationCompetitions, QPARTICIPATIONCOMPETITION)
+                .leftJoin(QPARTICIPATIONCOMPETITION.participationCompetitionFiles, QParticipationCompetitionFile.participationCompetitionFile)
+                .join(QPARTICIPATIONCOMPETITION.user, QUser.user)
+                .where(QDivision.division.competition.competitionId.eq(competitionId))
+                .orderBy(QPARTICIPATIONCOMPETITION.createdAt.desc())
+                .transform(
+                        groupBy(QDivision.division.divisionId)
+                        .list(Projections.fields(ParticipationResponse.class,
+                                QDivision.division.divisionId,
+                                QDivision.division.divisionName,
+
+                                GroupBy.list(Projections.fields(ParticipationResponse.ParticipationDto.class,
+
+                                        QPARTICIPATIONCOMPETITION.participationCompetitionId.as("participationId"),
+                                        QPARTICIPATIONCOMPETITION.name,
+                                        QPARTICIPATIONCOMPETITION.phoneNum,
+                                        QPARTICIPATIONCOMPETITION.email,
+                                        QPARTICIPATIONCOMPETITION.createdAt,
+                                        QPARTICIPATIONCOMPETITION.updatedAt,
+                                        Projections.fields(ParticipationResponse.ParticipationDto.ApplicantInfo.class,
+                                                QPARTICIPATIONCOMPETITION.user.userId,
+                                                QPARTICIPATIONCOMPETITION.user.name
+                                        ).as("applicantInfo"),
+                                        Projections.fields(ParticipationResponse.ParticipationDto.File.class,
+                                                QParticipationCompetitionFile.participationCompetitionFile.fileName,
+                                                QParticipationCompetitionFile.participationCompetitionFile.filePath
+                                                ).as("file")
+                                )).as("participationList")
+
+                        )));
+
+    }
+
     //    private ParticipationCompetition tupleOneToDeleteParticipateEntity(Tuple tuple){
 //        if (tuple != null) {
 //            ParticipationCompetition entity = tuple.get(QPARTICIPATIONCOMPETITION);
@@ -122,11 +173,11 @@ public class ParticipationCompetitionRepositoryCustomImpl implements Participati
 
 
     private <T> BooleanExpression mySearchConditions(T id) {
-        if(id instanceof Long){
+        if (id instanceof Long) {
             return QPARTICIPATIONCOMPETITION.participationCompetitionId.eq((Long) id);
-        }else if (id instanceof Integer){
+        } else if (id instanceof Integer) {
             return QPARTICIPATIONCOMPETITION.user.userId.eq((Integer) id);
-        }else {
+        } else {
             throw new BadRequestException("잘못된 요청", id);
         }
     }

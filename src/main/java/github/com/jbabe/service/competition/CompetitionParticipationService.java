@@ -1,7 +1,6 @@
 package github.com.jbabe.service.competition;
 
 import github.com.jbabe.repository.competition.Competition;
-import github.com.jbabe.repository.competition.CompetitionJpa;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetition;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionFile;
 import github.com.jbabe.repository.competitionuser.ParticipationCompetitionRepository;
@@ -20,6 +19,7 @@ import github.com.jbabe.web.dto.competition.participate.SimplyParticipateRespons
 import github.com.jbabe.web.dto.infinitescrolling.InfiniteScrollingCollection;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchCriteria;
 import github.com.jbabe.web.dto.infinitescrolling.criteria.SearchRequest;
+import github.com.jbabe.web.dto.participation.ParticipationResponse;
 import github.com.jbabe.web.dto.storage.FileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,11 +27,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -110,7 +110,7 @@ public class CompetitionParticipationService {
                 .findParticipationCompetitionsByUserIdOrPId(customUserDetails.getUserId(), searchRequest);
 
         List<SimplyParticipateResponse> response = CompetitionMapper.INSTANCE.participationCompetitionsToParticipateResponse(entity);
-        validParticipateList(response.get(0), searchRequest);
+        if(!response.isEmpty()) validParticipateList(response.get(0), searchRequest);
 
         return InfiniteScrollingCollection.of(response, searchRequest.getSize(), searchRequest.getSearchCriteria());
     }
@@ -151,12 +151,64 @@ public class CompetitionParticipationService {
         entity.setParticipationCompetition(new ParticipationCompetition(participationCompetitionId));
         participationFileRepository.save(entity);
     }
-    private void verifyRequestChangePermissions(Long participationCompetitionId, CustomUserDetails customUserDetails) {
-        Integer authorId = participationCompetitionRepository
-                .findParticipationCompetitionTheUserIdOfById(participationCompetitionId)
-                .orElseThrow(() -> new NotFoundException("참가신청번호가 잘못되었습니다.", participationCompetitionId));
 
-        if( !authorId.equals(customUserDetails.getUserId()) )
-            throw new NotFoundException("수정 권한이 없습니다.", "로그인한 유저 id : "+customUserDetails.getUserId()+" 작성자 id : "+authorId);
+    private void verifyRequestChangePermissions(Long participationCompetitionId, CustomUserDetails customUserDetails) {
+
+    }
+
+    public List<ParticipationResponse> getParticipateListByCompetitionId(Integer competitionId) {
+        List<ParticipationResponse> results = participationCompetitionRepository.findParticipationListByCompetitionId(competitionId);
+        return  groupFilesByParticipationId(results);
+    }
+
+    private List<ParticipationResponse> groupFilesByParticipationId(List<ParticipationResponse> results){
+
+        for(ParticipationResponse result:results){// 리스트 분해
+            List<ParticipationResponse.ParticipationDto> participationList = result.getParticipationList();//for 문 안 현재 대회의 리스트
+            Map<Long, Integer> mainIdsAndIndices  = new HashMap<>();//메인이될 아이디와 그 객체의 인덱스번호
+
+            for(int i=0; i<participationList.size(); i++){//현재 대회의 요청 리스트를 돔 i는 index 번호
+                ParticipationResponse.ParticipationDto participation = participationList.get(i);
+                Long participationId = participation.getParticipationId();//for 문 안 현재 요청의 아이디
+
+                if (participation.getFile().getFilePath()==null) {// 파일주소가 null 이라면 파일이 없는 요청이므로 다음 요청으로 넘어감
+                    participationList.get(i).setFiles(null);
+                    continue;// 파일이 없으므로 중복값도 없으므로 그냥 넘어감
+                } else if (mainIdsAndIndices.containsKey(participationId)) {// 이미 중복된 값이 있다면
+                    Integer mainIndex = mainIdsAndIndices.get(participationId);//메인이될 객체의 index 넘버
+                    participationList.get(mainIndex).getFiles().add(participation.getFile());//메인객체에 파일을 추가
+                    participationList.remove(i);//현재 객체 제거
+                    i--;//한개가 제거되었으므로 인덱스 넘버 보정
+                    continue;
+                }
+                //파일은 있는데 첫번째로 나온 요청 id 라면
+                participation.getFiles().add(participationList.get(i).getFile());//new Array List 필요없음 transform 할때 생성되었음
+                mainIdsAndIndices.put(participationId, i);//추후 반복문에서 확인을위해 메인의 id와 index 번호 저장
+
+            }
+
+        }
+        return results;
+    }
+
+    private List<ParticipationResponse> groupFilesByParticipationIdTest(List<ParticipationResponse> result) {
+        for(ParticipationResponse response: result){
+            Map<Long, List<ParticipationResponse.ParticipationDto>> grouped = response.getParticipationList().stream()
+                    .collect(Collectors.groupingBy(ParticipationResponse.ParticipationDto::getParticipationId));
+
+            grouped.values().stream()
+                    .map(dtos->{
+                        ParticipationResponse.ParticipationDto main = dtos.get(0);
+                        main.setFiles(
+                                dtos.stream()
+                                        .map(ParticipationResponse.ParticipationDto::getFile)
+                                        .toList()
+                        );
+                        return grouped;
+                    });
+
+        }
+        return result;
+
     }
 }
